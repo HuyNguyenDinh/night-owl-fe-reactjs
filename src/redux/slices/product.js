@@ -101,40 +101,21 @@ const slice = createSlice({
     // CHECKOUT
     getCart(state, action) {
       const cart = action.payload;
-
-      const subtotal = sum(cart.map((cartItem) => cartItem.quantity * cartItem.product_option.price));
-      const discount = cart.length === 0 ? 0 : state.checkout.discount;
-      const shipping = cart.length === 0 ? 0 : state.checkout.shipping;
-      const billing = cart.length === 0 ? null : state.checkout.billing;
-
-      state.checkout.cart = cart;
-      state.checkout.discount = discount;
-      state.checkout.shipping = shipping;
-      state.checkout.billing = billing; 
-      state.checkout.subtotal = subtotal;
-      state.checkout.total = subtotal - discount;
+      if (cart) {
+        const subtotal = sum(cart.map((cartItem) => cartItem.quantity * cartItem.product_option?.price || 0));
+        const discount = cart.length === 0 ? 0 : state.checkout.discount;
+        const shipping = cart.length === 0 ? 0 : state.checkout.shipping;
+        const billing = cart.length === 0 ? null : state.checkout.billing;
+  
+        state.checkout.cart = cart;
+        state.checkout.discount = discount;
+        state.checkout.shipping = shipping;
+        state.checkout.billing = billing; 
+        state.checkout.subtotal = subtotal;
+        state.checkout.total = subtotal - discount;
+      }
     },
 
-    // addCart(state, action) {
-    //   const option = action.payload;
-    //   const isEmptyCart = state.checkout.cart.length === 0;
-
-    //   if (isEmptyCart) {
-    //     state.checkout.cart = [...state.checkout.cart, option];
-    //   } else {
-    //     state.checkout.cart = state.checkout.cart.map((_option) => {
-    //       const isExisted = _option.id === option.id;
-    //       if (isExisted) {
-    //         return {
-    //           ..._option,
-    //           quantity: _option.quantity + 1,
-    //         };
-    //       }
-    //       return _option;
-    //     });
-    //   }
-    //   state.checkout.cart = uniqBy([...state.checkout.cart, option], 'id');
-    // },
 
     deleteCart(state, action) {
       const updateCart = state.checkout.cart.filter((item) => item.id !== action.payload);

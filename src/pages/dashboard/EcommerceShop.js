@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { Container, Typography, Stack, Button } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getProducts, filterProducts, setNextProducts, getMoreProducts } from '../../redux/slices/product';
+import { getProducts, filterProducts, setNextProducts, getMoreProducts, getCart } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -35,7 +35,9 @@ export default function EcommerceShop() {
 
   const [openFilter, setOpenFilter] = useState(false);
 
-  const { products, sortBy, filters, nextProducts } = useSelector((state) => state.product);
+  const { products, sortBy, filters, nextProducts, checkout } = useSelector((state) => state.product);
+
+  const { cart } = checkout;
 
   const filteredProducts = applyFilter(products, sortBy, filters);
 
@@ -59,6 +61,15 @@ export default function EcommerceShop() {
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    const getCartsDefault = async () => {
+      const responseCartsDefault = await axiosInstance.get("/market/cart/");
+      dispatch(getCart(responseCartsDefault.data));
+    }
+
+    getCartsDefault();
+  }, [dispatch, cart])
 
   useEffect(() => {
     dispatch(filterProducts(values));

@@ -114,13 +114,12 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
   };
 
   useEffect(() => {
-    setCurrentOption(product.option_set.filter((elm) => elm.unit_in_stock > 0)[0] || product.option_set[0]);
+    const defaultOption = product.option_set.find((elm) => elm.unit_in_stock > 0) || product.option_set[0]
+    setCurrentOption(defaultOption);
+    setValue("id", defaultOption.id);
+    return () => reset({ id: '', quantity: 1 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
-
-  useEffect(() => {
-    setValue("id", currentOption.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentOption]);
 
   return (
     <RootStyle {...other}>

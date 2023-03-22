@@ -57,14 +57,6 @@ export default function CheckoutCart() {
     dispatch(onNextStep());
   };
 
-  // const handleIncreaseQuantity = (productId) => {
-  //   dispatch(increaseQuantity(productId));
-  // };
-
-  // const handleDecreaseQuantity = (productId) => {
-  //   dispatch(decreaseQuantity(productId));
-  // };
-
   function handleUpdateCart(action, cartId, quantity){
     dispatch(updateCart(action, cartId, quantity)).then(() => {
       handleGetCartGroupBy();
@@ -116,7 +108,7 @@ export default function CheckoutCart() {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12} md={8}>
+      <Grid item xs={12} md={12}>
         <Card sx={{ mb: 3 }}>
           <CardHeader
             title={
@@ -129,37 +121,12 @@ export default function CheckoutCart() {
             }
             sx={{ mb: 3 }}
           />
-
-          {/* {!isEmptyCart ? 
-              (<Scrollbar>
-                <CheckoutProductList
-                  owners={cartGroupBy || []}
-                  onDelete={decoratorHandleUpdateCart}
-                  onIncreaseQuantity={decoratorHandleUpdateCart}
-                  onDecreaseQuantity={decoratorHandleUpdateCart}
-                />
-              </Scrollbar>)
-            : (
-            <EmptyContent
-              title="Cart is empty"
-              description="Look like you have no items in your shopping cart."
-              img="/assets/illustrations/illustration_empty_cart.svg"
-            />
-          )} */}
           {handleRenderCheckoutProductList()}
         </Card>
 
-        <Button
-          color="inherit"
-          component={RouterLink}
-          to={PATH_DASHBOARD.eCommerce.root}
-          startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
-        >
-          Continue Shopping
-        </Button>
       </Grid>
 
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={12}>
         <CheckoutSummary
           enableDiscount
           total={total}
@@ -178,6 +145,15 @@ export default function CheckoutCart() {
           Check Out
         </Button>
       </Grid>
+      <Button
+        color="inherit"
+        component={RouterLink}
+        to={PATH_DASHBOARD.eCommerce.root}
+        startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
+        sx={{marginTop: "5vh"}}
+      >
+        Continue Shopping
+      </Button>
     </Grid>
   );
 }

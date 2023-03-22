@@ -86,6 +86,7 @@ export default function EcommerceCheckout() {
 
   useEffect(() => {
     if (isMountedRef.current) {
+      console.log(cart);
       dispatch(getCart(cart));
     }
   }, [dispatch, isMountedRef, cart]);
@@ -112,7 +113,7 @@ export default function EcommerceCheckout() {
         />
 
         <Grid container justifyContent={isComplete ? 'center' : 'flex-start'}>
-          <Grid item xs={12} md={8} sx={{ mb: 5 }}>
+          <Grid item xs={12} md={12} sx={{ mb: 5 }}>
             <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />}>
               {STEPS.map((label) => (
                 <Step key={label}>
