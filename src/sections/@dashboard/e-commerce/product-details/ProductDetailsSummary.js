@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 // form
 import { Controller, useForm } from 'react-hook-form';
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -32,17 +32,8 @@ ProductDetailsSummary.propTypes = {
   onGotoStep: PropTypes.func,
   product: PropTypes.shape({
     available: PropTypes.number,
-    // colors: PropTypes.arrayOf(PropTypes.string),
-    // cover: PropTypes.string,
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    // inventoryType: PropTypes.string,
     name: PropTypes.string,
-    // price: PropTypes.number,
-    // priceSale: PropTypes.number,
-    // sizes: PropTypes.arrayOf(PropTypes.string),
-    // status: PropTypes.string,
-    // totalRating: PropTypes.number,
-    // totalReview: PropTypes.number,
     option_set: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.number,
@@ -79,30 +70,9 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
     product.option_set.filter((elm) => elm.unit_in_stock > 0)[0] || product.option_set[0]
   );
 
-  // const {
-  //   id,
-  //   name,
-  //   sizes,
-  //   price,
-  //   cover,
-  //   status,
-  //   // colors,
-  //   is_available,
-  //   // priceSale,
-  //   // totalRating,
-  //   // totalReview,
-  //   // inventoryType,
-  // } = product;
-
   const alreadyOption = cart.map((item) => item.id).includes(currentOption.id);
 
-  const isMaxQuantity =
-    cart.filter((item) => item.id === product.id).map((item) => item.quantity)[0] >= currentOption?.unit_in_stock;
-
-  // const defaultValues = {
-  //   id: currentOption.id,
-  //   quantity: 1,
-  // };
+  const isMaxQuantity = cart.filter((item) => item.id === product.id).map((item) => item.quantity)[0] >= currentOption?.unit_in_stock;
 
   const methods = useForm({
     defaultValues: {
@@ -114,8 +84,6 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
   const { watch, setValue, handleSubmit, reset } = methods;
 
   const values = watch();
-
-  console.log(values);
 
   const onSubmit = async (data) => {
     try {
@@ -130,16 +98,6 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
       console.error(error);
     }
   };
-
-  // const handleAddCart = async () => {
-  //   try {
-  //     onAddCart({
-  //       ...values,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const handleAddCart = () => {
     try {
@@ -160,14 +118,9 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
   }, [product]);
 
   useEffect(() => {
-    return () => {
-      reset({ id: '', quantity: '' });
-    };
-  }, []);
-
-  // useEffect(() => {
-  //   setValue("id", currentOption.id);
-  // }, [currentOption]);
+    setValue("id", currentOption.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOption]);
 
   return (
     <RootStyle {...other}>

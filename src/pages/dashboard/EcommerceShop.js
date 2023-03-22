@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import orderBy from 'lodash/orderBy';
+// import orderBy from 'lodash/orderBy';
 // form
 import { useForm } from 'react-hook-form';
 // @mui
@@ -42,7 +42,6 @@ export default function EcommerceShop() {
   const defaultValues = {
     gender: filters.gender,
     category: filters.category,
-    // colors: filters.colors,
     priceRange: filters.priceRange,
     rating: filters.rating,
   };
@@ -51,16 +50,11 @@ export default function EcommerceShop() {
     defaultValues,
   });
 
-  const { reset, watch, setValue } = methods;
+  const { watch } = methods;
 
   const values = watch();
 
-  const isDefault =
-    // !values.priceRange &&
-    // !values.rating &&
-    // values.gender.length === 0 &&
-    // values.colors.length === 0 &&
-    values.category === 'All';
+  const isDefault = values.category === 'All';
 
   useEffect(() => {
     dispatch(getProducts());
@@ -86,33 +80,6 @@ export default function EcommerceShop() {
     };
     getMoreProduct();
   }
-
-  // const handleResetFilter = () => {
-  //   reset();
-  //   handleCloseFilter();
-  // };
-
-  // const handleRemoveGender = (value) => {
-  //   const newValue = filters.gender.filter((item) => item !== value);
-  //   setValue('gender', newValue);
-  // };
-
-  // const handleRemoveCategory = () => {
-  //   setValue('category', 'All');
-  // };
-
-  // const handleRemoveColor = (value) => {
-  //   const newValue = filters.colors.filter((item) => item !== value);
-  //   setValue('colors', newValue);
-  // };
-
-  // const handleRemovePrice = () => {
-  //   setValue('priceRange', '');
-  // };
-
-  // const handleRemoveRating = () => {
-  //   setValue('rating', '');
-  // };
 
   return (
     <Page title="Ecommerce: Shop">
@@ -163,12 +130,6 @@ export default function EcommerceShop() {
               <ShopTagFiltered
                 filters={filters}
                 isShowReset={!isDefault && !openFilter}
-                // onRemoveGender={handleRemoveGender}
-                // onRemoveCategory={handleRemoveCategory}
-                // onRemoveColor={handleRemoveColor}
-                // onRemovePrice={handleRemovePrice}
-                // onRemoveRating={handleRemoveRating}
-                // onResetAll={handleResetFilter}
               />
             </>
           )}
@@ -184,50 +145,8 @@ export default function EcommerceShop() {
 // ----------------------------------------------------------------------
 
 function applyFilter(products, sortBy, filters) {
-  // SORT BY
-  // if (sortBy === 'featured') {
-  //   products = orderBy(products, ['sold'], ['desc']);
-  // }
-  // if (sortBy === 'newest') {
-  //   products = orderBy(products, ['createdAt'], ['desc']);
-  // }
-  // if (sortBy === 'priceDesc') {
-  //   products = orderBy(products, ['price'], ['desc']);
-  // }
-  // if (sortBy === 'priceAsc') {
-  //   products = orderBy(products, ['price'], ['asc']);
-  // }
-  // FILTER PRODUCTS
-  // if (filters.gender.length > 0) {
-  //   products = products.filter((product) => filters.gender.includes(product.gender));
-  // }
   if (filters.category !== 'All') {
     products = products.filter((product) => product.category === filters.category);
   }
-  // if (filters.colors.length > 0) {
-  //   products = products.filter((product) => product.colors.some((color) => filters.colors.includes(color)));
-  // }
-  // if (filters.priceRange) {
-  //   products = products.filter((product) => {
-  //     if (filters.priceRange === 'below') {
-  //       return product.price < 25;
-  //     }
-  //     if (filters.priceRange === 'between') {
-  //       return product.price >= 25 && product.price <= 75;
-  //     }
-  //     return product.price > 75;
-  //   });
-  // }
-  // if (filters.rating) {
-  //   products = products.filter((product) => {
-  //     const convertRating = (value) => {
-  //       if (value === 'up4Star') return 4;
-  //       if (value === 'up3Star') return 3;
-  //       if (value === 'up2Star') return 2;
-  //       return 1;
-  //     };
-  //     return product.totalRating > convertRating(filters.rating);
-  //   });
-  // }
   return products;
 }

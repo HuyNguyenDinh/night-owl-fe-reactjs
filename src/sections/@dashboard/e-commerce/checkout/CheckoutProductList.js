@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
@@ -7,7 +6,6 @@ import {
   Box,
   Stack,
   Table,
-  // Divider,
   TableRow,
   TableBody,
   TableCell,
@@ -60,9 +58,9 @@ export default function CheckoutProductList({ owners, onDelete, onIncreaseQuanti
   return (
     <>
     {owners && owners.map((owner) => (
-      <>
+      <div key={owner.id}>
       <Divider />
-      <TableContainer key={owner.id} sx={{ minWidth: 720}}>
+      <TableContainer sx={{ minWidth: 720}}>
         <Link to={PATH_DASHBOARD.eCommerce.shopProduct(owner.id)} component={RouterLink}>
           <Stack margin="1vh 0.8vw" spacing={2} direction="row">
             <Avatar src={owner.avatar} />
@@ -71,7 +69,7 @@ export default function CheckoutProductList({ owners, onDelete, onIncreaseQuanti
             </Typography>
           </Stack>
         </Link>
-        <Table key={owner.id}>
+        <Table>
           <TableHeadCustom headLabel={TABLE_HEAD} />
 
           <TableBody>
@@ -87,7 +85,7 @@ export default function CheckoutProductList({ owners, onDelete, onIncreaseQuanti
           </TableBody>
         </Table>
       </TableContainer>
-      </>
+      </div>
     ))}
     </>
   )}

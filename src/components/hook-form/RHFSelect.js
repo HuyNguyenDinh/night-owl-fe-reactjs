@@ -26,7 +26,7 @@ export default function RHFSelect({ name, children, ...other }) {
           SelectProps={{ native: true }}
           error={!!error}
           helperText={error?.message}
-          InputLabelProps={{ shrink: field.value }}
+          InputLabelProps={{ shrink: true }}
           {...other}
         >
           {children}

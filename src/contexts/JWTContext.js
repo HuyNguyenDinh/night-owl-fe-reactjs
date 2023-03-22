@@ -46,6 +46,19 @@ const handlers = {
       user,
     };
   },
+  SETADDRESS: (state, action) => {
+
+    const userWithNewAddress = {
+      ...state.user,
+      address: action.payload
+    }
+
+    return {
+      ...state,
+      isAuthenticated: true,
+      user: userWithNewAddress
+    }
+  }
 };
 
 const reducer = (state, action) => (handlers[action.type] ? handlers[action.type](state, action) : state);
@@ -56,6 +69,8 @@ const AuthContext = createContext({
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
+  setUser: () => Promise.resolve(),
+  setAddress: () => Promise.resolve(),
 });
 
 // ----------------------------------------------------------------------
@@ -161,6 +176,24 @@ function AuthProvider({ children }) {
     dispatch({ type: 'LOGOUT' });
   };
 
+  const setUser = async (user) => {
+    dispatch({
+      type: "LOGIN",
+      payload: {
+        user
+      }
+    })
+  }
+
+  const setAddress = async (address) => {
+    dispatch({
+      type: "SETADDRESS",
+      payload: {
+        address
+      }
+    })
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -169,6 +202,8 @@ function AuthProvider({ children }) {
         login,
         logout,
         register,
+        setUser,
+        setAddress
       }}
     >
       {children}

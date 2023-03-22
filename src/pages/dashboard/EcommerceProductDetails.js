@@ -1,8 +1,5 @@
-import { sentenceCase } from 'change-case';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-// @mui
-import { alpha, styled } from '@mui/material/styles';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 // redux
@@ -28,39 +25,6 @@ import CartWidget from '../../sections/@dashboard/e-commerce/CartWidget';
 
 // ----------------------------------------------------------------------
 
-// const PRODUCT_DESCRIPTION = [
-//   {
-//     title: '100% Original',
-//     description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-//     icon: 'ic:round-verified',
-//   },
-//   {
-//     title: '10 Day Replacement',
-//     description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-//     icon: 'eva:clock-fill',
-//   },
-//   {
-//     title: 'Year Warranty',
-//     description: 'Cotton candy gingerbread cake I love sugar sweet.',
-//     icon: 'ic:round-verified-user',
-//   },
-// ];
-
-// const IconWrapperStyle = styled('div')(({ theme }) => ({
-//   margin: 'auto',
-//   display: 'flex',
-//   borderRadius: '50%',
-//   alignItems: 'center',
-//   width: theme.spacing(8),
-//   justifyContent: 'center',
-//   height: theme.spacing(8),
-//   marginBottom: theme.spacing(3),
-//   color: theme.palette.primary.main,
-//   backgroundColor: `${alpha(theme.palette.primary.main, 0.08)}`,
-// }));
-
-// ----------------------------------------------------------------------
-
 export default function EcommerceProductDetails() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
@@ -70,6 +34,7 @@ export default function EcommerceProductDetails() {
 
   useEffect(() => {
     dispatch(getProduct(id));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleAddCart = (option) => {
@@ -118,22 +83,6 @@ export default function EcommerceProductDetails() {
                 </Grid>
               </Grid>
             </Card>
-
-            {/* <Grid container sx={{ my: 8 }}>
-              {PRODUCT_DESCRIPTION.map((item) => (
-                <Grid item xs={12} md={4} key={item.title}>
-                  <Box sx={{ my: 2, mx: 'auto', maxWidth: 280, textAlign: 'center' }}>
-                    <IconWrapperStyle>
-                      <Iconify icon={item.icon} width={36} height={36} />
-                    </IconWrapperStyle>
-                    <Typography variant="subtitle1" gutterBottom>
-                      {item.title}
-                    </Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{item.description}</Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid> */}
 
             <Card>
               <TabContext value={value}>

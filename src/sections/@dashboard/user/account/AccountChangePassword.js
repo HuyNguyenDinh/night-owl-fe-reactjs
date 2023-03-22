@@ -15,15 +15,15 @@ export default function AccountChangePassword() {
   const { enqueueSnackbar } = useSnackbar();
 
   const ChangePassWordSchema = Yup.object().shape({
-    oldPassword: Yup.string().required('Old Password is required'),
-    newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
-    confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
+    current_password: Yup.string().required('Old Password is required'),
+    new_password: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
+    confirm_password: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
   });
 
   const defaultValues = {
-    oldPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
   };
 
   const methods = useForm({
