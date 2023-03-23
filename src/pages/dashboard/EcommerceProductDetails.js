@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 // redux
@@ -30,7 +31,8 @@ export default function EcommerceProductDetails() {
   const dispatch = useDispatch();
   const [value, setValue] = useState('1');
   const { id = '' } = useParams();
-  const { product, error, checkout} = useSelector((state) => state.product);
+  const { product, error, checkout } = useSelector((state) => state.product);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     dispatch(getProduct(id));
@@ -38,12 +40,20 @@ export default function EcommerceProductDetails() {
   }, [id]);
 
   const handleAddCart = (option) => {
-    dispatch(addToCart(option.id, option.quantity));
+    dispatch(addToCart(option.id, option.quantity))
+    .then(enqueueSnackbar("Add to cart success"))
   };
 
   const handleGotoStep = (step) => {
     dispatch(onGotoStep(step));
   };
+
+  useEffect(() => {
+    if (product && error) {
+      enqueueSnackbar(error, {variant: "error"});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
 
   return (
     <Page title="Ecommerce: Product Details">

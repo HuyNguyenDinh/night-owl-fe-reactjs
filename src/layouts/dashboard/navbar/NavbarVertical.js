@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import { Box, Stack, Drawer } from '@mui/material';
 // hooks
+import useAuth from '../../../hooks/useAuth';
 import useResponsive from '../../../hooks/useResponsive';
 import useCollapseDrawer from '../../../hooks/useCollapseDrawer';
 // utils
@@ -44,6 +45,8 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
 
   const { pathname } = useLocation();
 
+  const { user } = useAuth();
+
   const isDesktop = useResponsive('up', 'lg');
 
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
@@ -81,7 +84,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
           )}
         </Stack>
 
-        <NavbarAccount isCollapse={isCollapse} />
+        { user && <NavbarAccount isCollapse={isCollapse} /> }
       </Stack>
 
       <NavSectionVertical navConfig={navConfig} isCollapse={isCollapse} />

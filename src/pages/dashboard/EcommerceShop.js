@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 // @mui
 import { Container, Typography, Stack, Button } from '@mui/material';
+// hook
+import useAuth from '../../hooks/useAuth';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getProducts, filterProducts, setNextProducts, getMoreProducts, getCart } from '../../redux/slices/product';
@@ -33,11 +35,11 @@ export default function EcommerceShop() {
 
   const dispatch = useDispatch();
 
+  const { user } = useAuth();
+
   const [openFilter, setOpenFilter] = useState(false);
 
-  const { products, sortBy, filters, nextProducts, checkout } = useSelector((state) => state.product);
-
-  const { cart } = checkout;
+  const { products, sortBy, filters, nextProducts } = useSelector((state) => state.product);
 
   const filteredProducts = applyFilter(products, sortBy, filters);
 
@@ -69,7 +71,7 @@ export default function EcommerceShop() {
     }
 
     getCartsDefault();
-  }, [dispatch, cart])
+  }, [dispatch, user])
 
   useEffect(() => {
     dispatch(filterProducts(values));

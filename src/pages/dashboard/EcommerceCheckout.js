@@ -86,7 +86,6 @@ export default function EcommerceCheckout() {
 
   useEffect(() => {
     if (isMountedRef.current) {
-      console.log(cart);
       dispatch(getCart(cart));
     }
   }, [dispatch, isMountedRef, cart]);

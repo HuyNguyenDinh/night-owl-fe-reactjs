@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { paramCase } from 'change-case';
+// import { paramCase } from 'change-case';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import { useNavigate } from 'react-router-dom';
+
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Typography, Autocomplete, InputAdornment, Popper } from '@mui/material';
+// store
+// import { useDispatch, useSelector } from '../../../../redux/store';
 // hooks
 import useIsMountedRef from '../../../../hooks/useIsMountedRef';
 // utils
@@ -31,6 +34,8 @@ export default function ShopProductSearch() {
 
   const isMountedRef = useIsMountedRef();
 
+  // const {products} = useSelector((state) => state.product)
+
   const [searchQuery, setSearchQuery] = useState('');
 
   const [searchResults, setSearchResults] = useState([]);
@@ -39,8 +44,8 @@ export default function ShopProductSearch() {
     try {
       setSearchQuery(value);
       if (value) {
-        const response = await axios.get('/api/products/search', {
-          params: { query: value },
+        const response = await axios.get('/market/products', {
+          params: { search: value },
         });
 
         if (isMountedRef.current) {
@@ -52,8 +57,8 @@ export default function ShopProductSearch() {
     }
   };
 
-  const handleClick = (name) => {
-    navigate(PATH_DASHBOARD.eCommerce.view(paramCase(name)));
+  const handleClick = (id) => {
+    navigate(PATH_DASHBOARD.eCommerce.view(id));
   };
 
   const handleKeyUp = (event) => {
@@ -72,7 +77,7 @@ export default function ShopProductSearch() {
       onInputChange={(event, value) => handleChangeSearch(value)}
       getOptionLabel={(product) => product.name}
       noOptionsText={<SearchNotFound searchQuery={searchQuery} />}
-      isOptionEqualToValue={(option, value) => option.id === value.id}
+      isOptionEqualToValue={(option, value) => option.name === value.name}
       renderInput={(params) => (
         <InputStyle
           {...params}
@@ -90,14 +95,14 @@ export default function ShopProductSearch() {
         />
       )}
       renderOption={(props, product, { inputValue }) => {
-        const { name, cover } = product;
+        const { id, picture, name } = product;
         const matches = match(name, inputValue);
         const parts = parse(name, matches);
 
         return (
           <li {...props}>
-            <Image alt={cover} src={cover} sx={{ width: 48, height: 48, borderRadius: 1, flexShrink: 0, mr: 1.5 }} />
-            <Link underline="none" onClick={() => handleClick(name)}>
+            <Image alt={picture} src={picture} sx={{ width: 48, height: 48, borderRadius: 1, flexShrink: 0, mr: 1.5 }} />
+            <Link underline="none" onClick={() => handleClick(id)}>
               {parts.map((part, index) => (
                 <Typography
                   key={index}

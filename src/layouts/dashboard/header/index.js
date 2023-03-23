@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
+// router
+import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, Button } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar, Button, Link } from '@mui/material';
+import { PATH_AUTH } from '../../../routes/paths';
 // hooks
 import useOffSetTop from '../../../hooks/useOffSetTop';
 import useResponsive from '../../../hooks/useResponsive';
@@ -63,7 +66,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
 
   const isDesktop = useResponsive('up', 'lg');
 
-  const {user, login} = useAuth();
+  const {user} = useAuth();
 
   return (
     <RootStyle isCollapse={isCollapse} isOffset={isOffset} verticalLayout={verticalLayout}>
@@ -93,10 +96,9 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
               <AccountPopover />
             </>
           : 
-            <>
-              <Button onClick={() => login("huyn27316@gmail.com", "0937461321Huy@")}>Login</Button>
-              <Button>Logout</Button>
-            </>
+            <Link to={PATH_AUTH.login} component={RouterLink}>
+              <Button fullWidth>Login</Button>
+            </Link>
           }
         </Stack>
       </Toolbar>

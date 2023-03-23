@@ -3,7 +3,6 @@ import { createContext, useEffect, useReducer } from 'react';
 // utils
 import axios from '../utils/axios';
 import { isValidToken, setSession } from '../utils/jwt';
-import { PATH_AUTH } from '../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -46,19 +45,6 @@ const handlers = {
       user,
     };
   },
-  SETADDRESS: (state, action) => {
-
-    const userWithNewAddress = {
-      ...state.user,
-      address: action.payload
-    }
-
-    return {
-      ...state,
-      isAuthenticated: true,
-      user: userWithNewAddress
-    }
-  }
 };
 
 const reducer = (state, action) => (handlers[action.type] ? handlers[action.type](state, action) : state);
@@ -70,7 +56,6 @@ const AuthContext = createContext({
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   setUser: () => Promise.resolve(),
-  setAddress: () => Promise.resolve(),
 });
 
 // ----------------------------------------------------------------------
@@ -88,7 +73,7 @@ function AuthProvider({ children }) {
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken && isValidToken(refreshToken)) {
-          const firstResponse = await axios.post(PATH_AUTH.refresh, {
+          const firstResponse = await axios.post("/api/token/refresh/", {
             refresh: refreshToken
           })
           if (firstResponse.status === 200) {
@@ -96,7 +81,7 @@ function AuthProvider({ children }) {
             localStorage.setItem("accessToken", firstResponse.data.access);
             localStorage.setItem("refreshToken", firstResponse.data.refresh);
             setSession(firstResponse.data.access, firstResponse.data.refresh);
-            const secondResponse = await axios.get(PATH_AUTH.currentUser);
+            const secondResponse = await axios.get("/market/users/current-user/");
             const user = secondResponse.data;
 
             dispatch({
@@ -142,7 +127,7 @@ function AuthProvider({ children }) {
 
     setSession(access, refresh);
 
-    const currentUserResponse = await axios.get(PATH_AUTH.currentUser);
+    const currentUserResponse = await axios.get("/market/users/current-user/");
     const user = currentUserResponse.data;
     dispatch({
       type: 'LOGIN',
@@ -152,12 +137,13 @@ function AuthProvider({ children }) {
     });
   };
 
-  const register = async (email, password, firstName, lastName) => {
-    const response = await axios.post('/api/account/register', {
+  const register = async (email, password, firstName, lastName, phoneNumber) => {
+    const response = await axios.post('/market/users/', {
       email,
       password,
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: phoneNumber
     });
     const { accessToken, user } = response.data;
 
@@ -172,6 +158,10 @@ function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    await axios.post("/api/token/blacklist/", {
+      refresh: refreshToken
+    })
     setSession(null);
     dispatch({ type: 'LOGOUT' });
   };
@@ -185,15 +175,6 @@ function AuthProvider({ children }) {
     })
   }
 
-  const setAddress = async (address) => {
-    dispatch({
-      type: "SETADDRESS",
-      payload: {
-        address
-      }
-    })
-  }
-
   return (
     <AuthContext.Provider
       value={{
@@ -202,8 +183,7 @@ function AuthProvider({ children }) {
         login,
         logout,
         register,
-        setUser,
-        setAddress
+        setUser
       }}
     >
       {children}

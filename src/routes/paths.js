@@ -12,8 +12,8 @@ const ROOTS_MARKET = "/market";
 
 export const PATH_AUTH = {
   root: ROOTS_AUTH,
-  login: "/api/token/",
-  register: path(ROOTS_MARKET, "/users/"),
+  login: path(ROOTS_AUTH, "/login"),
+  register: path(ROOTS_MARKET, "/register"),
   loginUnprotected: path(ROOTS_AUTH, '/login-unprotected'),
   registerUnprotected: path(ROOTS_AUTH, '/register-unprotected'),
   verify: path(ROOTS_AUTH, '/verify'),
