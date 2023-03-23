@@ -2,14 +2,16 @@ import { useState, useEffect, useRef, createContext } from 'react';
 import sum from 'lodash/sum';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
-import { Grid, Card, Button, CardHeader, Typography, CircularProgress } from '@mui/material';
+import { Grid, Card, Button, CardHeader, Typography } from '@mui/material';
+import { TableSkeleton } from '../../../../components/table';
 // hook
 import useAuth from '../../../../hooks/useAuth';
 // redux
 import { useDispatch, useSelector } from '../../../../redux/store';
 import {
   onNextStep,
-  updateCart
+  updateCart,
+  updateOrders
 } from '../../../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -82,9 +84,10 @@ export default function CheckoutCart() {
   const handleNextStep = () => {
     const makeOrder = async () => {
       try {
-        await axiosInstance.post("/market/orders/", {
+        const response = await axiosInstance.post("/market/orders/", {
           list_cart: checkedCarts
         })
+        await dispatch(updateOrders(response.data));
       }
       catch (error) {
         console.log(error);
@@ -119,7 +122,11 @@ export default function CheckoutCart() {
 
   const handleRenderCheckoutProductList = () => {
     if (isLoadingCart) {
-      return (<CircularProgress sx={{margin: "5vh auto", display: "flex"}} />)
+      return (
+        <div>
+        {cart ? cart.map((elm) => <TableSkeleton key={elm.id} />) : <TableSkeleton />}
+        </div>
+      )
     }
     if (isEmptyCart) {
       return (
@@ -146,9 +153,15 @@ export default function CheckoutCart() {
 
   return (
     <CheckedCartsContext.Provider value={{checkedCarts, setCheckedCarts}}>
+      <Typography variant="h3">
+        Shopping Cart
+        <Typography component="span" sx={{ color: 'text.secondary' }}>
+          &nbsp;({totalItems} item)
+        </Typography>
+      </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
-          <Card sx={{ mb: 3 }}>
+          {/* <Card sx={{ mb: 3 }}>
             <CardHeader
               title={
                 <Typography variant="h3">
@@ -159,9 +172,9 @@ export default function CheckoutCart() {
                 </Typography>
               }
               sx={{ mb: 3 }}
-            />
+            /> */}
             {handleRenderCheckoutProductList()}
-          </Card>
+          {/* </Card> */}
 
         </Grid>
 

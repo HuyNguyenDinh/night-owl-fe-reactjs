@@ -25,6 +25,7 @@ const initialState = {
   checkout: {
     activeStep: 0,
     cart: [],
+    orders: [],
     subtotal: 0,
     total: 0,
     discount: 0,
@@ -100,6 +101,7 @@ const slice = createSlice({
 
     // CHECKOUT
     getCart(state, action) {
+      state.isLoading = false;
       const cart = action.payload;
       if (cart) {
         const subtotal = sum(cart.map((cartItem) => cartItem.quantity * cartItem.product_option?.price || 0));
@@ -113,9 +115,13 @@ const slice = createSlice({
         state.checkout.billing = billing; 
         state.checkout.subtotal = subtotal;
         state.checkout.total = subtotal - discount;
+        state.error = null;
       }
     },
 
+    updateOrders(state, action) {
+      state.checkout.orders = action.payload
+    },
 
     deleteCart(state, action) {
       const updateCart = state.checkout.cart.filter((item) => item.id !== action.payload);
@@ -200,7 +206,7 @@ export default slice.reducer;
 // Actions
 export const {
   getCart,
-  // addCart,
+  updateOrders,
   resetCart,
   onGotoStep,
   onBackStep,

@@ -33,6 +33,7 @@ export default function EcommerceProductDetails() {
   const { id = '' } = useParams();
   const { product, error, checkout } = useSelector((state) => state.product);
   const { enqueueSnackbar } = useSnackbar();
+  const [isAddCart, setIsAddCart] = useState(false);
 
   useEffect(() => {
     dispatch(getProduct(id));
@@ -40,8 +41,8 @@ export default function EcommerceProductDetails() {
   }, [id]);
 
   const handleAddCart = (option) => {
-    dispatch(addToCart(option.id, option.quantity))
-    .then(enqueueSnackbar("Add to cart success"))
+    setIsAddCart(true);
+    dispatch(addToCart(option.id, option.quantity));
   };
 
   const handleGotoStep = (step) => {
@@ -49,11 +50,17 @@ export default function EcommerceProductDetails() {
   };
 
   useEffect(() => {
-    if (product && error) {
-      enqueueSnackbar(error, {variant: "error"});
+    if (product && checkout.cart && isAddCart) {
+      if (error) {
+        enqueueSnackbar("Failed to add to cart", {variant: "error"});
+      }
+      else {
+        enqueueSnackbar("Add to cart success");
+      }
     }
+    setIsAddCart(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error])
+  }, [checkout.cart, error])
 
   return (
     <Page title="Ecommerce: Product Details">
@@ -76,7 +83,7 @@ export default function EcommerceProductDetails() {
 
         <CartWidget />
 
-        {product && (
+        { (product && product.id === Number(id)) && (
           <>
             <Card>
               <Grid container>
@@ -123,7 +130,7 @@ export default function EcommerceProductDetails() {
           </>
         )}
 
-        {!product && <SkeletonProduct />}
+        {(!product || product.id !== Number(id)) && <SkeletonProduct />}
 
         {error && <Typography variant="h6">404 Product not found</Typography>}
       </Container>

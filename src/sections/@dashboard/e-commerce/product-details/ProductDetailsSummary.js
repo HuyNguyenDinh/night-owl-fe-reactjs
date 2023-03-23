@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import PropTypes, { element } from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // form
 import { Controller, useForm } from 'react-hook-form';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography } from '@mui/material';
+import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography, Avatar } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // utils
@@ -60,6 +60,7 @@ ProductDetailsSummary.propTypes = {
     avg_rating: PropTypes.number,
     ratings: PropTypes.any,
     totalRatings: PropTypes.any,
+    owner: PropTypes.any,
   }),
 };
 
@@ -121,6 +122,11 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
+  useEffect(() => {
+    setValue("id", currentOption.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOption])
+
   return (
     <RootStyle {...other}>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -141,6 +147,23 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
         <Typography color="primary" variant="h4" sx={{ mb: 3 }}>
           &nbsp;{fCurrency(currentOption.price)} ₫
         </Typography>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+          <Stack display="flex" direction="row" margin="4vh 0" spacing={2} alignItems="center" justifyContent="space-between">
+            <Stack display="flex" direction="row" spacing={2} alignItems="center">
+              <Link to={PATH_DASHBOARD.user.store(product.owner.id)} component={RouterLink}>
+                <Avatar src={product.owner.avatar}/>
+              </Link>
+              <Typography variant="h6" color="text.secondary">
+                {[product.owner.first_name, product.owner.last_name].join(" ")}
+              </Typography>
+            </Stack>   
+            <Link to={PATH_DASHBOARD.user.store(product.owner.id)} component={RouterLink}>
+              <Button variant="outlined">
+                Visit Store
+              </Button>
+            </Link>         
+          </Stack>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

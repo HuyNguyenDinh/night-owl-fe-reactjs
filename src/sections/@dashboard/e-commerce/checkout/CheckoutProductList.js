@@ -15,7 +15,9 @@ import {
   TableContainer,
   Avatar,
   Link,
-  Checkbox
+  Checkbox,
+  Card,
+  CardHeader
 } from '@mui/material';
 // utils
 // import getColorName from '../../../../utils/getColorName';
@@ -59,13 +61,13 @@ export default function CheckoutProductList({ owners, onIncreaseQuantity, onDecr
   const {checkedCarts, setCheckedCarts} = useContext(CheckedCartsContext);
 
   const handleCheckCart = (cartID) => {
-    let updateCheckedCart = [cartID]
+    let updateCheckedCart = [cartID];
     if (checkedCarts) {
       if (checkedCarts.includes(cartID)) {
         updateCheckedCart = checkedCarts.filter(item => item !== cartID);
       }
       else {
-        updateCheckedCart = [...checkedCarts, cartID];
+        updateCheckedCart = [...checkedCarts, ...updateCheckedCart];
       }
     }
     setCheckedCarts(updateCheckedCart);
@@ -74,33 +76,41 @@ export default function CheckoutProductList({ owners, onIncreaseQuantity, onDecr
   return (
     <>
     {owners && owners.map((owner) => (
-      <div key={owner.id} style={{marginTop: "5vh"}}>
-      <TableContainer sx={{ minWidth: 720}}>
-        <Link to={PATH_DASHBOARD.eCommerce.shopProduct(owner.id)} component={RouterLink}>
-          <Stack margin="0 0.8vw 2vh" spacing={2} direction="row">
-            <Avatar src={owner.avatar} />
-            <Typography variant="h4">
-              {[owner.last_name, owner.first_name.concat("'s"),"shop"].join(" ")}
-            </Typography>
-          </Stack>
-        </Link>
-        <Table>
-          <TableHeadCustom headLabel={TABLE_HEAD} />
+      <Card key={owner.id} sx={{ mb: 3, marginTop: "5vh" }}>
+        <CardHeader
+          title={
+            <Stack display="flex" direction="row" justifyContent="space-between">
+              <Link to={PATH_DASHBOARD.eCommerce.shopProduct(owner.id)} component={RouterLink}>
+                <Stack spacing={2} direction="row" alignItems="center">
+                  <Avatar src={owner.avatar} />
+                  <Typography variant="h6">
+                    {[owner.last_name, owner.first_name].join(" ")}
+                  </Typography>
+                </Stack>
+              </Link>
+            </Stack>
+          }
+          sx={{ mb: 3 }}
+        />
+        <TableContainer sx={{ minWidth: 720}}>
+          
+          <Table>
+            <TableHeadCustom headLabel={TABLE_HEAD} />
 
-          <TableBody>
-            {owner.carts.map((row) => (
-                <CheckoutProductListRow
-                    key={row.id}
-                    row={row}
-                    onDecrease={() => onDecreaseQuantity("update", row.id, row.quantity - 1)}
-                    onIncrease={() => onIncreaseQuantity("update", row.id, row.quantity + 1)}
-                    onCheck={handleCheckCart}
-                  />
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      </div>
+            <TableBody>
+              {owner.carts.map((row) => (
+                  <CheckoutProductListRow
+                      key={row.id}
+                      row={row}
+                      onDecrease={() => onDecreaseQuantity("update", row.id, row.quantity - 1)}
+                      onIncrease={() => onIncreaseQuantity("update", row.id, row.quantity + 1)}
+                      onCheck={handleCheckCart}
+                    />
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
     ))}
     </>
   )}
