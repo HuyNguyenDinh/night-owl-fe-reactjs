@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import sum from 'lodash/sum';
 // @mui
 import { 
   Box, 
@@ -39,7 +40,7 @@ export default function CheckoutBillingAddress() {
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { total, discount, subtotal } = checkout;
+  const { total, discount, subtotal, shipping } = checkout;
 
   // const [open, setOpen] = useState(false);
 
@@ -63,11 +64,6 @@ export default function CheckoutBillingAddress() {
   //   dispatch(createBilling(value));
   // };
 
-  useEffect(() => {
-    checkout.orders.map((elm) => console.log(elm))
-  }, [checkout.orders])
-  
-
   return (
     <>
       <Grid container spacing={3}>
@@ -80,7 +76,7 @@ export default function CheckoutBillingAddress() {
               onCreateBilling={handleCreateBilling}
             />
           ))} */}
-          {checkout.orders.map((order) => (
+          {checkout.orders && checkout.orders.map((order) => (
             <OrderItem key={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
           ))}
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -99,7 +95,14 @@ export default function CheckoutBillingAddress() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <CheckoutSummary subtotal={subtotal} total={total} discount={discount} />
+          <CheckoutSummary 
+            onApplyDiscount={() => console.log("apply discount")} 
+            enableDiscount 
+            subtotal={subtotal} 
+            total={subtotal + shipping} 
+            discount={discount} 
+            shipping={shipping} 
+          />
           <Button variant="contained" fullWidth onClick={handleNextStep}>
             Checkout
           </Button>
@@ -144,7 +147,7 @@ function OrderItem({store, cost, orderDetails, shippingFee}) {
       <Stack>
         {orderDetails && orderDetails.map((orderDetail) => (
           <Paper key={orderDetail.id} sx={{margin: "2vh 0"}}>
-            <Grid xs={12} container spacing={2} alignItems="center">
+            <Grid container spacing={2} alignItems="center">
               <Grid xs={2} item>
                 <Image src={orderDetail.product_option.base_product.picture} sx={{ width: 64, height: 64, borderRadius: 1.5, mr: 2 }}/>
               </Grid>

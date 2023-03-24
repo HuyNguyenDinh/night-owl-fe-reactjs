@@ -82,8 +82,8 @@ export default function AccountAddress() {
   }
 
   const onSubmit = async () => {
-    const currentProvince = provinces.find((elm) => elm.ProvinceID === values.province_id);
-    const currentDistrict = districts.find((elm) => elm.DistrictID === values.district_id);
+    const currentProvince = provinces.find((elm) => elm.ProvinceID === Number(values.province_id));
+    const currentDistrict = districts.find((elm) => elm.DistrictID === Number(values.district_id));
     const currentWard = wards.find((elm) => elm.WardCode === values.ward_id);
     const fullAddress = [values.street, currentWard.WardName, currentDistrict.DistrictName, currentProvince.ProvinceName, "Việt Nam"].join(", ");
 
@@ -96,6 +96,7 @@ export default function AccountAddress() {
             updatedUser.address = responseChangeAddress.data;
         }
         else {
+          console.log(user.address);
             const responseAddAddress = await axiosInstance.post(`/market/address/`, {
                 ...values,
                 full_address: fullAddress

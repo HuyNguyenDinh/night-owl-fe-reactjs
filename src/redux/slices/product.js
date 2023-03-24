@@ -120,7 +120,13 @@ const slice = createSlice({
     },
 
     updateOrders(state, action) {
-      state.checkout.orders = action.payload
+      const orders = action.payload;
+      state.checkout.orders = orders;
+      const shipping = sum(orders.map((order) => Number(order.total_shipping_fee)))
+      const subtotal = sum(orders.map((order) => order.cost));
+      state.checkout.shipping = shipping;
+      state.checkout.subtotal = subtotal;
+      state.checkout.total = shipping + subtotal;
     },
 
     deleteCart(state, action) {
