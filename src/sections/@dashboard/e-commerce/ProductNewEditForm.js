@@ -1,57 +1,52 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useMemo } from 'react';
+// import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
-import { useForm, Controller } from 'react-hook-form';
+import { 
+  useForm, 
+  // Controller 
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
-import { Card, Chip, Grid, Stack, TextField, Typography, Autocomplete, InputAdornment } from '@mui/material';
+import { 
+  Card, 
+  Chip, 
+  Grid, 
+  Stack, 
+  TextField, 
+  Typography, 
+  Autocomplete, 
+  // InputAdornment, 
+  // Box 
+} from '@mui/material';
+// utils
+import axiosInstance from '../../../utils/axios';
 // routes
-import { PATH_DASHBOARD } from '../../../routes/paths';
+// import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import {
   FormProvider,
   RHFSwitch,
-  RHFSelect,
+  // RHFSelect,
   RHFEditor,
   RHFTextField,
-  RHFRadioGroup,
-  RHFUploadMultiFile,
+  // RHFRadioGroup,
+  RHFUploadSingleFile,
+  // RHFUploadMultiFile,
 } from '../../../components/hook-form';
 
 // ----------------------------------------------------------------------
 
-const GENDER_OPTION = [
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
-];
+// const CATEGORY_OPTION = [
+//   { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
+//   { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
+//   { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+// ];
 
-const CATEGORY_OPTION = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
-];
-
-const TAGS_OPTION = [
-  'Toy Story 3',
-  'Logan',
-  'Full Metal Jacket',
-  'Dangal',
-  'The Sting',
-  '2001: A Space Odyssey',
-  "Singin' in the Rain",
-  'Toy Story',
-  'Bicycle Thieves',
-  'The Kid',
-  'Inglourious Basterds',
-  'Snatch',
-  '3 Idiots',
-];
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
@@ -64,34 +59,37 @@ const LabelStyle = styled(Typography)(({ theme }) => ({
 ProductNewEditForm.propTypes = {
   isEdit: PropTypes.bool,
   currentProduct: PropTypes.object,
+  setCurrentProduct: PropTypes.func,
+  setActiveStep: PropTypes.func,
 };
 
-export default function ProductNewEditForm({ isEdit, currentProduct }) {
-  const navigate = useNavigate();
+export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentProduct, setActiveStep }) {
+  // const navigate = useNavigate();
+  const [systemCategories, setSystemCategories] = useState([]);
+  const [currentCategories, setCurrentCategories] = useState([]);
+  const [isChangePicture, setIsChangePicture] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProductSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     description: Yup.string().required('Description is required'),
-    images: Yup.array().min(1, 'Images is required'),
+    picture: Yup.mixed().required('Picture is required'),
     price: Yup.number().moreThan(0, 'Price should not be $0.00'),
+    is_available: Yup.bool(),
+    categories: Yup.array().required('Product must be at least in 1 category')
   });
 
   const defaultValues = useMemo(
     () => ({
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
-      images: currentProduct?.images || [],
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [TAGS_OPTION[0]],
-      inStock: true,
-      taxes: true,
-      gender: currentProduct?.gender || GENDER_OPTION[2].value,
-      category: currentProduct?.category || CATEGORY_OPTION[0].classify[1],
+      picture: null,
+      // code: currentProduct?.code || '',
+      // sku: currentProduct?.sku || '',
+      is_available: true,
+      // taxes: true,
+      categories: currentProduct?.categories || [],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentProduct]
@@ -105,14 +103,31 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
   const {
     reset,
     watch,
-    control,
+    // control,
     setValue,
-    getValues,
+    // getValues,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const values = watch();
+
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const resp = await axiosInstance.get("/market/category/");
+        setSystemCategories(resp.data.results);
+        if (currentProduct?.categories) {
+          setCurrentCategories(currentProduct?.categories?.map((elm) => resp.data.results.find(item => item.id === elm)));
+        }
+      }
+      catch(error) {
+        console.log(error);
+      }
+    };
+    getCategories();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (isEdit && currentProduct) {
@@ -124,65 +139,128 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentProduct]);
 
+  useEffect(() => {
+    if (errors) {
+      console.log(errors);
+    }
+  }, [errors]);
+
+  useEffect(() => {
+    if (currentProduct && currentProduct?.picture) {
+      setValue(
+        'picture',
+        Object.assign(
+          currentProduct?.picture, {
+          preview: currentProduct?.picture || URL.createObjectURL(currentProduct?.picture),
+        })
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setValue, currentProduct?.picture])
+
   const onSubmit = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const data = new FormData();
+      data.append("name", values.name);
+      data.append("is_available", values.is_available);
+      data.append("description", values.description);
+      if (isChangePicture) {
+        data.append("picture", values.picture);
+      }
+      values.categories.map((item) => data.append("categories", item));
+      if (currentProduct && currentProduct.id) {
+        const resp = await axiosInstance.patch(`/market/products/${currentProduct.id}/`, data)
+        setCurrentProduct({...resp.data});
+      }
+      else {
+        const resp = await axiosInstance.post("/market/products/", data)
+        setCurrentProduct({...resp.data});
+      }
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.eCommerce.list);
+      setActiveStep(1);
     } catch (error) {
+      enqueueSnackbar(!isEdit ? 'Create failed!' : 'Update failed!', {variant: "error"});
       console.error(error);
     }
   };
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
-      const images = values.images || [];
+      const file = acceptedFiles[0];
 
-      setValue('images', [
-        ...images,
-        ...acceptedFiles.map((file) =>
+      if (file) {
+        setValue(
+          'picture',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })
-        ),
-      ]);
+        );
+        setIsChangePicture(true);
+      }
     },
-    [setValue, values.images]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setValue]
   );
 
-  const handleRemoveAll = () => {
-    setValue('images', []);
-  };
+  const handleChangeCategory = (newValue) => {
+    setCurrentCategories(newValue);
+    const newCategories = newValue.map((elm) => systemCategories.find(item => item.name === elm.name).id)
+    setValue("categories", newCategories)
+  }
 
-  const handleRemove = (file) => {
-    const filteredItems = values.images?.filter((_file) => _file !== file);
-    setValue('images', filteredItems);
-  };
+  // const handleRemoveAll = () => {
+  //   setValue('images', []);
+  // };
+
+  // const handleRemove = (file) => {
+  //   const filteredItems = values.images?.filter((_file) => _file !== file);
+  //   setValue('images', filteredItems);
+  // };
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={6}>
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
-              <RHFTextField name="name" label="Product Name" />
-
+              <RHFTextField name="name" onChange={(event) => setCurrentProduct({...currentProduct, name: event.target.value})} label="Product Name" />
+              {/* <RHFSelect name="category" label="Category">
+                  {CATEGORY_OPTION.map((category) => (
+                    <optgroup key={category.group} label={category.group}>
+                      {category.classify.map((classify) => (
+                        <option key={classify} value={classify}>
+                          {classify}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+              </RHFSelect> */}
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  value={currentCategories}
+                  onChange={(event, newValue) => handleChangeCategory(newValue)}
+                  options={systemCategories.map((option) => option)}
+                  getOptionLabel={(option) => option.name}
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                      <Chip {...getTagProps({ index })} key={option.id} size="small" label={option.name} />
+                    ))
+                  }
+                  renderInput={(params) => <TextField label="Categories" {...params} />}
+                />
               <div>
-                <LabelStyle>Description</LabelStyle>
-                <RHFEditor simple name="description" />
+                <RHFSwitch sx={{textAlign: "right", display: "flex", flexDirection: "row-reverse", justifyContent: "space-between"}} labelPlacement="start" name="is_available" label="Available" />
               </div>
-
               <div>
-                <LabelStyle>Images</LabelStyle>
-                <RHFUploadMultiFile
+                <LabelStyle sx={{marginLeft: 2}}>Image Cover</LabelStyle>
+                <RHFUploadSingleFile
                   showPreview
-                  name="images"
+                  name="picture"
                   accept="image/*"
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  onRemove={handleRemove}
-                  onRemoveAll={handleRemoveAll}
                   onUpload={() => console.log('ON UPLOAD')}
                 />
               </div>
@@ -190,28 +268,26 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Stack spacing={3}>
-            <Card sx={{ p: 3 }}>
-              <RHFSwitch name="inStock" label="In stock" />
+            <Card sx={{p: 2}}>
 
               <Stack spacing={3} mt={2}>
-                <RHFTextField name="code" label="Product Code" />
+                {/* <RHFTextField name="code" label="Product Code" />
 
-                <RHFTextField name="sku" label="Product SKU" />
+                <RHFTextField name="sku" label="Product SKU" /> */}
 
-                <div>
-                  <LabelStyle>Gender</LabelStyle>
-                  <RHFRadioGroup
-                    name="gender"
-                    options={GENDER_OPTION}
-                    sx={{
-                      '& .MuiFormControlLabel-root': { mr: 4 },
-                    }}
-                  />
-                </div>
+              <div>
+                <LabelStyle>Description</LabelStyle>
+                <RHFEditor simple name="description" />
+              </div>
+              <div>
+                <LoadingButton fullWidth type="submit" variant="contained" size="large" loading={isSubmitting}>
+                  {!isEdit && !currentProduct?.id ? 'Create Product' : 'Save Changes'}
+                </LoadingButton>
+              </div>
 
-                <RHFSelect name="category" label="Category">
+                {/* <RHFSelect name="category" label="Category">
                   {CATEGORY_OPTION.map((category) => (
                     <optgroup key={category.group} label={category.group}>
                       {category.classify.map((classify) => (
@@ -241,11 +317,11 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
                       renderInput={(params) => <TextField label="Tags" {...params} />}
                     />
                   )}
-                />
+                /> */}
               </Stack>
             </Card>
 
-            <Card sx={{ p: 3 }}>
+            {/* <Card sx={{ p: 3 }}>
               <Stack spacing={3} mb={2}>
                 <RHFTextField
                   name="price"
@@ -275,11 +351,8 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               </Stack>
 
               <RHFSwitch name="taxes" label="Price includes taxes" />
-            </Card>
+            </Card> */}
 
-            <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-              {!isEdit ? 'Create Product' : 'Save Changes'}
-            </LoadingButton>
           </Stack>
         </Grid>
       </Grid>

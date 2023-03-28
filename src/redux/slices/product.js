@@ -120,6 +120,7 @@ const slice = createSlice({
     },
 
     updateOrders(state, action) {
+      state.isLoading = false;
       const orders = action.payload;
       state.checkout.orders = orders;
       const shipping = sum(orders.map((order) => Number(order.total_shipping_fee)))
@@ -211,6 +212,8 @@ export default slice.reducer;
 
 // Actions
 export const {
+  startLoading,
+  hasError,
   getCart,
   updateOrders,
   resetCart,
@@ -275,6 +278,23 @@ export function getRatings(productID) {
       }
     } catch (error) {
       console.log(error);
+      // dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+
+export function buyOptionNow(optionID, quantity) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    dispatch(slice.actions.updateOrders([]));
+    try {
+      const buyNowResp = await axios.post(`/market/options/${optionID}/buy/`, {
+        quantity
+      });
+      console.log(buyNowResp.data);
+      dispatch(slice.actions.updateOrders(buyNowResp.data));
+    }
+    catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   }

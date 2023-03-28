@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import sum from 'lodash/sum';
+// import sum from 'lodash/sum';
 // @mui
 import { 
   Box, 
@@ -17,13 +16,19 @@ import {
   Divider, 
   Link 
 } from '@mui/material';
+import { SkeletionCard } from '../../../../components/skeleton';
 // path route
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // utils
 import { fNumber } from '../../../../utils/formatNumber';
 // redux
 import { useDispatch, useSelector } from '../../../../redux/store';
-import { onBackStep, onNextStep, createBilling } from '../../../../redux/slices/product';
+import { 
+  onBackStep, 
+  onNextStep, 
+  updateOrders,
+  // createBilling 
+} from '../../../../redux/slices/product';
 // _mock_
 // import { _addressBooks } from '../../../../_mock';
 // components
@@ -40,23 +45,14 @@ export default function CheckoutBillingAddress() {
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { total, discount, subtotal, shipping } = checkout;
-
-  // const [open, setOpen] = useState(false);
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
-
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
+  const { discount, subtotal, shipping } = checkout;
 
   const handleNextStep = () => {
     dispatch(onNextStep());
   };
 
   const handleBackStep = () => {
+    dispatch(updateOrders([]));
     dispatch(onBackStep());
   };
 
@@ -66,55 +62,40 @@ export default function CheckoutBillingAddress() {
 
   return (
     <>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          {/* {_addressBooks.map((address, index) => (
-            <AddressItem
-              key={index}
-              address={address}
-              onNextStep={handleNextStep}
-              onCreateBilling={handleCreateBilling}
+      {checkout.orders.length > 0 &&
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8}>
+            {checkout.orders && checkout.orders.map((order) => (
+              <OrderItem key={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
+            ))}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button
+                size="small"
+                color="inherit"
+                onClick={handleBackStep}
+                startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
+              >
+                Back
+              </Button>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <CheckoutSummary 
+              onApplyDiscount={() => console.log("apply discount")} 
+              enableDiscount 
+              subtotal={subtotal} 
+              total={subtotal + shipping} 
+              discount={discount} 
+              shipping={shipping} 
             />
-          ))} */}
-          {checkout.orders && checkout.orders.map((order) => (
-            <OrderItem key={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
-          ))}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Button
-              size="small"
-              color="inherit"
-              onClick={handleBackStep}
-              startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
-            >
-              Back
+            <Button variant="contained" fullWidth onClick={handleNextStep}>
+              Checkout
             </Button>
-            {/* <Button size="small" onClick={handleClickOpen} startIcon={<Iconify icon={'eva:plus-fill'} />}>
-              Add new address
-            </Button> */}
-          </Box>
+          </Grid>
         </Grid>
-
-        <Grid item xs={12} md={4}>
-          <CheckoutSummary 
-            onApplyDiscount={() => console.log("apply discount")} 
-            enableDiscount 
-            subtotal={subtotal} 
-            total={subtotal + shipping} 
-            discount={discount} 
-            shipping={shipping} 
-          />
-          <Button variant="contained" fullWidth onClick={handleNextStep}>
-            Checkout
-          </Button>
-        </Grid>
-      </Grid>
-
-      {/* <CheckoutNewAddressForm
-        open={open}
-        onClose={handleClose}
-        onNextStep={handleNextStep}
-        onCreateBilling={handleCreateBilling}
-      /> */}
+      }
+      {checkout.orders.length <= 0 && <SkeletionCard /> }
     </>
   );
 }

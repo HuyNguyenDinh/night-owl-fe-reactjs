@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import PropTypes, { element } from 'prop-types';
+import PropTypes from 'prop-types';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // form
-import { Controller, useForm } from 'react-hook-form';
+import { 
+  // Controller, 
+  useForm 
+} from 'react-hook-form';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography, Avatar } from '@mui/material';
+// redux
+import { useDispatch } from 'react-redux';
+import { buyOptionNow, startLoading, hasError } from '../../../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // utils
@@ -67,11 +73,13 @@ ProductDetailsSummary.propTypes = {
 export default function ProductDetailsSummary({ cart, product, onAddCart, onGotoStep, ...other }) {
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
   const [currentOption, setCurrentOption] = useState(
     product.option_set.filter((elm) => elm.unit_in_stock > 0)[0] || product.option_set[0]
   );
 
-  const alreadyOption = cart.map((item) => item.id).includes(currentOption.id);
+  const alreadyOption = cart.map((item) => item.product_option.id).includes(currentOption.id);
 
   const isMaxQuantity = cart.filter((item) => item.id === product.id).map((item) => item.quantity)[0] >= currentOption?.unit_in_stock;
 
@@ -86,17 +94,22 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
 
   const values = watch();
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     try {
+      dispatch(startLoading());
       if (!alreadyOption) {
+        dispatch(buyOptionNow(currentOption.id, values.quantity));
+        onGotoStep(1);
+      }
+      else {
         onAddCart({
           ...data,
         });
       }
-      onGotoStep(0);
       navigate(PATH_DASHBOARD.eCommerce.checkout);
     } catch (error) {
       console.error(error);
+      dispatch(hasError());
     }
   };
 
@@ -154,7 +167,7 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
               <Link to={PATH_DASHBOARD.user.store(product.owner.id)} component={RouterLink}>
                 <Avatar src={product.owner.avatar}/>
               </Link>
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="subtitle1" color="text.secondary">
                 {[product.owner.first_name, product.owner.last_name].join(" ")}
               </Typography>
             </Stack>   

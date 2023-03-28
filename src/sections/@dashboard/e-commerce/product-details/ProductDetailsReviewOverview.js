@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import sumBy from 'lodash/sumBy';
+// import sumBy from 'lodash/sumBy';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Grid, Rating, Button, Typography, LinearProgress, Stack, Link } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+// import { useDispatch, useSelector } from 'react-redux';
 // utils
 import { fShortenNumber } from '../../../../utils/formatNumber';
 // components
@@ -37,8 +37,8 @@ ProductDetailsReviewOverview.propTypes = {
 };
 
 export default function ProductDetailsReviewOverview({ product, onOpen }) {
-  const { totalRatings, ratings } = product;
-  
+  // const { totalRatings, ratings } = product;
+  const {totalRatings} = product;
 
   // const total = sumBy(ratings, (star) => star.starCount);
 
@@ -77,7 +77,9 @@ ProgressItem.propTypes = {
 };
 
 function ProgressItem({ star, total }) {
-  const { name, starCount, reviewCount } = star;
+  // const { name, starCount, reviewCount } = star;
+
+  const {name} = star;
   return (
     <Stack direction="row" alignItems="center" spacing={1.5}>
       <Typography variant="subtitle2">{name}</Typography>

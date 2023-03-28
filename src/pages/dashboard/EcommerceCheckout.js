@@ -1,15 +1,18 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Grid, Step, Stepper, Container, StepLabel, StepConnector } from '@mui/material';
 // redux
-import { useDispatch, useSelector } from '../../redux/store';
-import { getCart, createBilling } from '../../redux/slices/product';
+import { 
+  // useDispatch, 
+  useSelector 
+} from '../../redux/store';
+// import { getCart, createBilling } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
-import useIsMountedRef from '../../hooks/useIsMountedRef';
+// import useIsMountedRef from '../../hooks/useIsMountedRef';
 import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
@@ -78,23 +81,23 @@ function QontoStepIcon({ active, completed }) {
 
 export default function EcommerceCheckout() {
   const { themeStretch } = useSettings();
-  const dispatch = useDispatch();
-  const isMountedRef = useIsMountedRef();
+  // const dispatch = useDispatch();
+  // const isMountedRef = useIsMountedRef();
   const { checkout } = useSelector((state) => state.product);
-  const { cart, orders, activeStep } = checkout;
+  const { orders, activeStep } = checkout;
   const isComplete = activeStep === STEPS.length;
 
-  useEffect(() => {
-    if (isMountedRef.current) {
-      dispatch(getCart(cart));
-    }
-  }, [dispatch, isMountedRef, cart]);
+  // useEffect(() => {
+  //   if (isMountedRef.current) {
+  //     dispatch(getCart(cart));
+  //   }
+  // }, [dispatch, isMountedRef, cart]);
 
-  useEffect(() => {
-    if (activeStep === 1) {
-      dispatch(createBilling(null));
-    }
-  }, [dispatch, activeStep]);
+  // useEffect(() => {
+  //   if (activeStep === 1) {
+  //     dispatch(createBilling(null));
+  //   }
+  // }, [dispatch, activeStep]);
 
   return (
     <Page title="Ecommerce: Checkout">

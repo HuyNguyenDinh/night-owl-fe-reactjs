@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef, createContext } from 'react';
 import sum from 'lodash/sum';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
-import { Grid, Card, Button, CardHeader, Typography } from '@mui/material';
+import { 
+  Grid, 
+  // Card, 
+  Button,
+  // CardHeader, 
+  Typography 
+} from '@mui/material';
 import { TableSkeleton } from '../../../../components/table';
 // hook
 import useAuth from '../../../../hooks/useAuth';
@@ -11,7 +17,9 @@ import { useDispatch, useSelector } from '../../../../redux/store';
 import {
   onNextStep,
   updateCart,
-  updateOrders
+  updateOrders,
+  startLoading,
+  hasError
 } from '../../../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -31,6 +39,7 @@ export const CheckedCartsContext = createContext();
 
 export default function CheckoutCart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { checkout } = useSelector((state) => state.product);
 
@@ -82,22 +91,30 @@ export default function CheckoutCart() {
   }, [user])
 
   const handleNextStep = () => {
-    const makeOrder = async () => {
-      try {
-        const response = await axiosInstance.post("/market/orders/", {
-          list_cart: checkedCarts
-        })
-        await dispatch(updateOrders(response.data));
+    if (user.address && user.email_verified && user.phone_verified) {
+      const makeOrder = async () => {
+        dispatch(updateOrders([]));
+        dispatch(startLoading())
+        try {
+          const response = await axiosInstance.post("/market/orders/", {
+            list_cart: checkedCarts
+          })
+          dispatch(updateOrders(response.data));
+        }
+        catch (error) {
+          console.log(error);
+          dispatch(hasError(error))
+        }
+        finally {
+          handleGetCartGroupBy();
+        }
       }
-      catch (error) {
-        console.log(error);
-      }
-      finally {
-        handleGetCartGroupBy();
-      }
+      makeOrder();
+      dispatch(onNextStep());
     }
-    makeOrder();
-    dispatch(onNextStep());
+    else {
+      navigate(PATH_DASHBOARD.user.account)
+    }
   };
 
   function handleUpdateCart(action, cartId, quantity){
@@ -161,20 +178,7 @@ export default function CheckoutCart() {
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
-          {/* <Card sx={{ mb: 3 }}>
-            <CardHeader
-              title={
-                <Typography variant="h3">
-                  Shopping Cart
-                  <Typography component="span" sx={{ color: 'text.secondary' }}>
-                    &nbsp;({totalItems} item)
-                  </Typography>
-                </Typography>
-              }
-              sx={{ mb: 3 }}
-            /> */}
             {handleRenderCheckoutProductList()}
-          {/* </Card> */}
 
         </Grid>
 
@@ -207,7 +211,7 @@ export default function CheckoutCart() {
                   disabled={checkedCarts.length === 0}
                   onClick={() => handleNextStep()}
                 >
-                Check Out
+                {user.address && user.email_verified && user.phone_verified ? "Check out": "Complete KYC" }
               </Button>
             </div>
           </div>

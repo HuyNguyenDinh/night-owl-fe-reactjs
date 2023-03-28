@@ -38,7 +38,7 @@ export default function UploadSingleFile({ error = false, file, helperText, sx, 
   });
 
   return (
-    <Box sx={{ width: '100%', ...sx }}>
+    <Box sx={{ width: '100%', ...sx}}>
       <DropZoneStyle
         {...getRootProps()}
         sx={{
@@ -50,7 +50,7 @@ export default function UploadSingleFile({ error = false, file, helperText, sx, 
           }),
           ...(file && {
             padding: '12% 0',
-          }),
+          })
         }}
       >
         <input {...getInputProps()} />
@@ -68,6 +68,7 @@ export default function UploadSingleFile({ error = false, file, helperText, sx, 
               position: 'absolute',
               width: 'calc(100% - 16px)',
               height: 'calc(100% - 16px)',
+              objectFit: 'cover',
             }}
           />
         )}
