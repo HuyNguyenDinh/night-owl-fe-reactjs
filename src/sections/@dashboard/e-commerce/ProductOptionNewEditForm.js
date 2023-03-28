@@ -73,6 +73,11 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
   const [open, setOpen] = useState(false);
   const [editOption, setEditOption] = useState();
 
+  const handleEditOption = (option) => {
+    setEditOption(option);
+    setOpen(true);
+  }
+
   const { enqueueSnackbar } = useSnackbar();
 
   const onCreateOption = (option) => {
@@ -103,7 +108,9 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
                     <TableCell>{elm.width}</TableCell>
                     <TableCell>{elm.height}</TableCell>
                     <TableCell>{elm.length}</TableCell>
-                    <TableCell><Button>Edit</Button></TableCell>
+                    <TableCell>
+                        <Button onClick={() => handleEditOption(elm)}>Edit</Button>
+                        </TableCell>
                 </TableRow>
             ))}
             {(!currentOptions || currentOptions.length === 0) && (
@@ -207,12 +214,13 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
             console.log(values);
             Object.keys(values).forEach((key) => {
                 if (key === "uploaded_images") {
-                    values[key].map((image) => data.append(`${key}[]`, image))
+                    values[key].map((image) => data.append(key, image))
                 }
                 else {
                     data.append(key, values[key]);
                 }
             });
+            console.log(...data)
             const resp = await axiosInstance.post(`/market/products/${currentProduct.id}/add-option/`, data);
             console.log(resp.data);
             onCreateOption(resp.data);
@@ -289,9 +297,9 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
                                         {currentOption.picture_set.map((item) => (
                                             <ImageListItem key={item.img}>
                                             <img
-                                                src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                                                srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                                                alt={item.title}
+                                                src={`${item.image}?w=30&h=30&fit=crop&auto=format`}
+                                                srcSet={`${item.image}?w=30&h=30&fit=crop&auto=format&dpr=2 2x`}
+                                                alt={currentOption.unit}
                                                 loading="lazy"
                                             />
                                             </ImageListItem>

@@ -41,12 +41,6 @@ import {
 
 // ----------------------------------------------------------------------
 
-// const CATEGORY_OPTION = [
-//   { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-//   { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-//   { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
-// ];
-
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
@@ -85,10 +79,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
       picture: null,
-      // code: currentProduct?.code || '',
-      // sku: currentProduct?.sku || '',
       is_available: true,
-      // taxes: true,
       categories: currentProduct?.categories || [],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -225,31 +216,33 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
               <RHFTextField name="name" onChange={(event) => setCurrentProduct({...currentProduct, name: event.target.value})} label="Product Name" />
-              {/* <RHFSelect name="category" label="Category">
-                  {CATEGORY_OPTION.map((category) => (
-                    <optgroup key={category.group} label={category.group}>
-                      {category.classify.map((classify) => (
-                        <option key={classify} value={classify}>
-                          {classify}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-              </RHFSelect> */}
-                <Autocomplete
-                  multiple
-                  freeSolo
-                  value={currentCategories}
-                  onChange={(event, newValue) => handleChangeCategory(newValue)}
-                  options={systemCategories.map((option) => option)}
-                  getOptionLabel={(option) => option.name}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip {...getTagProps({ index })} key={option.id} size="small" label={option.name} />
-                    ))
-                  }
-                  renderInput={(params) => <TextField label="Categories" {...params} />}
-                />
+              <Autocomplete
+                multiple
+                freeSolo
+                value={currentCategories}
+                onChange={(event, newValue) => handleChangeCategory(newValue)}
+                options={systemCategories.map((option) => option)}
+                getOptionLabel={(option) => option.name}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip {...getTagProps({ index })} key={option.id} size="small" label={option.name} />
+                  ))
+                }
+                renderInput={(params) => <TextField label="Categories" {...params} />}
+              />
+              <div>
+                <LabelStyle>Description</LabelStyle>
+                <RHFEditor simple name="description" />
+              </div>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Stack spacing={3}>
+            <Card sx={{p: 2}}>
+
+              <Stack spacing={3} mt={2}>
               <div>
                 <RHFSwitch sx={{textAlign: "right", display: "flex", flexDirection: "row-reverse", justifyContent: "space-between"}} labelPlacement="start" name="is_available" label="Available" />
               </div>
@@ -264,95 +257,13 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
                   onUpload={() => console.log('ON UPLOAD')}
                 />
               </div>
-            </Stack>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Stack spacing={3}>
-            <Card sx={{p: 2}}>
-
-              <Stack spacing={3} mt={2}>
-                {/* <RHFTextField name="code" label="Product Code" />
-
-                <RHFTextField name="sku" label="Product SKU" /> */}
-
-              <div>
-                <LabelStyle>Description</LabelStyle>
-                <RHFEditor simple name="description" />
-              </div>
-              <div>
-                <LoadingButton fullWidth type="submit" variant="contained" size="large" loading={isSubmitting}>
-                  {!isEdit && !currentProduct?.id ? 'Create Product' : 'Save Changes'}
-                </LoadingButton>
-              </div>
-
-                {/* <RHFSelect name="category" label="Category">
-                  {CATEGORY_OPTION.map((category) => (
-                    <optgroup key={category.group} label={category.group}>
-                      {category.classify.map((classify) => (
-                        <option key={classify} value={classify}>
-                          {classify}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </RHFSelect>
-
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      multiple
-                      freeSolo
-                      onChange={(event, newValue) => field.onChange(newValue)}
-                      options={TAGS_OPTION.map((option) => option)}
-                      renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                          <Chip {...getTagProps({ index })} key={option} size="small" label={option} />
-                        ))
-                      }
-                      renderInput={(params) => <TextField label="Tags" {...params} />}
-                    />
-                  )}
-                /> */}
               </Stack>
             </Card>
-
-            {/* <Card sx={{ p: 3 }}>
-              <Stack spacing={3} mb={2}>
-                <RHFTextField
-                  name="price"
-                  label="Regular Price"
-                  placeholder="0.00"
-                  value={getValues('price') === 0 ? '' : getValues('price')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                    type: 'number',
-                  }}
-                />
-
-                <RHFTextField
-                  name="priceSale"
-                  label="Sale Price"
-                  placeholder="0.00"
-                  value={getValues('priceSale') === 0 ? '' : getValues('priceSale')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                    type: 'number',
-                  }}
-                />
-              </Stack>
-
-              <RHFSwitch name="taxes" label="Price includes taxes" />
-            </Card> */}
-
+            <div>
+              <LoadingButton fullWidth type="submit" variant="contained" size="large" loading={isSubmitting}>
+                {!isEdit && !currentProduct?.id ? 'Create Product' : 'Save Changes'}
+              </LoadingButton>
+            </div>
           </Stack>
         </Grid>
       </Grid>
