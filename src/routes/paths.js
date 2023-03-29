@@ -85,10 +85,10 @@ export const PATH_DASHBOARD = {
   invoice: {
     root: path(ROOTS_DASHBOARD, '/invoice'),
     list: path(ROOTS_DASHBOARD, '/invoice/list'),
-    // new: path(ROOTS_DASHBOARD, '/invoice/new'),
+    new: path(ROOTS_DASHBOARD, '/invoice/new'),
     view: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}`),
-    // edit: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}/edit`),
-    // demoEdit: path(ROOTS_DASHBOARD, '/invoice/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1/edit'),
+    edit: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}/edit`),
+    demoEdit: path(ROOTS_DASHBOARD, '/invoice/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1/edit'),
     demoView: path(ROOTS_DASHBOARD, '/invoice/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5'),
   },
   // blog: {

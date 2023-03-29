@@ -177,16 +177,16 @@ export default function InvoiceList() {
             { name: 'Invoices', href: PATH_DASHBOARD.invoice.root },
             { name: 'List' },
           ]}
-          action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.invoice.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              New Invoice
-            </Button>
-          }
+          // action={
+          //   <Button
+          //     variant="contained"
+          //     component={RouterLink}
+          //     to={PATH_DASHBOARD.invoice.new}
+          //     startIcon={<Iconify icon={'eva:plus-fill'} />}
+          //   >
+          //     New Invoice
+          //   </Button>
+          // }
         />
 
         <Card sx={{ mb: 5 }}>

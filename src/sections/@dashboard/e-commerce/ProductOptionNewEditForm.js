@@ -110,7 +110,8 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
                     <TableCell>{elm.length}</TableCell>
                     <TableCell>
                         <Button onClick={() => handleEditOption(elm)}>Edit</Button>
-                        </TableCell>
+                        <Button color="error" onClick={() => console.log("remove", elm.id)}>Delete</Button>
+                    </TableCell>
                 </TableRow>
             ))}
             {(!currentOptions || currentOptions.length === 0) && (
@@ -131,7 +132,15 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
             </Table>
             
         </TableContainer>
-        <ModalEditForm currentOption={editOption} open={open} setOpen={setOpen} enqueueSnackbar={enqueueSnackbar} currentProduct={currentProduct} onCreateOption={onCreateOption}/>
+        <ModalEditForm 
+            currentOption={editOption} 
+            open={open} 
+            setOpen={setOpen} 
+            enqueueSnackbar={enqueueSnackbar} 
+            currentProduct={currentProduct} 
+            onCreateOption={onCreateOption}
+            setEditOption={setEditOption}
+        />
         
         <Box display="flex" flexDirection="row" justifyContent="space-between">
             <Button onClick={() => setActiveStep(0)}>
@@ -146,16 +155,16 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
 }
 
 ModalEditForm.propTypes = {
-    isEdit: PropTypes.bool,
     currentProduct: PropTypes.object,
     currentOption: PropTypes.object,
     open: PropTypes.bool,
     setOpen: PropTypes.func,
     enqueueSnackbar: PropTypes.func,
     onCreateOption: PropTypes.func,
+    setEditOption: PropTypes.func,
 }
 
-function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, enqueueSnackbar, onCreateOption}) {
+function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSnackbar, onCreateOption, setEditOption}) {
     const NewProductSchema = Yup.object().shape({
         unit: Yup.string().required('Unit is required'),
         uploaded_images: Yup.array(),
@@ -199,14 +208,11 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
     const values = watch();
 
     useEffect(() => {
-        if (isEdit && currentOption) {
-        reset(defaultValues);
-        }
-        if (!isEdit) {
+        if (currentOption) {
         reset(defaultValues);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isEdit, currentOption]);
+    }, [currentOption]);
     
     const onSubmit = async () => {
         try {
@@ -226,7 +232,8 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
             onCreateOption(resp.data);
             reset();
             setOpen(false);
-            enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+            enqueueSnackbar(!currentOption ? 'Create success!' : 'Update success!');
+            setEditOption(null);
         } 
         catch (error) {
             console.error(error);
@@ -264,8 +271,14 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
         }
     }, [errors])
 
+    const handleCloseModal = () => {
+        setOpen(false);
+        setEditOption(null);
+        reset();
+    }
+
     return(
-        <Modal onClose={() => setOpen(false)} open={open}>
+        <Modal onClose={handleCloseModal} open={open}>
             <Card 
                 sx={{
                     position: "absolute", 
@@ -281,7 +294,7 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
                 <Scrollbar>
                     <Stack flexDirection="row" justifyContent="space-between">
                         <Typography color="primary" variant="h4" sx={{p: 2}}>Option Information</Typography>
-                        <Button onClick={() => setOpen(false)}>
+                        <Button onClick={handleCloseModal}>
                             <CloseIcon />
                         </Button>
                     </Stack>
@@ -308,16 +321,28 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
                                 }
                                 <div>
                                     <LabelStyle>New Images</LabelStyle>
-                                    <RHFUploadMultiFile
-                                        showPreview
-                                        name="uploaded_images"
-                                        accept="image/*"
-                                        maxSize={3145728}
-                                        onDrop={handleDrop}
-                                        onRemove={handleRemove}
-                                        onRemoveAll={handleRemoveAll}
-                                        onUpload={() => console.log('ON UPLOAD')}
-                                    />
+                                    {currentOption ? 
+                                        <RHFUploadMultiFile
+                                            showPreview
+                                            name="uploaded_images"
+                                            accept="image/*"
+                                            maxSize={3145728}
+                                            onDrop={handleDrop}
+                                            onRemove={handleRemove}
+                                            onRemoveAll={handleRemoveAll}
+                                            onUpload={() => console.log("upload")}
+                                        />
+                                    :
+                                        <RHFUploadMultiFile
+                                            showPreview
+                                            name="uploaded_images"
+                                            accept="image/*"
+                                            maxSize={3145728}
+                                            onDrop={handleDrop}
+                                            onRemove={handleRemove}
+                                            onRemoveAll={handleRemoveAll}
+                                        />
+                                    }
                                 </div>
                                 </Stack>
                             </Card>
@@ -387,7 +412,7 @@ function ModalEditForm({isEdit, currentProduct, currentOption, open, setOpen, en
                                 </Card>
 
                                 <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-                                {!isEdit ? 'Create Option' : 'Save Changes'}
+                                {!currentOption ? 'Create Option' : 'Save Changes'}
                                 </LoadingButton>
                             </Stack>
                             </Grid>

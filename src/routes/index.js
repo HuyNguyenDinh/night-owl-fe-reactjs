@@ -204,9 +204,9 @@ const InvoiceEdit = Loadable(lazy(() => import('../pages/dashboard/InvoiceEdit')
 // USER
 const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
 const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
-const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
+// const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
-const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
+// const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 
 // APP
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
@@ -218,10 +218,10 @@ const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const PermissionDenied = Loadable(lazy(() => import('../pages/dashboard/PermissionDenied')));
 
 // MAIN
-const HomePage = Loadable(lazy(() => import('../pages/Home')));
-const About = Loadable(lazy(() => import('../pages/About')));
-const Contact = Loadable(lazy(() => import('../pages/Contact')));
-const Faqs = Loadable(lazy(() => import('../pages/Faqs')));
+// const HomePage = Loadable(lazy(() => import('../pages/Home')));
+// const About = Loadable(lazy(() => import('../pages/About')));
+// const Contact = Loadable(lazy(() => import('../pages/Contact')));
+// const Faqs = Loadable(lazy(() => import('../pages/Faqs')));
 const ComingSoon = Loadable(lazy(() => import('../pages/ComingSoon')));
 const Maintenance = Loadable(lazy(() => import('../pages/Maintenance')));
 const Pricing = Loadable(lazy(() => import('../pages/Pricing')));
