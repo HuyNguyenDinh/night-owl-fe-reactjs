@@ -217,7 +217,6 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
     const onSubmit = async () => {
         try {
             const data = new FormData();
-            console.log(values);
             Object.keys(values).forEach((key) => {
                 if (key === "uploaded_images") {
                     values[key].map((image) => data.append(key, image))
@@ -226,7 +225,6 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                     data.append(key, values[key]);
                 }
             });
-            console.log(...data)
             const resp = await axiosInstance.post(`/market/products/${currentProduct.id}/add-option/`, data);
             console.log(resp.data);
             onCreateOption(resp.data);
@@ -325,7 +323,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                                         <RHFUploadMultiFile
                                             showPreview
                                             name="uploaded_images"
-                                            accept="image/*"
+                                            // accept="image/*"
                                             maxSize={3145728}
                                             onDrop={handleDrop}
                                             onRemove={handleRemove}
@@ -336,7 +334,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                                         <RHFUploadMultiFile
                                             showPreview
                                             name="uploaded_images"
-                                            accept="image/*"
+                                            // accept="image/*"
                                             maxSize={3145728}
                                             onDrop={handleDrop}
                                             onRemove={handleRemove}

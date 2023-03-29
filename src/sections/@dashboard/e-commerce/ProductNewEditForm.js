@@ -200,22 +200,13 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
     setValue("categories", newCategories)
   }
 
-  // const handleRemoveAll = () => {
-  //   setValue('images', []);
-  // };
-
-  // const handleRemove = (file) => {
-  //   const filteredItems = values.images?.filter((_file) => _file !== file);
-  //   setValue('images', filteredItems);
-  // };
-
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
-              <RHFTextField name="name" onChange={(event) => setCurrentProduct({...currentProduct, name: event.target.value})} label="Product Name" />
+              <RHFTextField name="name" onChange={(event) => setValue("name", event.target.value)} label="Product Name" />
               <Autocomplete
                 multiple
                 freeSolo
