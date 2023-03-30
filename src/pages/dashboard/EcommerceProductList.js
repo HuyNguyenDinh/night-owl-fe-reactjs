@@ -16,12 +16,12 @@ import {
   TablePagination,
   FormControlLabel,
 } from '@mui/material';
-// redux
-import { useDispatch, useSelector } from '../../redux/store';
-import { getProducts } from '../../redux/slices/product';
+// utils
+import axiosInstance from '../../utils/axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
+import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // components
@@ -42,11 +42,11 @@ import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Product', align: 'left' },
-  { id: 'createdAt', label: 'Create at', align: 'left' },
-  { id: 'inventoryType', label: 'Status', align: 'center', width: 180 },
-  { id: 'price', label: 'Price', align: 'right' },
-  { id: '' },
+  { id: 'name', label: 'Product', align: 'left', width: 350 },
+  { id: 'soldAmount', label: 'Sold amount', align: 'center', width: 120 },
+  { id: 'isAvailable', label: 'Available', align: 'center', width: 40 },
+  { id: 'price', label: 'Price', align: 'right', width: 80 },
+  { id: '', width: 40 },
 ];
 
 // ----------------------------------------------------------------------
@@ -77,23 +77,30 @@ export default function EcommerceProductList() {
 
   const navigate = useNavigate();
 
-  const dispatch = useDispatch();
+  const { user } = useAuth();
 
-  const { products, isLoading } = useSelector((state) => state.product);
+  const [ownProducts, setOwnProducts] = useState([]);
 
   const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
+    const getOwnProducts = async () => {
+      const response = await axiosInstance.get(`/market/products/?owner=${user?.id}`);
+      setOwnProducts(response.data.results);
     }
-  }, [products]);
+    getOwnProducts();
+  }, [user?.id])
+
+  useEffect(() => {
+    if (ownProducts.length) {
+      setTableData(ownProducts);
+      setIsLoading(false);
+    }
+  }, [ownProducts]);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -101,9 +108,18 @@ export default function EcommerceProductList() {
   };
 
   const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
+    const deleteProduct = async () => {
+      try {
+        await axiosInstance.delete(`/market/products/${id}/`);
+        const deleteRow = tableData.filter((row) => row.id !== id);
+        setSelected([]);
+        setTableData(deleteRow);
+      }
+      catch(error) {
+        console.log(error);
+      }
+    }
+    deleteProduct();
   };
 
   const handleDeleteRows = (selected) => {
@@ -113,7 +129,7 @@ export default function EcommerceProductList() {
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.eCommerce.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.eCommerce.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -124,7 +140,8 @@ export default function EcommerceProductList() {
 
   const denseHeight = dense ? 60 : 80;
 
-  const isNotFound = (!dataFiltered.length && !!filterName) || (!isLoading && !dataFiltered.length);
+  // const isNotFound = (!dataFiltered.length && !!filterName) || (!isLoading && !dataFiltered.length);
+  const isNotFound = !isLoading && !ownProducts;
 
   return (
     <Page title="Ecommerce: Product List">
@@ -204,7 +221,7 @@ export default function EcommerceProductList() {
                           selected={selected.includes(row.id)}
                           onSelectRow={() => onSelectRow(row.id)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.name)}
+                          onEditRow={() => handleEditRow(row.id)}
                         />
                       ) : (
                         !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />

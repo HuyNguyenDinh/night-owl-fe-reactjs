@@ -27,7 +27,7 @@ ProductTableRow.propTypes = {
 export default function ProductTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { name, cover, createdAt, inventoryType, price } = row;
+  const { name, picture } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -46,27 +46,25 @@ export default function ProductTableRow({ row, selected, onEditRow, onSelectRow,
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Image disabledEffect alt={name} src={cover} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
-        <Typography variant="subtitle2" noWrap>
+        <Image disabledEffect alt={name} src={picture} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
+        <Typography variant="subtitle2">
           {name}
         </Typography>
       </TableCell>
 
-      <TableCell>{fDate(createdAt)}</TableCell>
+      <TableCell align="center">{row.sold_amount}</TableCell>
 
       <TableCell align="center">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={
-            (inventoryType === 'out_of_stock' && 'error') || (inventoryType === 'low_stock' && 'warning') || 'success'
-          }
+          color={ row.is_available ? "success" : "error" }
           sx={{ textTransform: 'capitalize' }}
         >
-          {inventoryType ? sentenceCase(inventoryType) : ''}
+          {row.is_available ? "Available" : "Not available"}
         </Label>
       </TableCell>
 
-      <TableCell align="right">{fCurrency(price)}</TableCell>
+      <TableCell align="right">{fCurrency(row.min_price)}</TableCell>
 
       <TableCell align="right">
         <TableMoreMenu

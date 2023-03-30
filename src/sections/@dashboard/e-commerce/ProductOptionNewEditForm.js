@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 // form
 import { 
     useForm, 
@@ -41,7 +42,7 @@ import axiosInstance from '../../../utils/axios';
 // components
 import {
   FormProvider,
-  RHFSwitch,
+//   RHFSwitch,
 //   RHFSelect,
 //   RHFEditor,
   RHFTextField,
@@ -61,14 +62,13 @@ const LabelStyle = styled(Typography)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 ProductOptionNewEditForm.propTypes = {
-  isEdit: PropTypes.bool,
   currentProduct: PropTypes.object,
   currentOptions: PropTypes.array,
   setCurrentOptions: PropTypes.func,
   setActiveStep: PropTypes.func
 };
 
-export default function ProductOptionNewEditForm({ isEdit, currentProduct, setActiveStep, currentOptions, setCurrentOptions }) {
+export default function ProductOptionNewEditForm({ currentProduct, setActiveStep, currentOptions, setCurrentOptions }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [editOption, setEditOption] = useState();
@@ -76,6 +76,16 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
   const handleEditOption = (option) => {
     setEditOption(option);
     setOpen(true);
+  };
+
+  const handleDeleteOption = async (optionID) => {
+    try {
+        await axiosInstance.delete(`/market/options/${optionID}/`);
+        setCurrentOptions(currentOptions.filter((elm) => elm.id !== optionID));
+    }
+    catch(error) {
+        console.log(error);
+    }
   }
 
   const { enqueueSnackbar } = useSnackbar();
@@ -110,7 +120,7 @@ export default function ProductOptionNewEditForm({ isEdit, currentProduct, setAc
                     <TableCell>{elm.length}</TableCell>
                     <TableCell>
                         <Button onClick={() => handleEditOption(elm)}>Edit</Button>
-                        <Button color="error" onClick={() => console.log("remove", elm.id)}>Delete</Button>
+                        <Button color="error" onClick={() => handleDeleteOption(elm.id)}>Delete</Button>
                     </TableCell>
                 </TableRow>
             ))}
@@ -208,10 +218,8 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
     const values = watch();
 
     useEffect(() => {
-        if (currentOption) {
         reset(defaultValues);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentOption]);
     
     const onSubmit = async () => {
@@ -226,12 +234,10 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                 }
             });
             const resp = await axiosInstance.post(`/market/products/${currentProduct.id}/add-option/`, data);
-            console.log(resp.data);
             onCreateOption(resp.data);
-            reset();
             setOpen(false);
-            enqueueSnackbar(!currentOption ? 'Create success!' : 'Update success!');
             setEditOption(null);
+            enqueueSnackbar(!currentOption ? 'Create success!' : 'Update success!');
         } 
         catch (error) {
             console.error(error);
@@ -323,7 +329,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                                         <RHFUploadMultiFile
                                             showPreview
                                             name="uploaded_images"
-                                            // accept="image/*"
+                                            accept="image/*"
                                             maxSize={3145728}
                                             onDrop={handleDrop}
                                             onRemove={handleRemove}
@@ -334,7 +340,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                                         <RHFUploadMultiFile
                                             showPreview
                                             name="uploaded_images"
-                                            // accept="image/*"
+                                            accept="image/*"
                                             maxSize={3145728}
                                             onDrop={handleDrop}
                                             onRemove={handleRemove}

@@ -58,10 +58,10 @@ ProductNewEditForm.propTypes = {
 };
 
 export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentProduct, setActiveStep }) {
-  // const navigate = useNavigate();
   const [systemCategories, setSystemCategories] = useState([]);
   const [currentCategories, setCurrentCategories] = useState([]);
   const [isChangePicture, setIsChangePicture] = useState(false);
+  const [isInit, setIsInit] = useState(true);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -79,8 +79,8 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
       picture: null,
-      is_available: true,
-      categories: currentProduct?.categories || [],
+      is_available: currentProduct?.is_available || true,
+      categories: [],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentProduct]
@@ -104,34 +104,45 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
   const values = watch();
 
   useEffect(() => {
+    if (systemCategories && systemCategories.length > 0 && currentProduct && isInit) {
+      let initialValues = {...defaultValues};
+      if (currentProduct.categories) {
+        const tempCategories = currentProduct.categories.map((elm) => systemCategories.find(item => item.id === elm.id || item.id === elm));
+        if (tempCategories) {
+          setCurrentCategories(tempCategories);
+          const newCategories = tempCategories.map((elm) => elm.id);
+          initialValues = {
+            ...initialValues, 
+            categories: newCategories, 
+            picture: Object.assign(currentProduct?.picture, {
+              preview: currentProduct?.picture || URL.createObjectURL(currentProduct?.picture),
+            })
+          };
+        }
+      }
+      reset(initialValues);
+    }
+    if (!isEdit) {
+      reset(defaultValues);
+    }
+  }, [isEdit, reset, currentProduct, defaultValues,systemCategories, isInit])
+
+  useEffect(() => {
     const getCategories = async () => {
       try {
         const resp = await axiosInstance.get("/market/category/");
         setSystemCategories(resp.data.results);
-        if (currentProduct?.categories) {
-          setCurrentCategories(currentProduct?.categories?.map((elm) => resp.data.results.find(item => item.id === elm)));
-        }
       }
       catch(error) {
         console.log(error);
       }
     };
     getCategories();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    if (isEdit && currentProduct) {
-      reset(defaultValues);
-    }
-    if (!isEdit) {
-      reset(defaultValues);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentProduct]);
+  }, [isEdit]);
 
   useEffect(() => {
-    if (errors) {
+    if (errors && errors.length > 0) {
       console.log(errors);
     }
   }, [errors]);
@@ -160,11 +171,13 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
       }
       values.categories.map((item) => data.append("categories", item));
       if (currentProduct && currentProduct.id) {
-        const resp = await axiosInstance.patch(`/market/products/${currentProduct.id}/`, data)
+        const resp = await axiosInstance.patch(`/market/products/${currentProduct.id}/`, data);
+        setIsInit(false);
         setCurrentProduct({...resp.data});
       }
       else {
-        const resp = await axiosInstance.post("/market/products/", data)
+        const resp = await axiosInstance.post("/market/products/", data);
+        setIsInit(false);
         setCurrentProduct({...resp.data});
       }
       reset();
@@ -196,7 +209,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
 
   const handleChangeCategory = (newValue) => {
     setCurrentCategories(newValue);
-    const newCategories = newValue.map((elm) => systemCategories.find(item => item.name === elm.name).id)
+    const newCategories = newValue.map((elm) => systemCategories.find(item => item.name === elm.name).id);
     setValue("categories", newCategories)
   }
 
