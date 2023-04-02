@@ -12,76 +12,78 @@ import {
     TableHead,
     TableBody,
     TableRow,
-    TableCell
+    TableCell,
+    Chip,
+    Button
 } from '@mui/material';
+// route paths
+import { PATH_DASHBOARD } from '../../../routes/paths';
 // component
 import Image from '../../../components/Image';
+// utils
+import { fNumber } from '../../../utils/formatNumber';
+
 
 ProductOverview.propTypes = {
-    currentProduct: PropTypes.object({
-        available: PropTypes.number,
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        name: PropTypes.string,
-        option_set: PropTypes.arrayOf(
-            PropTypes.shape({
-                id: PropTypes.number,
-                picture_set: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        id: PropTypes.number,
-                        image: PropTypes.string,
-                    })
-                ),
-                price: PropTypes.any,
-                unit_in_stock: PropTypes.number,
-            })
-        ),
-        is_available: PropTypes.bool,
-        sold_amount: PropTypes.number,
-        picture: PropTypes.string,
-        description: PropTypes.any,
-        categories: PropTypes.arrayOf(
-            PropTypes.shape({
-                id: PropTypes.any,
-                name: PropTypes.string,
-            })
-        ),
-        avg_rating: PropTypes.number,
-        ratings: PropTypes.any,
-        totalRatings: PropTypes.any,
-        owner: PropTypes.any,
-    }),
-    currentOptions: PropTypes.array
+    currentProduct: PropTypes.object,
+    currentOptions: PropTypes.array,
+    setActiveStep: PropTypes.func,
+    systemCategories: PropTypes.array,
 }
 
-export default function ProductOverview({currentOptions, currentProduct}) {
+export default function ProductOverview({currentOptions, currentProduct, setActiveStep, systemCategories}) {
     const navigate = useNavigate();
 
     return (
         <Box>
-            
-            <div>
-                <h1>
-                    Hello world
-                </h1>
-            </div>
+            <ProductInformation systemCategories={systemCategories} currentProduct={currentProduct} />
+            <OptionInformation currentOptions={currentOptions} />
+            <Box marginTop={6} display="flex" flexDirection="row" justifyContent="space-between">
+                <Button onClick={() => setActiveStep(1)}>
+                    Back
+                </Button>
+                <Button variant="contained" onClick={() => navigate(PATH_DASHBOARD.eCommerce.list)}>
+                    Complete
+                </Button>
+            </Box>
         </Box>
     )
 }
 
 ProductInformation.propTypes = {
     currentProduct: PropTypes.object,
+    systemCategories: PropTypes.array,
 }
 
-function ProductInformation({currentProduct}) {
+function ProductInformation({currentProduct, systemCategories}) {
+    const currentCategories = systemCategories.filter((elm) => currentProduct.categories.includes(elm.id))
     return (
         <Card>
             <Grid container>
-                <Grid item xs={4}>
-                    <Image />
-                    <Stack>
-                        <Typography variant='h6'>
+                <Grid item xs={3}>
+                    <Image src={currentProduct.picture} />
+                </Grid>
+                <Grid item xs={9} sx={{margin: "auto auto"}}>
+                    <Stack sx={{p: 6, rowGap: 2}}>
+                        <Typography variant='h4'>
                             {currentProduct.name}
                         </Typography>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography variant='subtitle2'>
+                                Status: 
+                            </Typography>
+                            <Chip color={currentProduct.is_available ? "success" : "error"} label={currentProduct.is_available ? "Available": "Not available"}/>
+                        </Stack>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography variant='subtitle2'>
+                                Categories: 
+                            </Typography>
+                            <Stack direction="row" spacing={1}>
+                                {currentCategories.map((elm) => (
+                                    <Chip key={elm.id} label={elm.name}/>
+                                ))}
+                            </Stack>
+                        </Stack>
                     </Stack>
                 </Grid>
             </Grid>
@@ -89,16 +91,61 @@ function ProductInformation({currentProduct}) {
     )
 }
 
-// OptionInformation.propTypes = {
-//     currentOptions: PropTypes.array,
-// }
+OptionInformation.propTypes = {
+    currentOptions: PropTypes.array,
+}
 
-// function OptionInformation({currentOptions}) {
-//     return (
-//         <TableContainer>
-//             <Table>
-                
-//             </Table>
-//         </TableContainer>
-//     )
-// }
+function OptionInformation({currentOptions}) {
+    return (
+        <TableContainer>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                    <TableCell sx={{textAlign: "center"}}>
+                            Unit
+                        </TableCell>
+                        <TableCell sx={{textAlign: "center"}}>
+                            Price
+                        </TableCell>
+                        <TableCell sx={{textAlign: "center"}}>
+                            Unit in stock
+                        </TableCell>
+                        <TableCell sx={{textAlign: "center"}}>
+                            Width
+                        </TableCell>
+                        <TableCell sx={{textAlign: "center"}}>
+                            Height
+                        </TableCell>
+                        <TableCell sx={{textAlign: "center"}}>
+                            Length
+                        </TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {currentOptions.map((elm) => (
+                        <TableRow key={elm.id}>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {elm.unit}
+                            </TableCell>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {fNumber(elm.price)} ₫
+                            </TableCell>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {elm.unit_in_stock}
+                            </TableCell>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {elm.width}
+                            </TableCell>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {elm.height}
+                            </TableCell>
+                            <TableCell sx={{textAlign: "center"}}>
+                                {elm.length}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    )
+}

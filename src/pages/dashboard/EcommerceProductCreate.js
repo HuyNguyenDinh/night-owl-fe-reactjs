@@ -15,6 +15,7 @@ import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import Iconify from '../../components/Iconify';
 import ProductNewEditForm from '../../sections/@dashboard/e-commerce/ProductNewEditForm';
 import ProductOptionNewEditForm from '../../sections/@dashboard/e-commerce/ProductOptionNewEditForm';
+import ProductOverview from '../../sections/@dashboard/e-commerce/ProductOverview';
 import axiosInstance from '../../utils/axios';
 
 // ----------------------------------------------------------------------
@@ -77,6 +78,7 @@ export default function EcommerceProductCreate() {
   const { pathname } = useLocation();
   const { id } = useParams();
   const isEdit = pathname.includes('edit');
+  const [systemCategories, setSystemCategories] = useState([]);
   const [currentProduct, setCurrentProduct] = useState();
   const [currentOptions, setCurrentOptions] = useState([]);
   const [isCreated, setIsCreated] = useState(false);
@@ -94,6 +96,20 @@ export default function EcommerceProductCreate() {
       getProduct();
     }
   }, [id]);
+
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const resp = await axiosInstance.get("/market/category/");
+        setSystemCategories(resp.data.results);
+      }
+      catch(error) {
+        console.log(error);
+      }
+    };
+    getCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit]);
 
   return (
     <Page title="Ecommerce: Create a new product">
@@ -137,6 +153,7 @@ export default function EcommerceProductCreate() {
           <>
             {activeStep === 0 && 
               <ProductNewEditForm 
+                systemCategories={systemCategories}
                 isEdit={isEdit} 
                 currentProduct={currentProduct} 
                 setCurrentProduct={setCurrentProduct} 
@@ -153,10 +170,12 @@ export default function EcommerceProductCreate() {
                 currentProduct={currentProduct}
               />
             }
-            {activeStep === 2 && <></>}
+            {activeStep === 2 && 
+              <ProductOverview systemCategories={systemCategories} setActiveStep={setActiveStep} currentProduct={currentProduct} currentOptions={currentOptions} /> 
+            }
           </>
         ) : (
-          <></>
+          <ProductOverview systemCategories={systemCategories} setActiveStep={setActiveStep} currentProduct={currentProduct} currentOptions={currentOptions} />
         )}
       </Container>
     </Page>

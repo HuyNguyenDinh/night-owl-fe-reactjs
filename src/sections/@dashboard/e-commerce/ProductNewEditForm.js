@@ -55,10 +55,10 @@ ProductNewEditForm.propTypes = {
   currentProduct: PropTypes.object,
   setCurrentProduct: PropTypes.func,
   setActiveStep: PropTypes.func,
+  systemCategories: PropTypes.array
 };
 
-export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentProduct, setActiveStep }) {
-  const [systemCategories, setSystemCategories] = useState([]);
+export default function ProductNewEditForm({ isEdit, systemCategories, currentProduct, setCurrentProduct, setActiveStep }) {
   const [currentCategories, setCurrentCategories] = useState([]);
   const [isChangePicture, setIsChangePicture] = useState(false);
   const [isInit, setIsInit] = useState(true);
@@ -125,21 +125,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct, setCurrentP
     if (!isEdit) {
       reset(defaultValues);
     }
-  }, [isEdit, reset, currentProduct, defaultValues,systemCategories, isInit])
-
-  useEffect(() => {
-    const getCategories = async () => {
-      try {
-        const resp = await axiosInstance.get("/market/category/");
-        setSystemCategories(resp.data.results);
-      }
-      catch(error) {
-        console.log(error);
-      }
-    };
-    getCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit]);
+  }, [isEdit, reset, currentProduct, defaultValues, systemCategories, isInit])
 
   useEffect(() => {
     if (errors && errors.length > 0) {

@@ -75,6 +75,7 @@ export default function CheckoutCart() {
         await axiosInstance.post("/market/cart/delete-multiple/", {
             list_cart: checkedCarts
         })
+        setCheckedCarts([]);
       }
       catch (error) {
         console.log(error);

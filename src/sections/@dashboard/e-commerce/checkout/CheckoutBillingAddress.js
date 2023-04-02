@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink } from 'react-router-dom';
 // import sum from 'lodash/sum';
@@ -14,8 +15,11 @@ import {
   CardHeader, 
   CardContent, 
   Divider, 
-  Link 
+  Link,
+  Modal,
+  IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { SkeletionCard } from '../../../../components/skeleton';
 // path route
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -37,10 +41,15 @@ import Iconify from '../../../../components/Iconify';
 import Image from '../../../../components/Image';
 //
 import CheckoutSummary from './CheckoutSummary';
+import axiosInstance from '../../../../utils/axios';
 // import CheckoutNewAddressForm from './CheckoutNewAddressForm';
 // ----------------------------------------------------------------------
 
-export default function CheckoutBillingAddress() {
+CheckoutBillingAddress.propTypes = {
+  orders: PropTypes.array
+}
+
+export default function CheckoutBillingAddress({ orders }) {
   const dispatch = useDispatch();
 
   const { checkout } = useSelector((state) => state.product);
@@ -61,12 +70,12 @@ export default function CheckoutBillingAddress() {
   // };
 
   return (
-    <>
+    <div>
       {checkout.orders.length > 0 &&
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             {checkout.orders && checkout.orders.map((order) => (
-              <OrderItem key={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
+              <OrderItem key={order.id} orderID={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button
@@ -82,12 +91,13 @@ export default function CheckoutBillingAddress() {
 
           <Grid item xs={12} md={4}>
             <CheckoutSummary 
-              onApplyDiscount={() => console.log("apply discount")} 
+              // onApplyDiscount={() => console.log("apply discount")} 
               enableDiscount 
               subtotal={subtotal} 
               total={subtotal + shipping} 
               discount={discount} 
-              shipping={shipping} 
+              shipping={shipping}
+              orders={orders}
             />
             <Button variant="contained" fullWidth onClick={handleNextStep}>
               Checkout
@@ -96,32 +106,60 @@ export default function CheckoutBillingAddress() {
         </Grid>
       }
       {checkout.orders.length <= 0 && <SkeletionCard /> }
-    </>
+    </div>
   );
 }
 
 // ----------------------------------------------------------------------
 
 OrderItem.propTypes = {
+  orderID: PropTypes.any,
   store: PropTypes.object,
   cost: PropTypes.any,
   orderDetails: PropTypes.array,
   shippingFee: PropTypes.any,
 }
 
-function OrderItem({store, cost, orderDetails, shippingFee}) {
+function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
+  
+  const [open, setOpen] = useState(false);
+  const [orderVouchers, setOrderVouchers] = useState([]);
+  const [copiedVoucher, setCopiedVoucher] = useState();
+
+  useEffect(() => {  
+    const getVoucherAvailable = async () => {
+      const response = await axiosInstance.get(`/market/orders/${orderID}/voucher-available/`);
+      setOrderVouchers(response.data);
+    }
+    getVoucherAvailable();
+  }, [orderID])
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleCopy = (voucher) => {
+    setCopiedVoucher(voucher.id);
+    navigator.clipboard.writeText(voucher.code);
+  }
+
   return (
     <Card sx={{marginBottom: "5vh"}}>
       <CardHeader 
         title={
-          <Link to={PATH_DASHBOARD.user.store(store.id)} color="text.primary" component={RouterLink}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar src={store.avatar} />
-              <Typography variant="h5">
-                {[store.first_name, store.last_name].join(" ")}
-              </Typography>
-            </Stack>
-          </Link>
+          <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+            <Link to={PATH_DASHBOARD.user.store(store.id)} color="text.primary" component={RouterLink}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar src={store.avatar} />
+                  <Typography variant="h5">
+                    {[store.first_name, store.last_name].join(" ")}
+                  </Typography>
+                </Stack>
+            </Link>
+            <Button onClick={() => setOpen(true)}>
+              Show Vouchers
+            </Button>
+          </Stack>
         }
       />
       <CardContent>
@@ -164,6 +202,59 @@ function OrderItem({store, cost, orderDetails, shippingFee}) {
         </Typography>
       </Stack>
       </CardContent>
+      <Modal onClose={handleClose} open={open}>
+        <Card
+          sx={{
+            position: "absolute", 
+            p: 5,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: "40%",
+            height: "80vh",
+            padding: 1,
+        }}   
+        >
+          <CardHeader 
+            title={
+              <Stack direction="row" justifyContent="space-between">
+                <Typography>
+                  Vouchers
+                </Typography>
+                <IconButton onClick={handleClose}>
+                  <CloseIcon />
+                </IconButton>
+              </Stack>
+            } 
+          />
+          <CardContent>
+            {orderVouchers && orderVouchers.map((elm) => (
+              <Card key={elm.id}>
+                <Grid container>
+                  <Grid item xs={3}>
+                    <Image sx={{p: 2}} src={elm.creator === store.id ? store.avatar : "https://res.cloudinary.com/dectbvmyx/image/upload/v1680423408/NOM-Logo_512_512_px_l0djyn.png"} />
+                  </Grid>
+                  <Grid item xs={6} margin="auto">
+                    <Stack sx={{p: 3}} spacing={1} justifyItems="center">
+                      <Typography>
+                        Discount: {fNumber(elm.discount)} {elm.is_percentage && "%"}
+                      </Typography>
+                      <Typography>
+                        Expired date: {elm.end_date ? elm.end_date : "Forever"}
+                      </Typography>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={3} margin="auto" textAlign="center">
+                    <Button variant={copiedVoucher === elm.id && "contained"} onClick={() => handleCopy(elm)}>
+                      Copy
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+      </Modal>
     </Card>
     
   )

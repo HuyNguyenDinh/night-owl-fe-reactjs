@@ -37,7 +37,6 @@ ProductDetailsSummary.propTypes = {
   onAddCart: PropTypes.func,
   onGotoStep: PropTypes.func,
   product: PropTypes.shape({
-    available: PropTypes.number,
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     name: PropTypes.string,
     option_set: PropTypes.arrayOf(

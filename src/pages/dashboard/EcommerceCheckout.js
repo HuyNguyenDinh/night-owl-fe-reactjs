@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 // import { useEffect } from 'react';
 // @mui
@@ -5,10 +6,10 @@ import { styled } from '@mui/material/styles';
 import { Box, Grid, Step, Stepper, Container, StepLabel, StepConnector } from '@mui/material';
 // redux
 import { 
-  // useDispatch, 
+  useDispatch, 
   useSelector 
 } from '../../redux/store';
-// import { getCart, createBilling } from '../../redux/slices/product';
+import { getCart } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -25,6 +26,8 @@ import {
   CheckoutOrderComplete,
   CheckoutBillingAddress,
 } from '../../sections/@dashboard/e-commerce/checkout';
+// utils
+import axiosInstance from '../../utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +84,7 @@ function QontoStepIcon({ active, completed }) {
 
 export default function EcommerceCheckout() {
   const { themeStretch } = useSettings();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // const isMountedRef = useIsMountedRef();
   const { checkout } = useSelector((state) => state.product);
   const { orders, activeStep } = checkout;
@@ -98,6 +101,15 @@ export default function EcommerceCheckout() {
   //     dispatch(createBilling(null));
   //   }
   // }, [dispatch, activeStep]);
+
+  useEffect(() => {
+    const getCartsDefault = async () => {
+      const responseCartsDefault = await axiosInstance.get("/market/cart/");
+      dispatch(getCart(responseCartsDefault.data));
+    }
+
+    getCartsDefault();
+  }, [dispatch])
 
   return (
     <Page title="Ecommerce: Checkout">
@@ -139,7 +151,7 @@ export default function EcommerceCheckout() {
         {!isComplete ? (
           <>
             {activeStep === 0 && <CheckoutCart />}
-            {activeStep === 1 && <CheckoutBillingAddress />}
+            {activeStep === 1 && <CheckoutBillingAddress orders={orders} />}
             {activeStep === 2 && orders && <CheckoutPayment />}
           </>
         ) : (

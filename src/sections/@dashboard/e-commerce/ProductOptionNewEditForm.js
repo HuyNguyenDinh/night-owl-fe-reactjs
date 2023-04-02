@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 // import axios from 'axios';
 // form
@@ -76,7 +76,7 @@ ProductOptionNewEditForm.propTypes = {
 };
 
 export default function ProductOptionNewEditForm({ currentProduct, setActiveStep, currentOptions, setCurrentOptions }) {
-  const navigate = useNavigate();
+//   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [editOption, setEditOption] = useState();
 
@@ -141,7 +141,7 @@ export default function ProductOptionNewEditForm({ currentProduct, setActiveStep
             <TableFooter>
                 <TableRow>
                     <TableCell sx={{textAlign: "center"}} colSpan={7}>
-                        <Button onClick={() => setOpen(true)}>
+                        <Button variant='contained' onClick={() => setOpen(true)}>
                             Add New Option
                         </Button>
                     </TableCell>
@@ -166,8 +166,8 @@ export default function ProductOptionNewEditForm({ currentProduct, setActiveStep
             <Button onClick={() => setActiveStep(0)}>
                 Back
             </Button>
-            <Button variant="contained" onClick={() => navigate(PATH_DASHBOARD.eCommerce.list)}>
-                Complete
+            <Button onClick={() => setActiveStep(2)}>
+                Next
             </Button>
         </Box>
     </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import {
@@ -27,8 +28,9 @@ CheckoutSummary.propTypes = {
   shipping: PropTypes.number,
   onEdit: PropTypes.func,
   enableEdit: PropTypes.bool,
-  onApplyDiscount: PropTypes.func,
+  // onApplyDiscount: PropTypes.func,
   enableDiscount: PropTypes.bool,
+  orders: PropTypes.array,
 };
 
 export default function CheckoutSummary({
@@ -37,11 +39,19 @@ export default function CheckoutSummary({
   discount,
   subtotal,
   shipping,
-  onApplyDiscount,
+  // onApplyDiscount,
+  orders,
   enableEdit = false,
   enableDiscount = false,
 }) {
   const displayShipping = shipping !== null ? 'Free' : '-';
+  const [currentVoucher, setCurrentVoucher] = useState('');
+  const [appliedVouchers, setAppliedVouchers] = useState([]);
+
+  const handleApplyDiscount = (voucher) => {
+    setAppliedVouchers([...appliedVouchers, voucher]);
+    setCurrentVoucher('');
+  }
 
   return (
     <Card sx={{ mb: 3 }}>
@@ -93,15 +103,16 @@ export default function CheckoutSummary({
             </Box>
           </Stack>
 
-          {enableDiscount && onApplyDiscount && (
+          {enableDiscount && (
             <TextField
               fullWidth
               placeholder="Discount codes / Gifts"
-              value="DISCOUNT5"
+              value={currentVoucher}
+              onChange={(event) => setCurrentVoucher(event.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <Button onClick={() => onApplyDiscount(5)} sx={{ mr: -0.5 }}>
+                    <Button onClick={() => handleApplyDiscount(currentVoucher)} sx={{ mr: -0.5 }}>
                       Apply
                     </Button>
                   </InputAdornment>
@@ -109,6 +120,21 @@ export default function CheckoutSummary({
               }}
             />
           )}
+          <Typography variant='subtitle2'>
+            Applied Vouchers
+          </Typography>
+          <Stack>
+            {appliedVouchers && appliedVouchers.map((elm) => (
+              <Stack key={elm} direction="row" spacing={2} justifyContent="space-between">
+                <Typography variant='body2'>
+                  {elm}
+                </Typography>
+                <Typography variant='body2'>
+                  - 50%
+                </Typography>
+              </Stack>
+            ))}
+          </Stack>
         </Stack>
       </CardContent>
     </Card>
