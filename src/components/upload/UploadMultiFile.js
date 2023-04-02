@@ -6,7 +6,7 @@ import { Box, Stack, Button } from '@mui/material';
 //
 import BlockContent from './BlockContent';
 import RejectionFiles from './RejectionFiles';
-import MultiFilePreview from './MultiFilePreview';
+// import MultiFilePreview from './MultiFilePreview';
 
 // ----------------------------------------------------------------------
 
@@ -34,10 +34,10 @@ UploadMultiFile.propTypes = {
 
 export default function UploadMultiFile({
   error,
-  showPreview = false,
+  // showPreview = false,
   files,
   onUpload,
-  onRemove,
+  // onRemove,
   onRemoveAll,
   helperText,
   sx,
@@ -67,13 +67,15 @@ export default function UploadMultiFile({
 
       {fileRejections.length > 0 && <RejectionFiles fileRejections={fileRejections} />}
 
-      <MultiFilePreview files={files} showPreview={showPreview} onRemove={onRemove} />
+      {/* <MultiFilePreview files={files} showPreview={showPreview} onRemove={onRemove} /> */}
 
       {files.length > 0 && (
         <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
-          <Button color="inherit" size="small" onClick={onRemoveAll}>
-            Remove all
-          </Button>
+          {onRemoveAll &&
+            <Button color="inherit" size="small" onClick={onRemoveAll}>
+              Remove all
+            </Button>
+          }
           {onUpload && 
             <Button size="small" variant="contained" onClick={onUpload}>
               Upload files

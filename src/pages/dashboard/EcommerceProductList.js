@@ -1,4 +1,4 @@
-import { paramCase } from 'change-case';
+// import { paramCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // @mui
@@ -42,8 +42,8 @@ import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Product', align: 'left', width: 350 },
-  { id: 'soldAmount', label: 'Sold amount', align: 'center', width: 120 },
+  { id: 'name', label: 'Product', align: 'left', width: 300 },
+  { id: 'soldAmount', label: 'Sold amount', align: 'center', width: 100 },
   { id: 'isAvailable', label: 'Available', align: 'center', width: 40 },
   { id: 'price', label: 'Price', align: 'right', width: 80 },
   { id: '', width: 40 },

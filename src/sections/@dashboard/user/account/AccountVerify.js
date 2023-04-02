@@ -11,7 +11,7 @@ export default function AccountVerify() {
 
     return (
         <Card sx={{ p: 3}}>
-            <Grid container xs="12" rowGap={4}>
+            <Grid container rowGap={4}>
                 <Grid item md={10}>
                     <TextField value={user.email} disabled label="Email" fullWidth/>
                 </Grid>

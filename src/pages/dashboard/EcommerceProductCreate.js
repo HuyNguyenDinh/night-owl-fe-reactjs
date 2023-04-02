@@ -106,7 +106,10 @@ export default function EcommerceProductCreate() {
               name: 'E-Commerce',
               href: PATH_DASHBOARD.eCommerce.root,
             },
-            { name: !isEdit ? 'New product' : currentProduct?.name },
+            { 
+              name: !isEdit ? 'New product' : currentProduct?.name, 
+              href: !isEdit ? PATH_DASHBOARD.eCommerce.new : PATH_DASHBOARD.eCommerce.edit(currentProduct?.id)
+            },
           ]}
         />
         <Grid container justifyContent={isComplete ? 'center' : 'flex-start'}>

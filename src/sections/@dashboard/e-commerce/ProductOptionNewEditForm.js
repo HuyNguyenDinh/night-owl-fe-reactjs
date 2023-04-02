@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 // form
 import { 
     useForm, 
@@ -11,7 +11,7 @@ import {
 } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 import { 
     Card, 
@@ -24,8 +24,8 @@ import {
     InputAdornment ,
     Button,
     Modal,
-    ImageList,
-    ImageListItem,
+    // ImageList,
+    // ImageListItem,
     TableContainer,
     TableHead,
     TableBody,
@@ -33,16 +33,20 @@ import {
     TableRow,
     TableCell,
     Box,
-    Table
+    Table,
+    List,
+    ListItem,
+    IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import {m, AnimatePresence } from 'framer-motion';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 import axiosInstance from '../../../utils/axios';
 // components
 import {
   FormProvider,
-//   RHFSwitch,
+//   RHFSwitch, 
 //   RHFSelect,
 //   RHFEditor,
   RHFTextField,
@@ -50,6 +54,9 @@ import {
   RHFUploadMultiFile,
 } from '../../../components/hook-form';
 import Scrollbar from '../../../components/Scrollbar';
+import Image from '../../../components/Image';
+import Iconify from '../../../components/Iconify';
+import { varFade } from '../../../components/animate';
 
 // ----------------------------------------------------------------------
 
@@ -91,7 +98,8 @@ export default function ProductOptionNewEditForm({ currentProduct, setActiveStep
   const { enqueueSnackbar } = useSnackbar();
 
   const onCreateOption = (option) => {
-    setCurrentOptions([...currentOptions, option]);
+    const newOptions = currentOptions.filter((elm) => elm.id !== option.id)
+    setCurrentOptions([...newOptions, option]);
   }
 
   return (
@@ -143,13 +151,15 @@ export default function ProductOptionNewEditForm({ currentProduct, setActiveStep
             
         </TableContainer>
         <ModalEditForm 
-            currentOption={editOption} 
+            editOption={editOption} 
             open={open} 
             setOpen={setOpen} 
             enqueueSnackbar={enqueueSnackbar} 
             currentProduct={currentProduct} 
             onCreateOption={onCreateOption}
             setEditOption={setEditOption}
+            setCurrentOptions={setCurrentOptions}
+            currentOptions={currentOptions}
         />
         
         <Box display="flex" flexDirection="row" justifyContent="space-between">
@@ -166,15 +176,17 @@ export default function ProductOptionNewEditForm({ currentProduct, setActiveStep
 
 ModalEditForm.propTypes = {
     currentProduct: PropTypes.object,
-    currentOption: PropTypes.object,
+    editOption: PropTypes.object,
     open: PropTypes.bool,
     setOpen: PropTypes.func,
     enqueueSnackbar: PropTypes.func,
     onCreateOption: PropTypes.func,
     setEditOption: PropTypes.func,
+    currentOptions: PropTypes.array,
+    setCurrentOptions: PropTypes.func,
 }
 
-function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSnackbar, onCreateOption, setEditOption}) {
+function ModalEditForm({currentProduct, editOption, open, setOpen, enqueueSnackbar, onCreateOption, setEditOption, currentOptions,setCurrentOptions}) {
     const NewProductSchema = Yup.object().shape({
         unit: Yup.string().required('Unit is required'),
         uploaded_images: Yup.array(),
@@ -187,16 +199,16 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
     
     const defaultValues = useMemo(
     () => ({
-        unit: currentOption?.unit || '',
-        uploaded_images: currentOption?.uploaded_images || [],
-        price: currentOption?.price || 1,
-        unit_in_stock: currentOption?.unit_in_stock || 0,
-        width: currentOption?.width || 1,
-        height: currentOption?.height || 1,
-        length: currentOption?.length || 1,
+        unit: editOption?.unit || '',
+        uploaded_images: editOption?.uploaded_images || [],
+        price: editOption?.price || 1,
+        unit_in_stock: editOption?.unit_in_stock || 0,
+        width: editOption?.width || 1,
+        height: editOption?.height || 1,
+        length: editOption?.length || 1,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentOption]
+    [editOption]
     );
 
     const methods = useForm({
@@ -220,7 +232,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
     useEffect(() => {
         reset(defaultValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentOption]);
+    }, [editOption]);
     
     const onSubmit = async () => {
         try {
@@ -233,11 +245,18 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                     data.append(key, values[key]);
                 }
             });
-            const resp = await axiosInstance.post(`/market/products/${currentProduct.id}/add-option/`, data);
-            onCreateOption(resp.data);
+            if (editOption) {
+                const resp = await axiosInstance.patch(`/market/options/${editOption.id}/`, data);
+                onCreateOption(resp.data);
+
+            }
+            else {
+                const resp = await axiosInstance.post(`/market/products/${currentProduct.id}/add-option/`, data);
+                onCreateOption(resp.data);
+            }
             setOpen(false);
             setEditOption(null);
-            enqueueSnackbar(!currentOption ? 'Create success!' : 'Update success!');
+            enqueueSnackbar(!editOption ? 'Create success!' : 'Update success!');
         } 
         catch (error) {
             console.error(error);
@@ -247,27 +266,31 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
     const handleDrop = useCallback(
         (acceptedFiles) => {
             const images = values.uploaded_images || [];
-
-            setValue('uploaded_images', [
-                ...images,
-                ...acceptedFiles.map((file) =>
+            const newFiles = acceptedFiles.map((file) =>
                 Object.assign(file, {
                     preview: URL.createObjectURL(file),
                 })
-                ),
+            )
+            setValue('uploaded_images', [
+                ...images,
+                ...newFiles,
             ]);
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [setValue, values.uploaded_images]
     );
 
-    const handleRemoveAll = () => {
-        setValue('uploaded_images', []);
-    };
-
-    const handleRemove = (file) => {
-        const filteredItems = values.uploaded_images?.filter((_file) => _file !== file);
-        setValue('uploaded_images', filteredItems);
-    };
+    const onRemove = async (pictureID) => {
+        try {
+            await axiosInstance.delete(`/market/option-image/${pictureID}/`);
+            const newOption = {...editOption, picture_set: editOption.picture_set.filter((picture) => picture.id !== pictureID)};
+            setEditOption(newOption);
+            setCurrentOptions([...currentOptions.filter((option) => option.id !== editOption.id), newOption]);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         if (errors) {
@@ -297,7 +320,9 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
             >
                 <Scrollbar>
                     <Stack flexDirection="row" justifyContent="space-between">
-                        <Typography color="primary" variant="h4" sx={{p: 2}}>Option Information</Typography>
+                        <Typography color="primary" variant="h4" sx={{p: 2}}>
+                            {editOption ? "Edit Option" : "Create Option"}
+                        </Typography>
                         <Button onClick={handleCloseModal}>
                             <CloseIcon />
                         </Button>
@@ -309,45 +334,116 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                             <Card sx={{ p: 3 }}>
                                 <Stack spacing={3}>
                                 <RHFTextField name="unit" label="Option unit" />
-                                {currentOption?.picture_set && 
-                                    (<ImageList>
-                                        {currentOption.picture_set.map((item) => (
-                                            <ImageListItem key={item.img}>
-                                            <img
-                                                src={`${item.image}?w=30&h=30&fit=crop&auto=format`}
-                                                srcSet={`${item.image}?w=30&h=30&fit=crop&auto=format&dpr=2 2x`}
-                                                alt={currentOption.unit}
-                                                loading="lazy"
-                                            />
-                                            </ImageListItem>
-                                        ))}
-                                    </ImageList>)
-                                }
                                 <div>
-                                    <LabelStyle>New Images</LabelStyle>
-                                    {currentOption ? 
-                                        <RHFUploadMultiFile
-                                            showPreview
-                                            name="uploaded_images"
-                                            accept="image/*"
-                                            maxSize={3145728}
-                                            onDrop={handleDrop}
-                                            onRemove={handleRemove}
-                                            onRemoveAll={handleRemoveAll}
-                                            onUpload={() => console.log("upload")}
-                                        />
-                                    :
-                                        <RHFUploadMultiFile
-                                            showPreview
-                                            name="uploaded_images"
-                                            accept="image/*"
-                                            maxSize={3145728}
-                                            onDrop={handleDrop}
-                                            onRemove={handleRemove}
-                                            onRemoveAll={handleRemoveAll}
-                                        />
-                                    }
+                                    <LabelStyle>Images</LabelStyle>
+                                    <RHFUploadMultiFile
+                                        // showPreview
+                                        name="uploaded_images"
+                                        accept="image/*"
+                                        maxSize={3145728}
+                                        onDrop={handleDrop}
+                                        // onRemove={handleRemove}
+                                        // onRemoveAll={handleRemoveAll}
+                                        // onUpload={() => console.log("upload")}
+                                    />
                                 </div>
+                                <List disablePadding sx={{ my: 3 }}>
+                                <AnimatePresence>
+                                { editOption?.picture_set && 
+                                    editOption.picture_set.map((picture) => (
+                                        <ListItem
+                                            key={picture.id}
+                                            component={m.div}
+                                            {...varFade().inRight}
+                                            sx={{
+                                                p: 0,
+                                                m: 0.5,
+                                                width: 80,
+                                                height: 80,
+                                                borderRadius: 1.25,
+                                                overflow: 'hidden',
+                                                position: 'relative',
+                                                display: 'inline-flex',
+                                                border: (theme) => `solid 1px ${theme.palette.divider}`,
+                                            }}
+                                        >
+                                            <Image alt="preview" src={picture.image} ratio="1/1" />
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => onRemove(picture.id)}
+                                                sx={{
+                                                top: 6,
+                                                p: '2px',
+                                                right: 6,
+                                                position: 'absolute',
+                                                color: 'common.white',
+                                                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                                                '&:hover': {
+                                                    bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                                                },
+                                                }}
+                                            >
+                                                <Iconify icon={'eva:close-fill'} />
+                                            </IconButton>
+                                        </ListItem>
+                                ))}
+                                {values.uploaded_images && values.uploaded_images.map((image) => (
+                                    <ListItem
+                                        key={image.preview}
+                                        component={m.div}
+                                        {...varFade().inRight}
+                                        sx={{
+                                            p: 0,
+                                            m: 0.5,
+                                            width: 80,
+                                            height: 80,
+                                            borderRadius: 1.25,
+                                            overflow: 'hidden',
+                                            position: 'relative',
+                                            display: 'inline-flex',
+                                            border: (theme) => `solid 1px ${theme.palette.divider}`,
+                                        }}
+                                    >
+                                              <Typography
+                                                variant="subtitle1"
+                                                component="span"
+                                                color="secondary"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: '0',
+                                                    left: '0',
+                                                    padding: '4px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    textTransform: 'uppercase',
+                                                    zIndex: 1,
+                                                }}
+                                            >
+                                                New
+                                            </Typography>
+
+                                        <Image alt="preview" src={image.preview} ratio="1/1" />
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => setValue("uploaded_images", values.uploaded_images.filter((elm) => elm.preview !== image.preview))}
+                                            sx={{
+                                            top: 6,
+                                            p: '2px',
+                                            right: 6,
+                                            position: 'absolute',
+                                            color: 'common.white',
+                                            bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                                            '&:hover': {
+                                                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                                            },
+                                            }}
+                                        >
+                                            <Iconify icon={'eva:close-fill'} />
+                                        </IconButton>
+                                    </ListItem>
+                                ))}
+                                </AnimatePresence>
+                                </List>
                                 </Stack>
                             </Card>
                             </Grid>
@@ -416,7 +512,7 @@ function ModalEditForm({currentProduct, currentOption, open, setOpen, enqueueSna
                                 </Card>
 
                                 <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-                                {!currentOption ? 'Create Option' : 'Save Changes'}
+                                {!editOption ? 'Create Option' : 'Save Changes'}
                                 </LoadingButton>
                             </Stack>
                             </Grid>
