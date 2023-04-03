@@ -43,7 +43,7 @@ export default function ProductOverview({currentOptions, currentProduct, setActi
             <Card sx={{p: 2, marginTop: 5, marginBottom: 5}}>
                 <CardHeader 
                     title={
-                        <Typography color="primary" variant='h4' sx={{textAlign: "center"}}>
+                        <Typography color="primary" variant='h4'>
                             Product Description
                         </Typography>
                     }

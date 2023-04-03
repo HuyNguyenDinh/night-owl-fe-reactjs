@@ -97,6 +97,14 @@ export default function InvoiceList() {
 
   const [nextPage, setNextPage] = useState('');
 
+  const [analyticOrders, setAnalyticOrders] = useState({
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0
+  });
+
   // const [filterName, setFilterName] = useState('');
 
   // const [filterService, setFilterService] = useState('all');
@@ -173,6 +181,14 @@ export default function InvoiceList() {
     // { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
   ];
 
+  const TABS_1 = [
+    { value: 'all', label: 'All', color: 'default', count: tableData.length },
+    { value: 'Approving', label: 'Approving', color: 'warning', count: getLengthByStatus(1) },
+    { value: 'Pending', label: 'Pending', color: 'info', count: getLengthByStatus(2) },
+    { value: 'Completed', label: 'Completed', color: 'success', count: getLengthByStatus(3) },
+    { value: 'Canceled', label: 'Canceled', color: 'error', count: getLengthByStatus(4) },
+  ];
+
   useEffect(() => {
     const getOrders = async () => {
       const response = await axiosInstance.get("/market/orders/?state=1");
@@ -225,7 +241,7 @@ export default function InvoiceList() {
                 color={theme.palette.info.main}
               />
               <InvoiceAnalytic
-                title="Paid"
+                title="Completed"
                 total={getLengthByStatus('paid')}
                 percent={getPercentByStatus('paid')}
                 price={getTotalPriceByStatus('paid')}
@@ -233,7 +249,7 @@ export default function InvoiceList() {
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
-                title="Unpaid"
+                title="Pending"
                 total={getLengthByStatus('unpaid')}
                 percent={getPercentByStatus('unpaid')}
                 price={getTotalPriceByStatus('unpaid')}
@@ -380,7 +396,8 @@ export default function InvoiceList() {
 
           <Box sx={{ position: 'relative' }}>
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
+              // rowsPerPageOptions={[5, 10, 25]}
+              rowsPerPageOptions={-1}
               component="div"
               count={dataFiltered.length}
               rowsPerPage={rowsPerPage}
