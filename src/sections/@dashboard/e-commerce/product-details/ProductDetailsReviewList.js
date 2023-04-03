@@ -98,8 +98,8 @@ function ReviewItem({ review }) {
         </Box>
 
         <div>
-          <Rating size="small" value={rate} precision={0.1} readOnly />
-          <Box>
+          <Rating sx={{p: 1}} size="small" value={rate} precision={0.1} readOnly />
+          <Box sx={{p: 1}}>
             <Markdown>
               {comment}
             </Markdown>

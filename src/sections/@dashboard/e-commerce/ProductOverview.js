@@ -14,12 +14,15 @@ import {
     TableRow,
     TableCell,
     Chip,
-    Button
+    Button,
+    CardHeader,
+    CardContent
 } from '@mui/material';
 // route paths
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // component
 import Image from '../../../components/Image';
+import Markdown from '../../../components/Markdown';
 // utils
 import { fNumber } from '../../../utils/formatNumber';
 
@@ -37,6 +40,18 @@ export default function ProductOverview({currentOptions, currentProduct, setActi
     return (
         <Box>
             <ProductInformation systemCategories={systemCategories} currentProduct={currentProduct} />
+            <Card sx={{p: 2, marginTop: 5, marginBottom: 5}}>
+                <CardHeader 
+                    title={
+                        <Typography color="primary" variant='h4' sx={{textAlign: "center"}}>
+                            Product Description
+                        </Typography>
+                    }
+                />
+                <CardContent>
+                    <Markdown children={currentProduct.description} />
+                </CardContent>
+            </Card>
             <OptionInformation currentOptions={currentOptions} />
             <Box marginTop={6} display="flex" flexDirection="row" justifyContent="space-between">
                 <Button onClick={() => setActiveStep(1)}>
@@ -61,11 +76,11 @@ function ProductInformation({currentProduct, systemCategories}) {
         <Card>
             <Grid container>
                 <Grid item xs={3}>
-                    <Image src={currentProduct.picture} />
+                    <Image sx={{p: 2}} src={currentProduct.picture} />
                 </Grid>
                 <Grid item xs={9} sx={{margin: "auto auto"}}>
                     <Stack sx={{p: 6, rowGap: 2}}>
-                        <Typography variant='h4'>
+                        <Typography variant='h4' color="primary">
                             {currentProduct.name}
                         </Typography>
                         <Stack direction="row" spacing={2} alignItems="center">
@@ -97,6 +112,7 @@ OptionInformation.propTypes = {
 
 function OptionInformation({currentOptions}) {
     return (
+        <Card sx={{p: 2}}>
         <TableContainer>
             <Table>
                 <TableHead>
@@ -147,5 +163,6 @@ function OptionInformation({currentOptions}) {
                 </TableBody>
             </Table>
         </TableContainer>
+        </Card>
     )
 }

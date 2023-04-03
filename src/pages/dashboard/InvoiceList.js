@@ -1,5 +1,5 @@
 import sumBy from 'lodash/sumBy';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -21,6 +21,8 @@ import {
   TablePagination,
   FormControlLabel,
 } from '@mui/material';
+// utils
+import axiosInstance from '../../utils/axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -76,10 +78,10 @@ export default function InvoiceList() {
     order,
     orderBy,
     rowsPerPage,
-    setPage,
+    // setPage,
     //
     selected,
-    setSelected,
+    // setSelected,
     onSelectRow,
     onSelectAllRows,
     //
@@ -91,9 +93,13 @@ export default function InvoiceList() {
 
   const [tableData, setTableData] = useState(_invoices);
 
-  const [filterName, setFilterName] = useState('');
+  const [orders, setOrders] = useState([]);
 
-  const [filterService, setFilterService] = useState('all');
+  const [nextPage, setNextPage] = useState('');
+
+  // const [filterName, setFilterName] = useState('');
+
+  // const [filterService, setFilterService] = useState('all');
 
   const [filterStartDate, setFilterStartDate] = useState(null);
 
@@ -101,30 +107,30 @@ export default function InvoiceList() {
 
   const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('all');
 
-  const handleFilterName = (filterName) => {
-    setFilterName(filterName);
-    setPage(0);
-  };
+  // const handleFilterName = (filterName) => {
+  //   setFilterName(filterName);
+  //   setPage(0);
+  // };
 
-  const handleFilterService = (event) => {
-    setFilterService(event.target.value);
-  };
+  // const handleFilterService = (event) => {
+  //   setFilterService(event.target.value);
+  // };
 
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
-  };
+  // const handleDeleteRow = (id) => {
+  //   const deleteRow = tableData.filter((row) => row.id !== id);
+  //   setSelected([]);
+  //   setTableData(deleteRow);
+  // };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
-  };
+  // const handleDeleteRows = (selected) => {
+  //   const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  //   setSelected([]);
+  //   setTableData(deleteRows);
+  // };
 
-  const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.invoice.edit(id));
-  };
+  // const handleEditRow = (id) => {
+  //   navigate(PATH_DASHBOARD.invoice.edit(id));
+  // };
 
   const handleViewRow = (id) => {
     navigate(PATH_DASHBOARD.invoice.view(id));
@@ -133,17 +139,17 @@ export default function InvoiceList() {
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
-    filterName,
-    filterService,
+    // filterName,
+    // filterService,
     filterStatus,
     filterStartDate,
     filterEndDate,
   });
 
   const isNotFound =
-    (!dataFiltered.length && !!filterName) ||
+    // (!dataFiltered.length && !!filterName) ||
     (!dataFiltered.length && !!filterStatus) ||
-    (!dataFiltered.length && !!filterService) ||
+    // (!dataFiltered.length && !!filterService) ||
     (!dataFiltered.length && !!filterEndDate) ||
     (!dataFiltered.length && !!filterStartDate);
 
@@ -164,8 +170,22 @@ export default function InvoiceList() {
     { value: 'paid', label: 'Paid', color: 'success', count: getLengthByStatus('paid') },
     { value: 'unpaid', label: 'Unpaid', color: 'warning', count: getLengthByStatus('unpaid') },
     { value: 'overdue', label: 'Overdue', color: 'error', count: getLengthByStatus('overdue') },
-    { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
+    // { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
   ];
+
+  useEffect(() => {
+    const getOrders = async () => {
+      const response = await axiosInstance.get("/market/orders/?state=1");
+      console.log(response.data.results);
+      setOrders(response.data.results);
+      if (response.data.next) {
+        setNextPage(response.data.next);
+      }
+      const resp = await axiosInstance.get("/market/orders/count-order/?state=1");
+      console.log(resp.data)
+    };
+    getOrders();
+  }, [])
 
   return (
     <Page title="Invoice: List">
@@ -228,14 +248,14 @@ export default function InvoiceList() {
                 icon="eva:bell-fill"
                 color={theme.palette.error.main}
               />
-              <InvoiceAnalytic
+              {/* <InvoiceAnalytic
                 title="Draft"
                 total={getLengthByStatus('draft')}
                 percent={getPercentByStatus('draft')}
                 price={getTotalPriceByStatus('draft')}
                 icon="eva:file-fill"
                 color={theme.palette.text.secondary}
-              />
+              /> */}
             </Stack>
           </Scrollbar>
         </Card>
@@ -263,12 +283,12 @@ export default function InvoiceList() {
           <Divider />
 
           <InvoiceTableToolbar
-            filterName={filterName}
-            filterService={filterService}
+            // filterName={filterName}
+            // filterService={filterService}
             filterStartDate={filterStartDate}
             filterEndDate={filterEndDate}
-            onFilterName={handleFilterName}
-            onFilterService={handleFilterService}
+            // onFilterName={handleFilterName}
+            // onFilterService={handleFilterService}
             onFilterStartDate={(newValue) => {
               setFilterStartDate(newValue);
             }}
@@ -293,11 +313,11 @@ export default function InvoiceList() {
                   }
                   actions={
                     <Stack spacing={1} direction="row">
-                      <Tooltip title="Sent">
+                      {/* <Tooltip title="Sent">
                         <IconButton color="primary">
                           <Iconify icon={'ic:round-send'} />
                         </IconButton>
-                      </Tooltip>
+                      </Tooltip> */}
 
                       <Tooltip title="Download">
                         <IconButton color="primary">
@@ -311,11 +331,11 @@ export default function InvoiceList() {
                         </IconButton>
                       </Tooltip>
 
-                      <Tooltip title="Delete">
+                      {/* <Tooltip title="Delete">
                         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
                           <Iconify icon={'eva:trash-2-outline'} />
                         </IconButton>
-                      </Tooltip>
+                      </Tooltip> */}
                     </Stack>
                   }
                 />
@@ -345,8 +365,8 @@ export default function InvoiceList() {
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onViewRow={() => handleViewRow(row.id)}
-                      onEditRow={() => handleEditRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      // onEditRow={() => handleEditRow(row.id)}
+                      // onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}
 
@@ -386,9 +406,9 @@ export default function InvoiceList() {
 function applySortFilter({
   tableData,
   comparator,
-  filterName,
+  // filterName,
   filterStatus,
-  filterService,
+  // filterService,
   filterStartDate,
   filterEndDate,
 }) {
@@ -402,21 +422,21 @@ function applySortFilter({
 
   tableData = stabilizedThis.map((el) => el[0]);
 
-  if (filterName) {
-    tableData = tableData.filter(
-      (item) =>
-        item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-        item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
-  }
+  // if (filterName) {
+  //   tableData = tableData.filter(
+  //     (item) =>
+  //       item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+  //       item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+  //   );
+  // }
 
   if (filterStatus !== 'all') {
     tableData = tableData.filter((item) => item.status === filterStatus);
   }
 
-  if (filterService !== 'all') {
-    tableData = tableData.filter((item) => item.items.some((c) => c.service === filterService));
-  }
+  // if (filterService !== 'all') {
+  //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterService));
+  // }
 
   if (filterStartDate && filterEndDate) {
     tableData = tableData.filter(

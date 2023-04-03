@@ -101,7 +101,7 @@ export default function EcommerceProductDetails() {
               </Grid>
             </Card>
 
-            <Card>
+            <Card sx={{marginTop: 5, marginBottom: 5}}>
               <TabContext value={value}>
                 <Box sx={{ px: 3, bgcolor: 'background.neutral' }}>
                   <TabList onChange={(e, value) => setValue(value)}>

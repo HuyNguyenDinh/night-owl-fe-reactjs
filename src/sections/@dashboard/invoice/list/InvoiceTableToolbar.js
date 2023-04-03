@@ -21,19 +21,19 @@ InvoiceTableToolbar.propTypes = {
 };
 
 export default function InvoiceTableToolbar({
-  optionsService,
+  // optionsService,
   filterStartDate,
   filterEndDate,
-  filterName,
-  filterService,
-  onFilterName,
-  onFilterService,
+  // filterName,
+  // filterService,
+  // onFilterName,
+  // onFilterService,
   onFilterStartDate,
   onFilterEndDate,
 }) {
   return (
     <Stack spacing={2} direction={{ xs: 'column', md: 'row' }} sx={{ py: 2.5, px: 3 }}>
-      <TextField
+      {/* <TextField
         fullWidth
         select
         label="Service type"
@@ -64,7 +64,7 @@ export default function InvoiceTableToolbar({
             {option}
           </MenuItem>
         ))}
-      </TextField>
+      </TextField> */}
 
       <DatePicker
         label="Start date"
@@ -95,7 +95,7 @@ export default function InvoiceTableToolbar({
           />
         )}
       />
-
+{/* 
       <TextField
         fullWidth
         value={filterName}
@@ -108,7 +108,7 @@ export default function InvoiceTableToolbar({
             </InputAdornment>
           ),
         }}
-      />
+      /> */}
     </Stack>
   );
 }
