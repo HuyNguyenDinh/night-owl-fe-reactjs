@@ -20,6 +20,9 @@ import {
   TableContainer,
   TablePagination,
   FormControlLabel,
+  TableRow,
+  TableCell,
+  Typography
 } from '@mui/material';
 // utils
 import axiosInstance from '../../utils/axios';
@@ -44,21 +47,18 @@ import { InvoiceTableRow, InvoiceTableToolbar } from '../../sections/@dashboard/
 
 // ----------------------------------------------------------------------
 
-const SERVICE_OPTIONS = [
+const PAYMENT_TYPE = [
   'all',
-  'full stack development',
-  'backend development',
-  'ui design',
-  'ui/ux design',
-  'front end development',
+  'Cash on Delivery',
+  'E-Wallet'
 ];
 
 const TABLE_HEAD = [
-  { id: 'invoiceNumber', label: 'Client', align: 'left' },
-  { id: 'createDate', label: 'Create', align: 'left' },
-  { id: 'dueDate', label: 'Due', align: 'left' },
-  { id: 'price', label: 'Amount', align: 'center', width: 140 },
-  { id: 'sent', label: 'Sent', align: 'center', width: 140 },
+  { id: 'customer', label: 'Customer', align: 'left' },
+  { id: 'orderDate', label: 'Order Date', align: 'left' },
+  { id: 'completedDate', label: 'Completed', align: 'left' },
+  { id: 'cost', label: 'cost', align: 'center', width: 140 },
+  { id: 'payment', label: 'Payment', align: 'center', width: 140 },
   { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
@@ -74,10 +74,10 @@ export default function InvoiceList() {
 
   const {
     dense,
-    page,
+    // page,
     order,
     orderBy,
-    rowsPerPage,
+    // rowsPerPage,
     // setPage,
     //
     selected,
@@ -87,27 +87,27 @@ export default function InvoiceList() {
     //
     onSort,
     onChangeDense,
-    onChangePage,
-    onChangeRowsPerPage,
+    // onChangePage,
+    // onChangeRowsPerPage,
   } = useTable({ defaultOrderBy: 'createDate' });
-
-  const [tableData, setTableData] = useState(_invoices);
 
   const [orders, setOrders] = useState([]);
 
+  const [tableData, setTableData] = useState(_invoices);
+
   const [nextPage, setNextPage] = useState('');
 
-  const [analyticOrders, setAnalyticOrders] = useState({
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0
-  });
+  const [analyticOrders, setAnalyticOrders] = useState([
+    {status: 1, total_child_price_sum: 0, order_amount: 0},
+    {status: 2, total_child_price_sum: 0, order_amount: 0},
+    {status: 3, total_child_price_sum: 0, order_amount: 0},
+    {status: 4, total_child_price_sum: 0, order_amount: 0},
+    {status: 5, total_child_price_sum: 0, order_amount: 0}
+  ]);
 
   // const [filterName, setFilterName] = useState('');
 
-  // const [filterService, setFilterService] = useState('all');
+  const [filterPayment, setfilterPayment] = useState('all');
 
   const [filterStartDate, setFilterStartDate] = useState(null);
 
@@ -120,9 +120,9 @@ export default function InvoiceList() {
   //   setPage(0);
   // };
 
-  // const handleFilterService = (event) => {
-  //   setFilterService(event.target.value);
-  // };
+  const handlefilterPayment = (event) => {
+    setfilterPayment(event.target.value);
+  };
 
   // const handleDeleteRow = (id) => {
   //   const deleteRow = tableData.filter((row) => row.id !== id);
@@ -148,7 +148,7 @@ export default function InvoiceList() {
     tableData,
     comparator: getComparator(order, orderBy),
     // filterName,
-    // filterService,
+    filterPayment,
     filterStatus,
     filterStartDate,
     filterEndDate,
@@ -157,13 +157,16 @@ export default function InvoiceList() {
   const isNotFound =
     // (!dataFiltered.length && !!filterName) ||
     (!dataFiltered.length && !!filterStatus) ||
-    // (!dataFiltered.length && !!filterService) ||
+    (!dataFiltered.length && !!filterPayment) ||
     (!dataFiltered.length && !!filterEndDate) ||
     (!dataFiltered.length && !!filterStartDate);
 
   const denseHeight = dense ? 56 : 76;
 
-  const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
+  // const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
+
+  const getLengthByStatus = (status) => analyticOrders.filter((item) => item.status === status).order_amount;
+
 
   const getTotalPriceByStatus = (status) =>
     sumBy(
@@ -173,35 +176,43 @@ export default function InvoiceList() {
 
   const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
 
-  const TABS = [
-    { value: 'all', label: 'All', color: 'info', count: tableData.length },
-    { value: 'paid', label: 'Paid', color: 'success', count: getLengthByStatus('paid') },
-    { value: 'unpaid', label: 'Unpaid', color: 'warning', count: getLengthByStatus('unpaid') },
-    { value: 'overdue', label: 'Overdue', color: 'error', count: getLengthByStatus('overdue') },
-    // { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
-  ];
+  // const TABS = [
+  //   { value: 'all', label: 'All', color: 'info', count: tableData.length },
+  //   { value: 'paid', label: 'Paid', color: 'success', count: getLengthByStatus('paid') },
+  //   { value: 'unpaid', label: 'Unpaid', color: 'warning', count: getLengthByStatus('unpaid') },
+  //   { value: 'overdue', label: 'Overdue', color: 'error', count: getLengthByStatus('overdue') },
+  //   { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
+  // ];
 
-  const TABS_1 = [
-    { value: 'all', label: 'All', color: 'default', count: tableData.length },
-    { value: 'Approving', label: 'Approving', color: 'warning', count: getLengthByStatus(1) },
-    { value: 'Pending', label: 'Pending', color: 'info', count: getLengthByStatus(2) },
+  const TABS = [
+    { value: 'all', label: 'All', color: 'default', count: getLengthByStatus(5) },
+    { value: 'pending', label: 'Pending', color: 'warning', count: getLengthByStatus(1) },
+    { value: 'shipping', label: 'Shipping', color: 'info', count: getLengthByStatus(2) },
     { value: 'Completed', label: 'Completed', color: 'success', count: getLengthByStatus(3) },
     { value: 'Canceled', label: 'Canceled', color: 'error', count: getLengthByStatus(4) },
   ];
 
   useEffect(() => {
     const getOrders = async () => {
-      const response = await axiosInstance.get("/market/orders/?state=1");
-      console.log(response.data.results);
-      setOrders(response.data.results);
-      if (response.data.next) {
-        setNextPage(response.data.next);
+      try {
+        const response = await axiosInstance.get("/market/orders/?state=1");
+        setOrders(response.data.results);
+        if (response.data.next) {
+          setNextPage(response.data.next);
+        };
+        const resp = await axiosInstance.get("/market/orders/count-order/?state=1");
+        if (resp.data.analytics) {
+          const statusAnalytic = resp?.data.analytics.map((elm) => elm.status);
+          const newAnalytic = [...analyticOrders.filter((elm) => !statusAnalytic.includes(elm.status)), ...resp.data.analytics]
+          setAnalyticOrders(newAnalytic);
+        };
       }
-      const resp = await axiosInstance.get("/market/orders/count-order/?state=1");
-      console.log(resp.data)
+      catch(error) {
+        console.log(error);
+      }
     };
     getOrders();
-  }, [])
+  }, [orders, analyticOrders])
 
   return (
     <Page title="Invoice: List">
@@ -234,7 +245,7 @@ export default function InvoiceList() {
             >
               <InvoiceAnalytic
                 title="Total"
-                total={tableData.length}
+                total={getLengthByStatus(5)}
                 percent={100}
                 price={sumBy(tableData, 'totalPrice')}
                 icon="ic:round-receipt"
@@ -242,7 +253,7 @@ export default function InvoiceList() {
               />
               <InvoiceAnalytic
                 title="Completed"
-                total={getLengthByStatus('paid')}
+                total={getLengthByStatus(3)}
                 percent={getPercentByStatus('paid')}
                 price={getTotalPriceByStatus('paid')}
                 icon="eva:checkmark-circle-2-fill"
@@ -250,7 +261,7 @@ export default function InvoiceList() {
               />
               <InvoiceAnalytic
                 title="Pending"
-                total={getLengthByStatus('unpaid')}
+                total={getLengthByStatus(1)}
                 percent={getPercentByStatus('unpaid')}
                 price={getTotalPriceByStatus('unpaid')}
                 icon="eva:clock-fill"
@@ -258,7 +269,7 @@ export default function InvoiceList() {
               />
               <InvoiceAnalytic
                 title="Overdue"
-                total={getLengthByStatus('overdue')}
+                total={getLengthByStatus(4)}
                 percent={getPercentByStatus('overdue')}
                 price={getTotalPriceByStatus('overdue')}
                 icon="eva:bell-fill"
@@ -300,18 +311,18 @@ export default function InvoiceList() {
 
           <InvoiceTableToolbar
             // filterName={filterName}
-            // filterService={filterService}
+            filterPayment={filterPayment}
             filterStartDate={filterStartDate}
             filterEndDate={filterEndDate}
             // onFilterName={handleFilterName}
-            // onFilterService={handleFilterService}
+            onfilterPayment={handlefilterPayment}
             onFilterStartDate={(newValue) => {
               setFilterStartDate(newValue);
             }}
             onFilterEndDate={(newValue) => {
               setFilterEndDate(newValue);
             }}
-            optionsService={SERVICE_OPTIONS}
+            paymentTypes={PAYMENT_TYPE}
           />
 
           <Scrollbar>
@@ -374,7 +385,19 @@ export default function InvoiceList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {/* {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                    <InvoiceTableRow
+                      key={row.id}
+                      row={row}
+                      selected={selected.includes(row.id)}
+                      onSelectRow={() => onSelectRow(row.id)}
+                      onViewRow={() => handleViewRow(row.id)}
+                      onEditRow={() => handleEditRow(row.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                    />
+                  ))} */}
+
+                  {(orders && orders.length > 0) && orders.map((row) => (
                     <InvoiceTableRow
                       key={row.id}
                       row={row}
@@ -385,8 +408,16 @@ export default function InvoiceList() {
                       // onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}
+                  {(!orders || orders.length === 0) &&
+                  (
+                    <TableRow>
+                      <TableCell colSpan={7}>
+                        <Typography variant="subtitle2" textAlign="center">No Orders</Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  {/* <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} /> */}
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -395,16 +426,15 @@ export default function InvoiceList() {
           </Scrollbar>
 
           <Box sx={{ position: 'relative' }}>
-            <TablePagination
-              // rowsPerPageOptions={[5, 10, 25]}
-              rowsPerPageOptions={-1}
+            {/* <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
               component="div"
               count={dataFiltered.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
-            />
+            /> */}
 
             <FormControlLabel
               control={<Switch checked={dense} onChange={onChangeDense} />}
@@ -425,7 +455,7 @@ function applySortFilter({
   comparator,
   // filterName,
   filterStatus,
-  // filterService,
+  // filterPayment,
   filterStartDate,
   filterEndDate,
 }) {
@@ -451,8 +481,8 @@ function applySortFilter({
     tableData = tableData.filter((item) => item.status === filterStatus);
   }
 
-  // if (filterService !== 'all') {
-  //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterService));
+  // if (filterPayment !== 'all') {
+  //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterPayment));
   // }
 
   if (filterStartDate && filterEndDate) {

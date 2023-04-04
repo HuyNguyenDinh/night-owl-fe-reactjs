@@ -27,7 +27,10 @@ InvoiceTableRow.propTypes = {
 export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalPrice } = row;
+  // const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalPrice } = row;
+
+  // eslint-disable-next-line camelcase
+  const { id, cost, customer, completed_date, order_date, payment_type, status, total_shipping_fee} = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -46,38 +49,58 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={invoiceTo.name} color={createAvatar(invoiceTo.name).color} sx={{ mr: 2 }}>
-          {createAvatar(invoiceTo.name).name}
-        </Avatar>
+        {customer.avatar ? (
+          <Avatar alt={[customer.first_name, customer.last_name].join(" ")} sx={{ mr: 2 }} src={customer.avatar} />
+        ):
+          <Avatar alt={[customer.first_name, customer.last_name].join(" ")} color={createAvatar(customer.first_name).color} sx={{ mr: 2 }}>
+            {createAvatar(customer.first_name).name}
+          </Avatar>
+        }
+
 
         <Stack>
           <Typography variant="subtitle2" noWrap>
-            {invoiceTo.name}
+            {[customer.first_name, customer.last_name].join(" ")}
           </Typography>
 
           <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>
-            {`INV-${invoiceNumber}`}
+            {id}
           </Link>
         </Stack>
       </TableCell>
 
-      <TableCell align="left">{fDate(createDate)}</TableCell>
+      <TableCell align="left">{fDate(order_date)}</TableCell>
 
-      <TableCell align="left">{fDate(dueDate)}</TableCell>
+      <TableCell align="left">{fDate(completed_date)}</TableCell>
 
-      <TableCell align="center">{fCurrency(totalPrice)}</TableCell>
+      <TableCell align="center">{fCurrency(cost)}</TableCell>
 
       <TableCell align="center" sx={{ textTransform: 'capitalize' }}>
-        {sent}
+        <Label
+            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+            color={
+              (status === 1 && 'warning') ||
+              (status === 2 && 'info') ||
+              (status === 3 && 'success') ||
+              (status === 4 && 'error') ||
+              'default'
+            }
+            sx={{ textTransform: 'capitalize' }}
+          >
+            {status}
+          </Label>
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
           color={
-            (status === 'paid' && 'success') ||
-            (status === 'unpaid' && 'warning') ||
-            (status === 'overdue' && 'error') ||
+            // eslint-disable-next-line camelcase
+            (payment_type === 0 && 'info') ||
+            // eslint-disable-next-line camelcase
+            (payment_type === 1 && 'success') ||
+            // eslint-disable-next-line camelcase
+            (payment_type === 2 && 'warning') ||
             'default'
           }
           sx={{ textTransform: 'capitalize' }}

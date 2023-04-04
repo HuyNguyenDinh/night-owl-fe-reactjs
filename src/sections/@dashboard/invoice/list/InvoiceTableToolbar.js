@@ -1,8 +1,13 @@
 import PropTypes from 'prop-types';
-import { Stack, InputAdornment, TextField, MenuItem } from '@mui/material';
+import { 
+  Stack, 
+  // InputAdornment, 
+  TextField, 
+  MenuItem 
+} from '@mui/material';
 import DatePicker from '@mui/lab/DatePicker';
 // components
-import Iconify from '../../../../components/Iconify';
+// import Iconify from '../../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -10,35 +15,35 @@ const INPUT_WIDTH = 160;
 
 InvoiceTableToolbar.propTypes = {
   filterName: PropTypes.string,
-  filterService: PropTypes.string,
+  filterPayment: PropTypes.string,
   filterEndDate: PropTypes.instanceOf(Date),
   filterStartDate: PropTypes.instanceOf(Date),
   onFilterName: PropTypes.func,
   onFilterEndDate: PropTypes.func,
-  onFilterService: PropTypes.func,
+  onfilterPayment: PropTypes.func,
   onFilterStartDate: PropTypes.func,
-  optionsService: PropTypes.arrayOf(PropTypes.string),
+  paymentTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default function InvoiceTableToolbar({
-  // optionsService,
+  paymentTypes,
   filterStartDate,
   filterEndDate,
   // filterName,
-  // filterService,
+  filterPayment,
   // onFilterName,
-  // onFilterService,
+  onfilterPayment,
   onFilterStartDate,
   onFilterEndDate,
 }) {
   return (
     <Stack spacing={2} direction={{ xs: 'column', md: 'row' }} sx={{ py: 2.5, px: 3 }}>
-      {/* <TextField
+      <TextField
         fullWidth
         select
-        label="Service type"
-        value={filterService}
-        onChange={onFilterService}
+        label="Payment type"
+        value={filterPayment}
+        onChange={onfilterPayment}
         SelectProps={{
           MenuProps: {
             sx: { '& .MuiPaper-root': { maxHeight: 260 } },
@@ -49,7 +54,7 @@ export default function InvoiceTableToolbar({
           textTransform: 'capitalize',
         }}
       >
-        {optionsService.map((option) => (
+        {paymentTypes.map((option) => (
           <MenuItem
             key={option}
             value={option}
@@ -64,7 +69,7 @@ export default function InvoiceTableToolbar({
             {option}
           </MenuItem>
         ))}
-      </TextField> */}
+      </TextField>
 
       <DatePicker
         label="Start date"
