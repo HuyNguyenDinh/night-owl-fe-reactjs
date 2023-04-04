@@ -1,4 +1,5 @@
-import sumBy from 'lodash/sumBy';
+// import sumBy from 'lodash/sumBy';
+import sum from 'lodash/sum';
 import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
@@ -30,6 +31,7 @@ import axiosInstance from '../../utils/axios';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useTabs from '../../hooks/useTabs';
+import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
@@ -94,6 +96,8 @@ export default function InvoiceList() {
   const [orders, setOrders] = useState([]);
 
   const [tableData, setTableData] = useState(_invoices);
+
+  const { user } = useAuth();
 
   const [nextPage, setNextPage] = useState('');
 
@@ -164,32 +168,20 @@ export default function InvoiceList() {
   const denseHeight = dense ? 56 : 76;
 
   // const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
+  const getLengthByStatus = (status) => analyticOrders.filter((item) => item.status === status)[0].order_amount;
+  const getTotalLength = () => sum(analyticOrders.map((item) => item.order_amount));
 
-  const getLengthByStatus = (status) => analyticOrders.filter((item) => item.status === status).order_amount;
+  const getTotalPriceByStatus = (status) => analyticOrders.filter((item) => item.status === status)[0].total_child_price_sum;
+  const getTotalPrice = () => sum(analyticOrders.map((item) => item.total_child_price_sum));
 
-
-  const getTotalPriceByStatus = (status) =>
-    sumBy(
-      tableData.filter((item) => item.status === status),
-      'totalPrice'
-    );
-
-  const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
-
-  // const TABS = [
-  //   { value: 'all', label: 'All', color: 'info', count: tableData.length },
-  //   { value: 'paid', label: 'Paid', color: 'success', count: getLengthByStatus('paid') },
-  //   { value: 'unpaid', label: 'Unpaid', color: 'warning', count: getLengthByStatus('unpaid') },
-  //   { value: 'overdue', label: 'Overdue', color: 'error', count: getLengthByStatus('overdue') },
-  //   { value: 'draft', label: 'Draft', color: 'default', count: getLengthByStatus('draft') },
-  // ];
+  const getPercentByStatus = (status) => (getLengthByStatus(status) / getTotalLength()) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', count: getLengthByStatus(5) },
-    { value: 'pending', label: 'Pending', color: 'warning', count: getLengthByStatus(1) },
-    { value: 'shipping', label: 'Shipping', color: 'info', count: getLengthByStatus(2) },
-    { value: 'Completed', label: 'Completed', color: 'success', count: getLengthByStatus(3) },
-    { value: 'Canceled', label: 'Canceled', color: 'error', count: getLengthByStatus(4) },
+    { value: 'all', label: 'All', color: 'default', status: 5 },
+    { value: 'pending', label: 'Pending', color: 'warning', status: 1 },
+    { value: 'shipping', label: 'Shipping', color: 'info', status: 2 },
+    { value: 'completed', label: 'Completed', color: 'success', status: 3 },
+    { value: 'canceled', label: 'Canceled', color: 'error', status: 4 },
   ];
 
   useEffect(() => {
@@ -212,7 +204,8 @@ export default function InvoiceList() {
       }
     };
     getOrders();
-  }, [orders, analyticOrders])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   return (
     <Page title="Invoice: List">
@@ -245,44 +238,44 @@ export default function InvoiceList() {
             >
               <InvoiceAnalytic
                 title="Total"
-                total={getLengthByStatus(5)}
+                total={getTotalLength(5)}
                 percent={100}
-                price={sumBy(tableData, 'totalPrice')}
+                price={getTotalPrice(5)}
+                icon="eva:file-fill"
+                color={theme.palette.text.secondary}
+              />
+              <InvoiceAnalytic
+                title="Pending"
+                total={getLengthByStatus(1)}
+                percent={getPercentByStatus(1)}
+                price={getTotalPriceByStatus(1)}
+                icon="eva:clock-fill"
+                color={theme.palette.warning.main}
+              />
+              <InvoiceAnalytic
+                title="Shipping"
+                total={getLengthByStatus(2)}
+                percent={getPercentByStatus(2)}
+                price={getTotalPriceByStatus(2)}
                 icon="ic:round-receipt"
                 color={theme.palette.info.main}
               />
               <InvoiceAnalytic
                 title="Completed"
                 total={getLengthByStatus(3)}
-                percent={getPercentByStatus('paid')}
-                price={getTotalPriceByStatus('paid')}
+                percent={getPercentByStatus(3)}
+                price={getTotalPriceByStatus(3)}
                 icon="eva:checkmark-circle-2-fill"
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
-                title="Pending"
-                total={getLengthByStatus(1)}
-                percent={getPercentByStatus('unpaid')}
-                price={getTotalPriceByStatus('unpaid')}
-                icon="eva:clock-fill"
-                color={theme.palette.warning.main}
-              />
-              <InvoiceAnalytic
                 title="Overdue"
                 total={getLengthByStatus(4)}
-                percent={getPercentByStatus('overdue')}
-                price={getTotalPriceByStatus('overdue')}
+                percent={getPercentByStatus(4)}
+                price={getTotalPriceByStatus(4)}
                 icon="eva:bell-fill"
                 color={theme.palette.error.main}
               />
-              {/* <InvoiceAnalytic
-                title="Draft"
-                total={getLengthByStatus('draft')}
-                percent={getPercentByStatus('draft')}
-                price={getTotalPriceByStatus('draft')}
-                icon="eva:file-fill"
-                color={theme.palette.text.secondary}
-              /> */}
             </Stack>
           </Scrollbar>
         </Card>
@@ -301,7 +294,7 @@ export default function InvoiceList() {
                 disableRipple
                 key={tab.value}
                 value={tab.value}
-                icon={<Label color={tab.color}> {tab.count} </Label>}
+                icon={<Label color={tab.color}> {getLengthByStatus(tab.status)} </Label>}
                 label={tab.label}
               />
             ))}
