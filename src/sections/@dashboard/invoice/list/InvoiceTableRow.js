@@ -5,6 +5,8 @@ import { useTheme } from '@mui/material/styles';
 import { Checkbox, TableRow, TableCell, Typography, Stack, Link, MenuItem, IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
+import PendingIcon from '@mui/icons-material/Pending';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import createAvatar from '../../../../utils/createAvatar';
@@ -38,12 +40,12 @@ InvoiceTableRow.propTypes = {
   onViewRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
+  onAccept: PropTypes.func,
+  onReject: PropTypes.func,
 };
 
-export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
+export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow, onAccept, onReject }) {
   const theme = useTheme();
-
-  // const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalPrice } = row;
 
   // eslint-disable-next-line camelcase
   const { id, cost, customer, completed_date, order_date, payment_type, status, total_shipping_fee} = row;
@@ -112,11 +114,11 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
           color={
             // eslint-disable-next-line camelcase
-            (payment_type === 0 && 'info') ||
+            (payment_type === 0 && 'warning') ||
             // eslint-disable-next-line camelcase
             (payment_type === 1 && 'success') ||
             // eslint-disable-next-line camelcase
-            (payment_type === 2 && 'warning') ||
+            (payment_type === 2 && 'info') ||
             'default'
           }
           sx={{ textTransform: 'capitalize' }}
@@ -129,18 +131,29 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
         </Label>
       </TableCell>
 
-      <TableCell>
+      <TableCell sx={{textAlign: "center"}}>
         {status === 1 &&
           <Stack direction="row" justifyContent="space-between">
-            <IconButton>
+            <IconButton onClick={onAccept}>
               <CheckIcon color='success' />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={onReject}>
               <ClearIcon color='error' />
             </IconButton>
           </Stack>
         }
-        {/* {status === 0 && } */}
+        {status === 0 && (
+          <ModeEditIcon color="default" />
+        )}
+        {status === 2 && (
+          <PendingIcon color='info' />
+        )}
+        {status === 3 && (
+          <CheckIcon color='success' />
+        )}
+        {status === 4 && (
+          <ClearIcon color='error' />
+        )}
       </TableCell>
 
       <TableCell align="right">
@@ -149,18 +162,6 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
           onOpen={handleOpenMenu}
           onClose={handleCloseMenu}
           actions={
-            // <>
-            //   <MenuItem
-            //     onClick={() => {
-            //       onDeleteRow();
-            //       handleCloseMenu();
-            //     }}
-            //     sx={{ color: 'error.main' }}
-            //   >
-            //     <Iconify icon={'eva:trash-2-outline'} />
-            //     Delete
-            //   </MenuItem>
-
               <MenuItem
                 onClick={() => {
                   onViewRow();
@@ -170,17 +171,6 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
                 <Iconify icon={'eva:eye-fill'} />
                 View
               </MenuItem>
-
-            //   <MenuItem
-            //     onClick={() => {
-            //       onEditRow();
-            //       handleCloseMenu();
-            //     }}
-            //   >
-            //     <Iconify icon={'eva:edit-fill'} />
-            //     Edit
-            //   </MenuItem>
-            // </>
           }
         />
       </TableCell>

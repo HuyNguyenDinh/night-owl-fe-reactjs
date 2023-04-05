@@ -3,25 +3,29 @@ import {
   Stack, 
   // InputAdornment, 
   TextField, 
-  MenuItem 
+  MenuItem,
+  Button,
+  Box
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DatePicker from '@mui/lab/DatePicker';
 // components
 // import Iconify from '../../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-const INPUT_WIDTH = 160;
+const INPUT_WIDTH = 300;
 
 InvoiceTableToolbar.propTypes = {
-  filterName: PropTypes.string,
+  // filterName: PropTypes.string,
   filterPayment: PropTypes.string,
   filterEndDate: PropTypes.instanceOf(Date),
   filterStartDate: PropTypes.instanceOf(Date),
-  onFilterName: PropTypes.func,
+  // onFilterName: PropTypes.func,
   onFilterEndDate: PropTypes.func,
   onfilterPayment: PropTypes.func,
   onFilterStartDate: PropTypes.func,
+  onApplyFilter: PropTypes.func,
   paymentTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
@@ -35,6 +39,7 @@ export default function InvoiceTableToolbar({
   onfilterPayment,
   onFilterStartDate,
   onFilterEndDate,
+  onApplyFilter
 }) {
   return (
     <Stack spacing={2} direction={{ xs: 'column', md: 'row' }} sx={{ py: 2.5, px: 3 }}>
@@ -100,20 +105,17 @@ export default function InvoiceTableToolbar({
           />
         )}
       />
-{/* 
-      <TextField
-        fullWidth
-        value={filterName}
-        onChange={(event) => onFilterName(event.target.value)}
-        placeholder="Search client or invoice number..."
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon={'eva:search-fill'} sx={{ color: 'text.disabled', width: 20, height: 20 }} />
-            </InputAdornment>
-          ),
-        }}
-      /> */}
+      <Box display="flex" alignItems="center" justifyContent="center">
+        <Button
+          size='large'
+          fullWidth
+          onClick={onApplyFilter}
+          variant='outlined'
+          sx={{p: 4}}
+        >
+            Apply
+        </Button>
+      </Box>
     </Stack>
   );
 }

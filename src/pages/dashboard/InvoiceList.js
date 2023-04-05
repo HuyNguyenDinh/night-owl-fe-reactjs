@@ -54,8 +54,16 @@ import { InvoiceTableRow, InvoiceTableToolbar } from '../../sections/@dashboard/
 const PAYMENT_TYPE = [
   'all',
   'Cash on Delivery',
-  'E-Wallet'
+  'E-Wallet',
+  'Point'
 ];
+
+const PAYMENT_TYPE_REF = {
+  'all': -1,
+  'Cash on Delivery': 0,
+  'E-Wallet': 1,
+  'Point': 2
+}
 
 const TABLE_HEAD = [
   { id: 'customer', label: 'Customer', align: 'left' },
@@ -123,30 +131,9 @@ export default function InvoiceList() {
 
   const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('all');
 
-  // const handleFilterName = (filterName) => {
-  //   setFilterName(filterName);
-  //   setPage(0);
-  // };
-
   const handlefilterPayment = (event) => {
     setfilterPayment(event.target.value);
   };
-
-  // const handleDeleteRow = (id) => {
-  //   const deleteRow = tableData.filter((row) => row.id !== id);
-  //   setSelected([]);
-  //   setTableData(deleteRow);
-  // };
-
-  // const handleDeleteRows = (selected) => {
-  //   const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-  //   setSelected([]);
-  //   setTableData(deleteRows);
-  // };
-
-  // const handleEditRow = (id) => {
-  //   navigate(PATH_DASHBOARD.invoice.edit(id));
-  // };
 
   const handleViewRow = (id) => {
     navigate(PATH_DASHBOARD.invoice.view(id));
@@ -172,10 +159,10 @@ export default function InvoiceList() {
   const denseHeight = dense ? 56 : 76;
 
   // const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
-  const getLengthByStatus = (status) => analyticOrders.filter((item) => item.status === status)[0].order_amount;
+  const getLengthByStatus = (status) => analyticOrders.find((item) => item.status === status).order_amount;
   const getTotalLength = () => sum(analyticOrders.map((item) => item.order_amount));
 
-  const getTotalPriceByStatus = (status) => analyticOrders.filter((item) => item.status === status)[0].total_child_price_sum;
+  const getTotalPriceByStatus = (status) => analyticOrders.find((item) => item.status === status).total_child_price_sum;
   const getTotalPrice = () => sum(analyticOrders.map((item) => item.total_child_price_sum));
 
   const getPercentByStatus = (status) => (getLengthByStatus(status) / getTotalLength()) * 100;
@@ -208,6 +195,15 @@ export default function InvoiceList() {
       console.log(error);
     }
   };
+
+  const onApplyFilter = async () => {
+    let url = "/market/orders/?state=1";
+    if (PAYMENT_TYPE_REF[filterPayment] >= 0) {
+      url = url.concat(`&payment_type=${filterPayment}`);
+    }
+    const response = await axiosInstance.get(url);
+    setOrders(response.data.results);
+  }
 
   useEffect(() => {
     const initData = async () => {
@@ -315,7 +311,7 @@ export default function InvoiceList() {
                 key="all"
                 value="all"
                 icon={<Label color="default"> {getTotalLength()} </Label>}
-                label="All"
+                label="Total"
               />
             {TABS.map((tab) => (
               <Tab
@@ -331,11 +327,9 @@ export default function InvoiceList() {
           <Divider />
 
           <InvoiceTableToolbar
-            // filterName={filterName}
             filterPayment={filterPayment}
             filterStartDate={filterStartDate}
             filterEndDate={filterEndDate}
-            // onFilterName={handleFilterName}
             onfilterPayment={handlefilterPayment}
             onFilterStartDate={(newValue) => {
               setFilterStartDate(newValue);
@@ -344,6 +338,7 @@ export default function InvoiceList() {
               setFilterEndDate(newValue);
             }}
             paymentTypes={PAYMENT_TYPE}
+            onApplyFilter={() => console.log("filter")}
           />
 
           <Scrollbar>
@@ -406,18 +401,6 @@ export default function InvoiceList() {
                 />
 
                 <TableBody>
-                  {/* {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                    <InvoiceTableRow
-                      key={row.id}
-                      row={row}
-                      selected={selected.includes(row.id)}
-                      onSelectRow={() => onSelectRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
-                      onEditRow={() => handleEditRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                    />
-                  ))} */}
-
                   {(orders && orders.length > 0) && orders.map((row) => (
                     <InvoiceTableRow
                       key={row.id}
@@ -425,10 +408,11 @@ export default function InvoiceList() {
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onViewRow={() => handleViewRow(row.id)}
-                      // onEditRow={() => handleEditRow(row.id)}
-                      // onDeleteRow={() => handleDeleteRow(row.id)}
+                      onAccept={() => console.log("accept")}
+                      onReject={() => console.log("reject")}
                     />
                   ))}
+
                   {(!orders || orders.length === 0) &&
                   (
                     <TableRow>
@@ -437,10 +421,6 @@ export default function InvoiceList() {
                       </TableCell>
                     </TableRow>
                   )}
-
-                  {/* <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} /> */}
-
-                  {/* <TableNoData isNotFound={isNotFound} /> */}
                 </TableBody>
               </Table>
             </TableContainer>
