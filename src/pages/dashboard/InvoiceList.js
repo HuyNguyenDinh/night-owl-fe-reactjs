@@ -118,7 +118,6 @@ export default function InvoiceList() {
     {status: 2, total_child_price_sum: 0, order_amount: 0},
     {status: 3, total_child_price_sum: 0, order_amount: 0},
     {status: 4, total_child_price_sum: 0, order_amount: 0},
-    {status: 5, total_child_price_sum: 0, order_amount: 0}
   ]);
 
   // const [filterName, setFilterName] = useState('');
