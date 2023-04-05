@@ -25,6 +25,8 @@ import {
   TableCell,
   Typography
 } from '@mui/material';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // utils
 import axiosInstance from '../../utils/axios';
 // routes
@@ -62,6 +64,7 @@ const TABLE_HEAD = [
   { id: 'cost', label: 'cost', align: 'center', width: 140 },
   { id: 'payment', label: 'Payment', align: 'center', width: 140 },
   { id: 'status', label: 'Status', align: 'left' },
+  { id: 'action', label: 'Action', align: 'center'},
   { id: '' },
 ];
 
@@ -99,6 +102,7 @@ export default function InvoiceList() {
 
   const { user } = useAuth();
 
+  const [previousPage, setPreviousPage] = useState('');
   const [nextPage, setNextPage] = useState('');
 
   const [analyticOrders, setAnalyticOrders] = useState([
@@ -177,21 +181,38 @@ export default function InvoiceList() {
   const getPercentByStatus = (status) => (getLengthByStatus(status) / getTotalLength()) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'default', status: 5 },
     { value: 'pending', label: 'Pending', color: 'warning', status: 1 },
     { value: 'shipping', label: 'Shipping', color: 'info', status: 2 },
     { value: 'completed', label: 'Completed', color: 'success', status: 3 },
     { value: 'canceled', label: 'Canceled', color: 'error', status: 4 },
   ];
 
+  const getOrders = async () => {
+    try {
+      const response = await axiosInstance.get("/market/orders/?state=1");
+      setOrders(response.data.results);
+      if (response.data.next) {
+        setNextPage(response.data.next);
+      }
+      else {
+        setNextPage('');
+      }
+      if (response.data.previous) {
+        setPreviousPage(response.data.previous);
+      }
+      else {
+        setPreviousPage('');
+      }
+    }
+    catch(error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const getOrders = async () => {
+    const initData = async () => {
+      await getOrders();
       try {
-        const response = await axiosInstance.get("/market/orders/?state=1");
-        setOrders(response.data.results);
-        if (response.data.next) {
-          setNextPage(response.data.next);
-        };
         const resp = await axiosInstance.get("/market/orders/count-order/?state=1");
         if (resp.data.analytics) {
           const statusAnalytic = resp?.data.analytics.map((elm) => elm.status);
@@ -203,7 +224,7 @@ export default function InvoiceList() {
         console.log(error);
       }
     };
-    getOrders();
+    initData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
@@ -289,6 +310,13 @@ export default function InvoiceList() {
             onChange={onFilterStatus}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
+            <Tab
+                disableRipple
+                key="all"
+                value="all"
+                icon={<Label color="default"> {getTotalLength()} </Label>}
+                label="All"
+              />
             {TABS.map((tab) => (
               <Tab
                 disableRipple
@@ -412,13 +440,13 @@ export default function InvoiceList() {
 
                   {/* <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} /> */}
 
-                  <TableNoData isNotFound={isNotFound} />
+                  {/* <TableNoData isNotFound={isNotFound} /> */}
                 </TableBody>
               </Table>
             </TableContainer>
           </Scrollbar>
 
-          <Box sx={{ position: 'relative' }}>
+          <Box sx={{ position: 'relative', p: 2 }}>
             {/* <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
@@ -428,12 +456,20 @@ export default function InvoiceList() {
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
             /> */}
-
-            <FormControlLabel
-              control={<Switch checked={dense} onChange={onChangeDense} />}
-              label="Dense"
-              sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-            />
+            <Stack direction="row" justifyContent="space-between">
+              <div>
+                <FormControlLabel
+                  control={<Switch checked={dense} onChange={onChangeDense} />}
+                  label="Dense"
+                  sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
+                />
+              </div>
+              
+              <Stack direction="row">
+                <IconButton disabled={previousPage === ""}><ArrowBackIosNewIcon /></IconButton>
+                <IconButton disabled={nextPage === ""}><ArrowForwardIosIcon /></IconButton>
+              </Stack>
+            </Stack>
           </Box>
         </Card>
       </Container>

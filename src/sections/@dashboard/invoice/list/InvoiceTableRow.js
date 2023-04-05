@@ -2,7 +2,9 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Checkbox, TableRow, TableCell, Typography, Stack, Link, MenuItem } from '@mui/material';
+import { Checkbox, TableRow, TableCell, Typography, Stack, Link, MenuItem, IconButton } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import createAvatar from '../../../../utils/createAvatar';
@@ -14,6 +16,20 @@ import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 
 // ----------------------------------------------------------------------
+
+const PAYMENT_REF = {
+  0: "COD",
+  1: "E-WALLET",
+  2: "NOMC"
+}
+
+const STATUS_REF = {
+  0: "Uncheckout",
+  1: "Approving",
+  2: "Shipping",
+  3: "Completed",
+  4: "Canceled"
+}
 
 InvoiceTableRow.propTypes = {
   row: PropTypes.object.isRequired,
@@ -64,7 +80,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
           </Typography>
 
           <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>
-            {id}
+            Order - {id}
           </Link>
         </Stack>
       </TableCell>
@@ -87,7 +103,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
             }
             sx={{ textTransform: 'capitalize' }}
           >
-            {status}
+            {STATUS_REF[status]}
           </Label>
       </TableCell>
 
@@ -105,8 +121,26 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
           }
           sx={{ textTransform: 'capitalize' }}
         >
-          {status}
+          
+          {
+            // eslint-disable-next-line camelcase
+            PAYMENT_REF[payment_type]
+          }
         </Label>
+      </TableCell>
+
+      <TableCell>
+        {status === 1 &&
+          <Stack direction="row" justifyContent="space-between">
+            <IconButton>
+              <CheckIcon color='success' />
+            </IconButton>
+            <IconButton>
+              <ClearIcon color='error' />
+            </IconButton>
+          </Stack>
+        }
+        {/* {status === 0 && } */}
       </TableCell>
 
       <TableCell align="right">
