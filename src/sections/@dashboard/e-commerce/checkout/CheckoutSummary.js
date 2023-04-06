@@ -56,7 +56,9 @@ export default function CheckoutSummary({
   return (
     <Card sx={{ mb: 3 }}>
       <CardHeader
-        title="Order Summary"
+        title={
+          <Typography color="primary" variant='subtitle1'>Order Summary</Typography>
+        }
         action={
           enableEdit && (
             <Button size="small" onClick={onEdit} startIcon={<Iconify icon={'eva:edit-fill'} />}>

@@ -7,7 +7,7 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
-// import RoleBasedGuard from '../guards/RoleBasedGuard';
+import RoleBasedGuard from '../guards/RoleBasedGuard';
 // config
 import { PATH_AFTER_LOGIN } from '../config';
 // components
@@ -78,7 +78,7 @@ export default function Router() {
             { path: 'shop', element: <EcommerceShop /> },
             { path: 'product/:id', element: <EcommerceProductDetails /> },
             { path: 'list', element: (<AuthGuard> <EcommerceProductList /> </AuthGuard>)},
-            { path: 'product/new', element: (<AuthGuard> <EcommerceProductCreate /> </AuthGuard>)},
+            { path: 'product/new', element: (<RoleBasedGuard hasContent roles={["business"]}> <EcommerceProductCreate /> </RoleBasedGuard>)},
             { path: 'product/:id/edit', element: (<AuthGuard> <EcommerceProductCreate /> </AuthGuard>)},
             { path: 'checkout', element: (<AuthGuard><EcommerceCheckout /> </AuthGuard>)},
           ],
@@ -99,7 +99,7 @@ export default function Router() {
           path: 'invoice',
           children: [
             { element: <Navigate to="/dashboard/invoice/list" replace />, index: true },
-            { path: 'list', element: <InvoiceList /> },
+            { path: 'list', element: (<RoleBasedGuard hasContent roles={["business"]}><InvoiceList /></RoleBasedGuard>) },
             { path: ':id', element: <InvoiceDetails /> },
             { path: ':id/edit', element: <InvoiceEdit /> },
             { path: 'new', element: <InvoiceCreate /> },

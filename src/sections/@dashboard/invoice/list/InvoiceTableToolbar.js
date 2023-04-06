@@ -7,7 +7,7 @@ import {
   Button,
   Box
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+// import SearchIcon from '@mui/icons-material/Search';
 import DatePicker from '@mui/lab/DatePicker';
 // components
 // import Iconify from '../../../../components/Iconify';
@@ -111,7 +111,7 @@ export default function InvoiceTableToolbar({
           fullWidth
           onClick={onApplyFilter}
           variant='outlined'
-          sx={{p: 4}}
+          sx={{p: 3.43}}
         >
             Apply
         </Button>

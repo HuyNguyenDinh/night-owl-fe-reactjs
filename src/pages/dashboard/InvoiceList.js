@@ -1,7 +1,10 @@
 // import sumBy from 'lodash/sumBy';
 import sum from 'lodash/sum';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { 
+  // Link as RouterLink, 
+  useNavigate 
+} from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -12,14 +15,14 @@ import {
   Table,
   Stack,
   Switch,
-  Button,
+  // Button,
   Tooltip,
   Divider,
   TableBody,
   Container,
   IconButton,
   TableContainer,
-  TablePagination,
+  // TablePagination,
   FormControlLabel,
   TableRow,
   TableCell,
@@ -29,6 +32,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // utils
 import axiosInstance from '../../utils/axios';
+import { kFormat } from '../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -37,7 +41,7 @@ import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
-import { _invoices } from '../../_mock';
+// import { _invoices } from '../../_mock';
 // components
 import Page from '../../components/Page';
 import Label from '../../components/Label';
@@ -67,10 +71,11 @@ const PAYMENT_TYPE_REF = {
 
 const TABLE_HEAD = [
   { id: 'customer', label: 'Customer', align: 'left' },
-  { id: 'orderDate', label: 'Order Date', align: 'left' },
+  { id: 'orderDate', label: 'Created', align: 'left' },
   { id: 'completedDate', label: 'Completed', align: 'left' },
+  { id: 'shippingFee', label: 'Shipping', align: 'center'},
   { id: 'cost', label: 'cost', align: 'center', width: 140 },
-  { id: 'payment', label: 'Payment', align: 'center', width: 140 },
+  { id: 'payment', label: 'Payment', align: 'center', width: 100 },
   { id: 'status', label: 'Status', align: 'left' },
   { id: 'action', label: 'Action', align: 'center'},
   { id: '' },
@@ -102,11 +107,11 @@ export default function InvoiceList() {
     onChangeDense,
     // onChangePage,
     // onChangeRowsPerPage,
-  } = useTable({ defaultOrderBy: 'createDate' });
+  } = useTable({ defaultOrderBy: 'orderDate' });
 
   const [orders, setOrders] = useState([]);
 
-  const [tableData, setTableData] = useState(_invoices);
+  // const [tableData, setTableData] = useState(_invoices);
 
   const { user } = useAuth();
 
@@ -137,25 +142,6 @@ export default function InvoiceList() {
   const handleViewRow = (id) => {
     navigate(PATH_DASHBOARD.invoice.view(id));
   };
-
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    // filterName,
-    filterPayment,
-    filterStatus,
-    filterStartDate,
-    filterEndDate,
-  });
-
-  const isNotFound =
-    // (!dataFiltered.length && !!filterName) ||
-    (!dataFiltered.length && !!filterStatus) ||
-    (!dataFiltered.length && !!filterPayment) ||
-    (!dataFiltered.length && !!filterEndDate) ||
-    (!dataFiltered.length && !!filterStartDate);
-
-  const denseHeight = dense ? 56 : 76;
 
   // const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
   const getLengthByStatus = (status) => analyticOrders.find((item) => item.status === status).order_amount;
@@ -198,10 +184,40 @@ export default function InvoiceList() {
   const onApplyFilter = async () => {
     let url = "/market/orders/?state=1";
     if (PAYMENT_TYPE_REF[filterPayment] >= 0) {
-      url = url.concat(`&payment_type=${filterPayment}`);
+      url = url.concat(`&payment_type=${PAYMENT_TYPE_REF[filterPayment]}`);
+    }
+    if (filterStartDate) {
+      url = url.concat(`&order_date__gt=${filterStartDate.toISOString().slice(0, 10)}`);
+    }
+    if (filterEndDate) {
+      url = url.concat(`&completed_date__lt=${filterEndDate.toISOString().slice(0, 10)}`);
     }
     const response = await axiosInstance.get(url);
     setOrders(response.data.results);
+  }
+
+  const onAccept = async (orderID) => {
+    try {
+      const response = await axiosInstance.get(`/market/orders/${orderID}/accept_order/`);
+      let newOrders = orders.filter((item) => item.id !== orderID);
+      newOrders = [...newOrders, response.data];
+      setOrders(newOrders);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const onReject = async (orderID) => {
+    try {
+      const response = await axiosInstance.get(`/market/orders/${orderID}/cancel_order/`);
+      let newOrders = orders.filter((item) => item.id !== orderID);
+      newOrders = [...newOrders, response.data];
+      setOrders(newOrders);
+    }
+    catch (error) {
+      console.log(error);
+    }
   }
 
   useEffect(() => {
@@ -233,16 +249,6 @@ export default function InvoiceList() {
             { name: 'Invoices', href: PATH_DASHBOARD.invoice.root },
             { name: 'List' },
           ]}
-          // action={
-          //   <Button
-          //     variant="contained"
-          //     component={RouterLink}
-          //     to={PATH_DASHBOARD.invoice.new}
-          //     startIcon={<Iconify icon={'eva:plus-fill'} />}
-          //   >
-          //     New Invoice
-          //   </Button>
-          // }
         />
 
         <Card sx={{ mb: 5 }}>
@@ -254,42 +260,42 @@ export default function InvoiceList() {
             >
               <InvoiceAnalytic
                 title="Total"
-                total={getTotalLength(5)}
+                total={getTotalLength()}
                 percent={100}
-                price={getTotalPrice(5)}
-                icon="eva:file-fill"
+                price={kFormat(getTotalPrice())}
+                icon="ic:round-receipt"
                 color={theme.palette.text.secondary}
               />
               <InvoiceAnalytic
                 title="Pending"
                 total={getLengthByStatus(1)}
                 percent={getPercentByStatus(1)}
-                price={getTotalPriceByStatus(1)}
-                icon="eva:clock-fill"
+                price={kFormat(getTotalPriceByStatus(1))}
+                icon="eva:bell-fill"
                 color={theme.palette.warning.main}
               />
               <InvoiceAnalytic
                 title="Shipping"
                 total={getLengthByStatus(2)}
                 percent={getPercentByStatus(2)}
-                price={getTotalPriceByStatus(2)}
-                icon="ic:round-receipt"
+                price={kFormat(getTotalPriceByStatus(2))}
+                icon="eva:clock-fill"
                 color={theme.palette.info.main}
               />
               <InvoiceAnalytic
                 title="Completed"
                 total={getLengthByStatus(3)}
                 percent={getPercentByStatus(3)}
-                price={getTotalPriceByStatus(3)}
+                price={kFormat(getTotalPriceByStatus(3))}
                 icon="eva:checkmark-circle-2-fill"
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
-                title="Overdue"
+                title="Canceled"
                 total={getLengthByStatus(4)}
                 percent={getPercentByStatus(4)}
-                price={getTotalPriceByStatus(4)}
-                icon="eva:bell-fill"
+                price={kFormat(getTotalPriceByStatus(4))}
+                icon="material-symbols:cancel"
                 color={theme.palette.error.main}
               />
             </Stack>
@@ -337,7 +343,7 @@ export default function InvoiceList() {
               setFilterEndDate(newValue);
             }}
             paymentTypes={PAYMENT_TYPE}
-            onApplyFilter={() => console.log("filter")}
+            onApplyFilter={onApplyFilter}
           />
 
           <Scrollbar>
@@ -346,21 +352,15 @@ export default function InvoiceList() {
                 <TableSelectedActions
                   dense={dense}
                   numSelected={selected.length}
-                  rowCount={tableData.length}
+                  rowCount={orders.length}
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      orders.map((row) => row.id)
                     )
                   }
                   actions={
                     <Stack spacing={1} direction="row">
-                      {/* <Tooltip title="Sent">
-                        <IconButton color="primary">
-                          <Iconify icon={'ic:round-send'} />
-                        </IconButton>
-                      </Tooltip> */}
-
                       <Tooltip title="Download">
                         <IconButton color="primary">
                           <Iconify icon={'eva:download-outline'} />
@@ -372,12 +372,6 @@ export default function InvoiceList() {
                           <Iconify icon={'eva:printer-fill'} />
                         </IconButton>
                       </Tooltip>
-
-                      {/* <Tooltip title="Delete">
-                        <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                          <Iconify icon={'eva:trash-2-outline'} />
-                        </IconButton>
-                      </Tooltip> */}
                     </Stack>
                   }
                 />
@@ -388,13 +382,13 @@ export default function InvoiceList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
+                  rowCount={orders.length}
                   numSelected={selected.length}
                   onSort={onSort}
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      orders.map((row) => row.id)
                     )
                   }
                 />
@@ -407,15 +401,15 @@ export default function InvoiceList() {
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onViewRow={() => handleViewRow(row.id)}
-                      onAccept={() => console.log("accept")}
-                      onReject={() => console.log("reject")}
+                      onAccept={() => onAccept(row.id)}
+                      onReject={() => onReject(row.id)}
                     />
                   ))}
 
                   {(!orders || orders.length === 0) &&
                   (
                     <TableRow>
-                      <TableCell colSpan={7}>
+                      <TableCell colSpan={9}>
                         <Typography variant="subtitle2" textAlign="center">No Orders</Typography>
                       </TableCell>
                     </TableRow>
@@ -458,47 +452,47 @@ export default function InvoiceList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({
-  tableData,
-  comparator,
-  // filterName,
-  filterStatus,
-  // filterPayment,
-  filterStartDate,
-  filterEndDate,
-}) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
+// function applySortFilter({
+//   tableData,
+//   comparator,
+//   // filterName,
+//   filterStatus,
+//   // filterPayment,
+//   filterStartDate,
+//   filterEndDate,
+// }) {
+//   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+//   stabilizedThis.sort((a, b) => {
+//     const order = comparator(a[0], b[0]);
+//     if (order !== 0) return order;
+//     return a[1] - b[1];
+//   });
 
-  tableData = stabilizedThis.map((el) => el[0]);
+//   tableData = stabilizedThis.map((el) => el[0]);
 
-  // if (filterName) {
-  //   tableData = tableData.filter(
-  //     (item) =>
-  //       item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-  //       item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-  //   );
-  // }
+//   // if (filterName) {
+//   //   tableData = tableData.filter(
+//   //     (item) =>
+//   //       item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+//   //       item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+//   //   );
+//   // }
 
-  if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
-  }
+//   if (filterStatus !== 'all') {
+//     tableData = tableData.filter((item) => item.status === filterStatus);
+//   }
 
-  // if (filterPayment !== 'all') {
-  //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterPayment));
-  // }
+//   // if (filterPayment !== 'all') {
+//   //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterPayment));
+//   // }
 
-  if (filterStartDate && filterEndDate) {
-    tableData = tableData.filter(
-      (item) =>
-        item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
-    );
-  }
+//   if (filterStartDate && filterEndDate) {
+//     tableData = tableData.filter(
+//       (item) =>
+//         item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
+//     );
+//   }
 
-  return tableData;
-}
+//   return tableData;
+// }

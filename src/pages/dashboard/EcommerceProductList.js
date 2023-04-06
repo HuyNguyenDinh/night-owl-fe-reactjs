@@ -98,8 +98,8 @@ export default function EcommerceProductList() {
   useEffect(() => {
     if (ownProducts.length) {
       setTableData(ownProducts);
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [ownProducts]);
 
   const handleFilterName = (filterName) => {
@@ -224,13 +224,17 @@ export default function EcommerceProductList() {
                           onEditRow={() => handleEditRow(row.id)}
                         />
                       ) : (
-                        !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
+                        // !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
+                        <TableSkeleton key={index} sx={{ height: denseHeight }} />
                       )
                     )}
-
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
-
-                  <TableNoData isNotFound={isNotFound} />
+                  { isNotFound && (
+                    // <div>
+                    //   <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                    //   <TableNoData isNotFound={isNotFound} />
+                    // </div>
+                    <TableNoData isNotFound={isNotFound} />
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

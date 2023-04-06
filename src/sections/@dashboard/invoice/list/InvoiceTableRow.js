@@ -7,6 +7,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import PendingIcon from '@mui/icons-material/Pending';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import createAvatar from '../../../../utils/createAvatar';
@@ -38,13 +39,11 @@ InvoiceTableRow.propTypes = {
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onDeleteRow: PropTypes.func,
   onAccept: PropTypes.func,
   onReject: PropTypes.func,
 };
 
-export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow, onAccept, onReject }) {
+export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onAccept, onReject }) {
   const theme = useTheme();
 
   // eslint-disable-next-line camelcase
@@ -90,6 +89,8 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       <TableCell align="left">{fDate(order_date)}</TableCell>
 
       <TableCell align="left">{fDate(completed_date)}</TableCell>
+
+      <TableCell align="center">{fCurrency(total_shipping_fee)}</TableCell>
 
       <TableCell align="center">{fCurrency(cost)}</TableCell>
 
@@ -143,10 +144,10 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
           </Stack>
         }
         {status === 0 && (
-          <ModeEditIcon color="default" />
+          <PendingIcon color='info' />
         )}
         {status === 2 && (
-          <PendingIcon color='info' />
+          <LocalShippingIcon color='info' />
         )}
         {status === 3 && (
           <CheckIcon color='success' />

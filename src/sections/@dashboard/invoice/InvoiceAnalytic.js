@@ -13,7 +13,7 @@ InvoiceAnalytic.propTypes = {
   color: PropTypes.string,
   icon: PropTypes.string,
   percent: PropTypes.number,
-  price: PropTypes.number,
+  price: PropTypes.any,
   total: PropTypes.number,
 };
 
@@ -45,7 +45,7 @@ export default function InvoiceAnalytic({ title, total, icon, color, percent, pr
         </Typography>
 
         <Typography variant="subtitle2" sx={{ color }}>
-          {fCurrency(price)}
+          {price}
         </Typography>
       </Stack>
     </Stack>

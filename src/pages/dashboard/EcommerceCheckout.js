@@ -9,7 +9,7 @@ import {
   useDispatch, 
   useSelector 
 } from '../../redux/store';
-import { getCart } from '../../redux/slices/product';
+import { getCart, onNextStep } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -31,7 +31,7 @@ import axiosInstance from '../../utils/axios';
 
 // ----------------------------------------------------------------------
 
-const STEPS = ['Cart', 'Checkout', 'Payment'];
+const STEPS = ['Cart', 'Checkout', 'Completed'];
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   top: 10,
@@ -90,18 +90,6 @@ export default function EcommerceCheckout() {
   const { orders, activeStep } = checkout;
   const isComplete = activeStep === STEPS.length;
 
-  // useEffect(() => {
-  //   if (isMountedRef.current) {
-  //     dispatch(getCart(cart));
-  //   }
-  // }, [dispatch, isMountedRef, cart]);
-
-  // useEffect(() => {
-  //   if (activeStep === 1) {
-  //     dispatch(createBilling(null));
-  //   }
-  // }, [dispatch, activeStep]);
-
   useEffect(() => {
     const getCartsDefault = async () => {
       const responseCartsDefault = await axiosInstance.get("/market/cart/");
@@ -110,6 +98,19 @@ export default function EcommerceCheckout() {
 
     getCartsDefault();
   }, [dispatch])
+
+  const onCheckout = async (listVoucher, paymentType) => {
+    try {
+      const response = await axiosInstance.post("/market/orders/checkout_order/", {
+        "list_voucher": listVoucher,
+        "payment_type": paymentType
+      });
+      onNextStep(2);
+    }
+    catch(error) {
+      console.log(error);
+    }
+  }
 
   return (
     <Page title="Ecommerce: Checkout">
@@ -151,7 +152,7 @@ export default function EcommerceCheckout() {
         {!isComplete ? (
           <>
             {activeStep === 0 && <CheckoutCart />}
-            {activeStep === 1 && <CheckoutBillingAddress orders={orders} />}
+            {activeStep === 1 && <CheckoutBillingAddress orders={orders} onCheckout={onCheckout} />}
             {activeStep === 2 && orders && <CheckoutPayment />}
           </>
         ) : (

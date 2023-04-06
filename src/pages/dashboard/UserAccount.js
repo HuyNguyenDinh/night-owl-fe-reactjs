@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { capitalCase } from 'change-case';
 // @mui
 import { Container, Tab, Box, Tabs } from '@mui/material';
@@ -21,8 +22,11 @@ import {
 
 export default function UserAccount() {
   const { themeStretch } = useSettings();
+  const location = useLocation().search;
 
-  const { currentTab, onChangeTab } = useTabs('general');
+  const tab = new URLSearchParams(location).get("tab") || "general";
+
+  const { currentTab, onChangeTab } = useTabs(tab);
 
   const ACCOUNT_TABS = [
     {

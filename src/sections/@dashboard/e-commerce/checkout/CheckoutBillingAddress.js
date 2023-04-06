@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // import sum from 'lodash/sum';
 // @mui
 import { 
@@ -20,16 +20,19 @@ import {
   IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import useAuth from '../../../../hooks/useAuth';
 import { SkeletionCard } from '../../../../components/skeleton';
 // path route
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // utils
 import { fNumber } from '../../../../utils/formatNumber';
+import { fDate } from '../../../../utils/formatTime';
 // redux
 import { useDispatch, useSelector } from '../../../../redux/store';
 import { 
   onBackStep, 
-  onNextStep, 
+  // onNextStep, 
   updateOrders,
   // createBilling 
 } from '../../../../redux/slices/product';
@@ -46,28 +49,24 @@ import axiosInstance from '../../../../utils/axios';
 // ----------------------------------------------------------------------
 
 CheckoutBillingAddress.propTypes = {
-  orders: PropTypes.array
+  orders: PropTypes.array, 
+  onCheckout: PropTypes.func,
 }
 
-export default function CheckoutBillingAddress({ orders }) {
+export default function CheckoutBillingAddress({ orders, onCheckout }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { discount, subtotal, shipping } = checkout;
+  const {user} = useAuth();
 
-  const handleNextStep = () => {
-    dispatch(onNextStep());
-  };
+  const { discount, subtotal, shipping } = checkout;
 
   const handleBackStep = () => {
     dispatch(updateOrders([]));
     dispatch(onBackStep());
   };
-
-  // const handleCreateBilling = (value) => {
-  //   dispatch(createBilling(value));
-  // };
 
   return (
     <div>
@@ -90,18 +89,35 @@ export default function CheckoutBillingAddress({ orders }) {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <CheckoutSummary 
-              // onApplyDiscount={() => console.log("apply discount")} 
-              enableDiscount 
-              subtotal={subtotal} 
-              total={subtotal + shipping} 
-              discount={discount} 
-              shipping={shipping}
-              orders={orders}
-            />
-            <Button variant="contained" fullWidth onClick={handleNextStep}>
-              Checkout
-            </Button>
+            <Stack spacing={2}>
+              <Card>
+                <CardHeader title={
+                  <Typography color="primary" variant='subtitle1'>Address</Typography>
+                } />
+                <CardContent>
+                  <Stack direction="row" spacing={2}>
+                    <Typography variant='body2'>
+                      {user.address.full_address}
+                    </Typography>
+                    <Button color='primary' onClick={() => navigate(PATH_DASHBOARD.user.account.concat("?tab=address"))}>
+                      <EditIcon />
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+              <CheckoutSummary 
+                // onApplyDiscount={() => console.log("apply discount")} 
+                enableDiscount 
+                subtotal={subtotal} 
+                total={subtotal + shipping} 
+                discount={discount} 
+                shipping={shipping}
+                orders={orders}
+              />
+              <Button variant="contained" fullWidth onClick={() => onCheckout({}, 0)}>
+                Checkout
+              </Button>              
+            </Stack>
           </Grid>
         </Grid>
       }
@@ -156,8 +172,8 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
                   </Typography>
                 </Stack>
             </Link>
-            <Button onClick={() => setOpen(true)}>
-              Show Vouchers
+            <Button variant='outlined' onClick={() => setOpen(true)}>
+              Vouchers
             </Button>
           </Stack>
         }
@@ -240,12 +256,12 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
                         Discount: {fNumber(elm.discount)} {elm.is_percentage && "%"}
                       </Typography>
                       <Typography>
-                        Expired date: {elm.end_date ? elm.end_date : "Forever"}
+                        Expired date: {elm.end_date ? fDate(elm.end_date) : "Forever"}
                       </Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={3} margin="auto" textAlign="center">
-                    <Button variant={copiedVoucher === elm.id && "contained"} onClick={() => handleCopy(elm)}>
+                    <Button variant={copiedVoucher === elm.id ? "contained" : "outlined"} onClick={() => handleCopy(elm)}>
                       Copy
                     </Button>
                   </Grid>
