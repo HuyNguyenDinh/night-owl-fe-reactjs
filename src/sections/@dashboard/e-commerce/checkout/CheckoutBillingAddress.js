@@ -144,8 +144,13 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
 
   useEffect(() => {  
     const getVoucherAvailable = async () => {
-      const response = await axiosInstance.get(`/market/orders/${orderID}/voucher-available/`);
-      setOrderVouchers(response.data);
+      try {
+        const response = await axiosInstance.get(`/market/orders/${orderID}/voucher-available/`);
+        setOrderVouchers(response.data);
+      }
+      catch(error) {
+        console.log(error);
+      }
     }
     getVoucherAvailable();
   }, [orderID])

@@ -187,10 +187,10 @@ export default function InvoiceList() {
       url = url.concat(`&payment_type=${PAYMENT_TYPE_REF[filterPayment]}`);
     }
     if (filterStartDate) {
-      url = url.concat(`&order_date__gt=${filterStartDate.toISOString().slice(0, 10)}`);
+      url = url.concat(`&order_date__gte=${filterStartDate.toISOString().slice(0, 10)}`);
     }
     if (filterEndDate) {
-      url = url.concat(`&completed_date__lt=${filterEndDate.toISOString().slice(0, 10)}`);
+      url = url.concat(`&completed_date__lte=${filterEndDate.toISOString().slice(0, 10)}`);
     }
     const response = await axiosInstance.get(url);
     setOrders(response.data.results);
@@ -237,7 +237,7 @@ export default function InvoiceList() {
     };
     initData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [user, orders])
 
   return (
     <Page title="Invoice: List">

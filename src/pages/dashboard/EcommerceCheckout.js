@@ -105,7 +105,7 @@ export default function EcommerceCheckout() {
         "list_voucher": listVoucher,
         "payment_type": paymentType
       });
-      onNextStep(2);
+      dispatch(onNextStep());
     }
     catch(error) {
       console.log(error);
