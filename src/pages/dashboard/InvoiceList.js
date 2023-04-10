@@ -3,7 +3,8 @@ import sum from 'lodash/sum';
 import { useState, useEffect } from 'react';
 import { 
   // Link as RouterLink, 
-  useNavigate 
+  useNavigate,
+  useLocation
 } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -39,7 +40,7 @@ import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
-import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 // _mock_
 // import { _invoices } from '../../_mock';
 // components
@@ -48,7 +49,7 @@ import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import { TableNoData, TableEmptyRows, TableHeadCustom, TableSelectedActions } from '../../components/table';
+import { TableHeadCustom, TableSelectedActions, TableSkeleton } from '../../components/table';
 // sections
 import InvoiceAnalytic from '../../sections/@dashboard/invoice/InvoiceAnalytic';
 import { InvoiceTableRow, InvoiceTableToolbar } from '../../sections/@dashboard/invoice/list';
@@ -69,17 +70,12 @@ const PAYMENT_TYPE_REF = {
   'Point': 2
 }
 
-const TABLE_HEAD = [
-  { id: 'customer', label: 'Customer', align: 'left' },
-  { id: 'orderDate', label: 'Created', align: 'left' },
-  { id: 'completedDate', label: 'Completed', align: 'left' },
-  { id: 'shippingFee', label: 'Shipping', align: 'center'},
-  { id: 'cost', label: 'cost', align: 'center', width: 140 },
-  { id: 'payment', label: 'Payment', align: 'center', width: 100 },
-  { id: 'status', label: 'Status', align: 'left' },
-  { id: 'action', label: 'Action', align: 'center'},
-  { id: '' },
-];
+const STATUS_REF = {
+  "approving": 1,
+  "shipping": 2,
+  "completed": 3,
+  "canceled": 4
+}
 
 // ----------------------------------------------------------------------
 
@@ -87,6 +83,18 @@ export default function InvoiceList() {
   const theme = useTheme();
 
   const { themeStretch } = useSettings();
+
+  const { pathname } = useLocation();
+
+  const isShopping = pathname.includes('shopping');
+
+  const state = isShopping ? 0 : 1;
+
+  const location = useLocation().search;
+
+  const status = new URLSearchParams(location).get("status") || "all";
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -111,8 +119,6 @@ export default function InvoiceList() {
 
   const [orders, setOrders] = useState([]);
 
-  // const [tableData, setTableData] = useState(_invoices);
-
   const { user } = useAuth();
 
   const [previousPage, setPreviousPage] = useState('');
@@ -125,15 +131,26 @@ export default function InvoiceList() {
     {status: 4, total_child_price_sum: 0, order_amount: 0},
   ]);
 
-  // const [filterName, setFilterName] = useState('');
-
   const [filterPayment, setfilterPayment] = useState('all');
 
   const [filterStartDate, setFilterStartDate] = useState(null);
 
   const [filterEndDate, setFilterEndDate] = useState(null);
 
-  const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('all');
+  const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs(status);
+
+
+  const TABLE_HEAD = [
+    { id: isShopping ? 'store' : 'customer', label: isShopping ? 'Store' : 'Customer', align: 'center' },
+    { id: 'orderDate', label: 'Created', align: 'left' },
+    { id: 'completedDate', label: 'Completed', align: 'left' },
+    { id: 'shippingFee', label: 'Shipping', align: 'center'},
+    { id: 'cost', label: 'cost', align: 'center', width: 140 },
+    { id: 'status', label: 'Status', align: 'center', width: 100 },
+    { id: 'payment', label: 'Payment', align: 'center' },
+    { id: 'action', label: 'Action', align: 'center'},
+    { id: '' },
+  ];
 
   const handlefilterPayment = (event) => {
     setfilterPayment(event.target.value);
@@ -143,7 +160,6 @@ export default function InvoiceList() {
     navigate(PATH_DASHBOARD.invoice.view(id));
   };
 
-  // const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
   const getLengthByStatus = (status) => analyticOrders.find((item) => item.status === status).order_amount;
   const getTotalLength = () => sum(analyticOrders.map((item) => item.order_amount));
 
@@ -153,15 +169,15 @@ export default function InvoiceList() {
   const getPercentByStatus = (status) => (getLengthByStatus(status) / getTotalLength()) * 100;
 
   const TABS = [
-    { value: 'pending', label: 'Pending', color: 'warning', status: 1 },
+    { value: 'approving', label: 'Approving', color: 'warning', status: 1 },
     { value: 'shipping', label: 'Shipping', color: 'info', status: 2 },
     { value: 'completed', label: 'Completed', color: 'success', status: 3 },
     { value: 'canceled', label: 'Canceled', color: 'error', status: 4 },
   ];
 
-  const getOrders = async () => {
+  const getOrders = async (url) => {
     try {
-      const response = await axiosInstance.get("/market/orders/?state=1");
+      const response = await axiosInstance.get(url);
       setOrders(response.data.results);
       if (response.data.next) {
         setNextPage(response.data.next);
@@ -175,14 +191,26 @@ export default function InvoiceList() {
       else {
         setPreviousPage('');
       }
+      setIsLoading(false);
     }
     catch(error) {
       console.log(error);
     }
   };
 
+  const handleFilterStatus = (event, newValue) => {
+    onFilterStatus(event, newValue);
+
+    let url = `/market/orders/?state=${state}`;
+    if (newValue !== "all") {
+      url = url.concat(`&status=${STATUS_REF[newValue]}`);
+    }
+    setIsLoading(true);
+    getOrders(url);
+  }
+
   const onApplyFilter = async () => {
-    let url = "/market/orders/?state=1";
+    let url = `/market/orders/?state=${state}`;
     if (PAYMENT_TYPE_REF[filterPayment] >= 0) {
       url = url.concat(`&payment_type=${PAYMENT_TYPE_REF[filterPayment]}`);
     }
@@ -192,8 +220,11 @@ export default function InvoiceList() {
     if (filterEndDate) {
       url = url.concat(`&completed_date__lte=${filterEndDate.toISOString().slice(0, 10)}`);
     }
-    const response = await axiosInstance.get(url);
-    setOrders(response.data.results);
+    if (filterStatus !== "all") {
+      url = url.concat(`&status=${STATUS_REF[filterStatus]}`);
+    }
+    setIsLoading(true);
+    getOrders(url);
   }
 
   const onAccept = async (orderID) => {
@@ -220,11 +251,30 @@ export default function InvoiceList() {
     }
   }
 
+  const onNextPage = () => {
+    setIsLoading(true);
+    getOrders(nextPage);
+  }
+
+  const onPreviousPage = () => {
+    setIsLoading(true);
+    getOrders(previousPage);
+  }
+
+  useEffect(() => {
+    let url = `/market/orders/?state=${state}`;
+    if (filterStatus !== "all") {
+      url = url.concat(`&status=${STATUS_REF[filterStatus]}`);
+    }
+    setIsLoading(true);
+    getOrders(url);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     const initData = async () => {
-      await getOrders();
       try {
-        const resp = await axiosInstance.get("/market/orders/count-order/?state=1");
+        const resp = await axiosInstance.get(`/market/orders/count-order/?state=${state}`);
         if (resp.data.analytics) {
           const statusAnalytic = resp?.data.analytics.map((elm) => elm.status);
           const newAnalytic = [...analyticOrders.filter((elm) => !statusAnalytic.includes(elm.status)), ...resp.data.analytics]
@@ -267,7 +317,7 @@ export default function InvoiceList() {
                 color={theme.palette.text.secondary}
               />
               <InvoiceAnalytic
-                title="Pending"
+                title="Approving"
                 total={getLengthByStatus(1)}
                 percent={getPercentByStatus(1)}
                 price={kFormat(getTotalPriceByStatus(1))}
@@ -308,7 +358,7 @@ export default function InvoiceList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onFilterStatus}
+            onChange={handleFilterStatus}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             <Tab
@@ -394,8 +444,18 @@ export default function InvoiceList() {
                 />
 
                 <TableBody>
-                  {(orders && orders.length > 0) && orders.map((row) => (
+                  {isLoading && (
+                    <>
+                      <TableSkeleton />
+                      <TableSkeleton />
+                      <TableSkeleton />
+                      <TableSkeleton />
+                      <TableSkeleton />
+                    </>
+                  )}
+                  {(orders && orders.length > 0 && !isLoading) && orders.map((row) => (
                     <InvoiceTableRow
+                      isShopping={isShopping}
                       key={row.id}
                       row={row}
                       selected={selected.includes(row.id)}
@@ -406,7 +466,7 @@ export default function InvoiceList() {
                     />
                   ))}
 
-                  {(!orders || orders.length === 0) &&
+                  {(!orders || orders.length === 0) && !isLoading &&
                   (
                     <TableRow>
                       <TableCell colSpan={9}>
@@ -420,15 +480,6 @@ export default function InvoiceList() {
           </Scrollbar>
 
           <Box sx={{ position: 'relative', p: 2 }}>
-            {/* <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={dataFiltered.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={onChangePage}
-              onRowsPerPageChange={onChangeRowsPerPage}
-            /> */}
             <Stack direction="row" justifyContent="space-between">
               <div>
                 <FormControlLabel
@@ -439,8 +490,8 @@ export default function InvoiceList() {
               </div>
               
               <Stack direction="row">
-                <IconButton disabled={previousPage === ""}><ArrowBackIosNewIcon /></IconButton>
-                <IconButton disabled={nextPage === ""}><ArrowForwardIosIcon /></IconButton>
+                <IconButton onClick={onPreviousPage} disabled={previousPage === ""}><ArrowBackIosNewIcon /></IconButton>
+                <IconButton onClick={onNextPage} disabled={nextPage === ""}><ArrowForwardIosIcon /></IconButton>
               </Stack>
             </Stack>
           </Box>
@@ -449,50 +500,3 @@ export default function InvoiceList() {
     </Page>
   );
 }
-
-// ----------------------------------------------------------------------
-
-// function applySortFilter({
-//   tableData,
-//   comparator,
-//   // filterName,
-//   filterStatus,
-//   // filterPayment,
-//   filterStartDate,
-//   filterEndDate,
-// }) {
-//   const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-//   stabilizedThis.sort((a, b) => {
-//     const order = comparator(a[0], b[0]);
-//     if (order !== 0) return order;
-//     return a[1] - b[1];
-//   });
-
-//   tableData = stabilizedThis.map((el) => el[0]);
-
-//   // if (filterName) {
-//   //   tableData = tableData.filter(
-//   //     (item) =>
-//   //       item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-//   //       item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-//   //   );
-//   // }
-
-//   if (filterStatus !== 'all') {
-//     tableData = tableData.filter((item) => item.status === filterStatus);
-//   }
-
-//   // if (filterPayment !== 'all') {
-//   //   tableData = tableData.filter((item) => item.items.some((c) => c.service === filterPayment));
-//   // }
-
-//   if (filterStartDate && filterEndDate) {
-//     tableData = tableData.filter(
-//       (item) =>
-//         item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
-//     );
-//   }
-
-//   return tableData;
-// }

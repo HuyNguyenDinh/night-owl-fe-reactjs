@@ -27,7 +27,7 @@ const DialogStyle = styled(DialogAnimate)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function CheckoutOrderComplete({ ...other }) {
+export default function CheckoutOrderComplete({ paymentType, paymentResult, ...other }) {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();

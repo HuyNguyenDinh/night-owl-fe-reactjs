@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 // form
 import { Controller, useFormContext } from 'react-hook-form';
 // @mui
@@ -40,13 +41,25 @@ const OptionStyle = styled('div')(({ theme }) => ({
 
 CheckoutPaymentMethods.propTypes = {
   paymentOptions: PropTypes.array,
-  cardOptions: PropTypes.array,
+  paymentType: PropTypes.any,
+  setPaymentType: PropTypes.func,
+  setValue: PropTypes.func,
+  // cardOptions: PropTypes.array,
 };
 
-export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }) {
+export default function CheckoutPaymentMethods({ paymentOptions, paymentType, setPaymentType, setValue }) {
   const { control } = useFormContext();
 
   const isDesktop = useResponsive('up', 'sm');
+
+  const handleOnChange = (event) => {
+    setValue("payment", event.target.value);
+    setPaymentType(event.target.value);
+  }
+
+  useEffect(() => {
+    setValue("payment", paymentType);
+  }, [paymentType, setValue])
 
   return (
     <Card sx={{ my: 3 }}>
@@ -57,12 +70,10 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }) 
           control={control}
           render={({ field, fieldState: { error } }) => (
             <>
-              <RadioGroup row {...field}>
+              <RadioGroup row {...field} value={paymentType} onChange={handleOnChange}>
                 <Stack spacing={2}>
                   {paymentOptions.map((method) => {
                     const { value, title, icons, description } = method;
-
-                    const hasChildren = value === 'credit_card';
 
                     const selected = field.value === value;
 
@@ -73,7 +84,7 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }) 
                           ...(selected && {
                             boxShadow: (theme) => theme.customShadows.z20,
                           }),
-                          ...(hasChildren && { flexWrap: 'wrap' }),
+                          // ...(hasChildren && { flexWrap: 'wrap' }),
                         }}
                       >
                         <FormControlLabel
@@ -96,26 +107,6 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }) 
                               <Image key={icon} alt="logo card" src={icon} />
                             ))}
                           </Stack>
-                        )}
-
-                        {hasChildren && (
-                          <Collapse in={field.value === 'credit_card'} sx={{ width: 1 }}>
-                            <TextField select fullWidth label="Cards" SelectProps={{ native: true }}>
-                              {cardOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </TextField>
-
-                            <Button
-                              size="small"
-                              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-                              sx={{ my: 3 }}
-                            >
-                              Add new card
-                            </Button>
-                          </Collapse>
                         )}
                       </OptionStyle>
                     );

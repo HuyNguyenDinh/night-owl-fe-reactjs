@@ -1,8 +1,8 @@
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
-import Label from '../../../components/Label';
-import Iconify from '../../../components/Iconify';
+// import Label from '../../../components/Label';
+// import Iconify from '../../../components/Iconify';
 import SvgIconStyle from '../../../components/SvgIconStyle';
 
 // ----------------------------------------------------------------------
@@ -55,38 +55,60 @@ const navConfig = [
           { title: 'cards', path: PATH_DASHBOARD.user.cards },
           // { title: 'list', path: PATH_DASHBOARD.user.list },
           // { title: 'create', path: PATH_DASHBOARD.user.new },
-          { title: 'edit', path: PATH_DASHBOARD.user.demoEdit },
+          // { title: 'edit', path: PATH_DASHBOARD.user.demoEdit },
           { title: 'account', path: PATH_DASHBOARD.user.account },
         ],
       },
 
       // E-COMMERCE
+      // {
+      //   title: 'ecommerce',
+      //   path: PATH_DASHBOARD.eCommerce.root,
+      //   icon: ICONS.cart,
+      //   children: [
+      //     { title: 'shop', path: PATH_DASHBOARD.eCommerce.shop },
+      //     { title: 'product', path: PATH_DASHBOARD.eCommerce.demoView },
+      //     { title: 'list', path: PATH_DASHBOARD.eCommerce.list },
+      //     { title: 'create', path: PATH_DASHBOARD.eCommerce.new },
+      //     { title: 'edit', path: PATH_DASHBOARD.eCommerce.demoEdit },
+      //     { title: 'checkout', path: PATH_DASHBOARD.eCommerce.checkout },
+      //   ],
+      // },
+
+      // INVOICE
+      // {
+      //   title: 'invoice',
+      //   path: PATH_DASHBOARD.invoice.root,
+      //   icon: ICONS.invoice,
+      //   children: [
+      //     { title: 'list', path: PATH_DASHBOARD.invoice.list },
+      //     { title: 'details', path: PATH_DASHBOARD.invoice.demoView },
+          // { title: 'create', path: PATH_DASHBOARD.invoice.new },
+          // { title: 'edit', path: PATH_DASHBOARD.invoice.demoEdit },
+      //   ],
+      // },
+
       {
-        title: 'ecommerce',
+        title: 'shopping',
         path: PATH_DASHBOARD.eCommerce.root,
         icon: ICONS.cart,
         children: [
-          { title: 'shop', path: PATH_DASHBOARD.eCommerce.shop },
-          { title: 'product', path: PATH_DASHBOARD.eCommerce.demoView },
-          { title: 'list', path: PATH_DASHBOARD.eCommerce.list },
-          { title: 'create', path: PATH_DASHBOARD.eCommerce.new },
-          { title: 'edit', path: PATH_DASHBOARD.eCommerce.demoEdit },
+          { title: 'Products', path: PATH_DASHBOARD.eCommerce.shop },
+          { title: 'My orders', path: PATH_DASHBOARD.invoice.shoppingList },
           { title: 'checkout', path: PATH_DASHBOARD.eCommerce.checkout },
-        ],
+        ]
       },
 
-      // INVOICE
       {
-        title: 'invoice',
-        path: PATH_DASHBOARD.invoice.root,
-        icon: ICONS.invoice,
+        title: 'selling',
+        path: PATH_DASHBOARD.general.ecommerce,
+        roles: ["business"],
+        icon: ICONS.ecommerce,
         children: [
-          { title: 'list', path: PATH_DASHBOARD.invoice.list },
-          { title: 'details', path: PATH_DASHBOARD.invoice.demoView },
-          // { title: 'create', path: PATH_DASHBOARD.invoice.new },
-          // { title: 'edit', path: PATH_DASHBOARD.invoice.demoEdit },
-        ],
-      },
+          { title: 'Manage products', path: PATH_DASHBOARD.eCommerce.list },
+          { title: 'Manage Orders', path: PATH_DASHBOARD.invoice.list },
+        ]
+      }
 
       // BLOG
       // {
@@ -120,51 +142,51 @@ const navConfig = [
   },
 
   // DEMO MENU STATES
-  {
-    subheader: 'Other cases',
-    items: [
-      {
+  // {
+  //   subheader: 'Other cases',
+  //   items: [
+  //     {
         // default roles : All roles can see this entry.
         // roles: ['user'] Only users can see this item.
         // roles: ['admin'] Only admin can see this item.
         // roles: ['admin', 'manager'] Only admin/manager can see this item.
         // Reference from 'src/guards/RoleBasedGuard'.
-        title: 'item_by_roles',
-        path: PATH_DASHBOARD.permissionDenied,
-        icon: ICONS.menuItem,
-        roles: ['admin'],
-        caption: 'only_admin_can_see_this_item',
-      },
-      {
-        title: 'menu_level_1',
-        path: '#1',
-        icon: ICONS.menuItem,
-        children: [
-          { title: 'menu_level_2', path: '#2', disabled: true },
-          {
-            title: 'menu_level_2',
-            path: '#3',
-            children: [
-              { title: 'menu_level_3', path: '#4' },
-              { title: 'menu_level_3', path: '#5' },
-            ],
-          },
-        ],
-      },
-      { title: 'item_disabled', path: '#disabled', icon: ICONS.menuItem, disabled: true },
-      {
-        title: 'item_label',
-        path: '#label',
-        icon: ICONS.menuItem,
-        info: (
-          <Label color="info" startIcon={<Iconify icon="eva:email-fill" />}>
-            NEW
-          </Label>
-        ),
-      },
-      { title: 'item_caption', path: '#caption', icon: ICONS.menuItem, caption: 'description' },
-    ],
-  },
+  //       title: 'item_by_roles',
+  //       path: PATH_DASHBOARD.permissionDenied,
+  //       icon: ICONS.menuItem,
+  //       roles: ['admin'],
+  //       caption: 'only_admin_can_see_this_item',
+  //     },
+  //     {
+  //       title: 'menu_level_1',
+  //       path: '#1',
+  //       icon: ICONS.menuItem,
+  //       children: [
+  //         { title: 'menu_level_2', path: '#2', disabled: true },
+  //         {
+  //           title: 'menu_level_2',
+  //           path: '#3',
+  //           children: [
+  //             { title: 'menu_level_3', path: '#4' },
+  //             { title: 'menu_level_3', path: '#5' },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //     { title: 'item_disabled', path: '#disabled', icon: ICONS.menuItem, disabled: true },
+  //     {
+  //       title: 'item_label',
+  //       path: '#label',
+  //       icon: ICONS.menuItem,
+  //       info: (
+  //         <Label color="info" startIcon={<Iconify icon="eva:email-fill" />}>
+  //           NEW
+  //         </Label>
+  //       ),
+  //     },
+  //     { title: 'item_caption', path: '#caption', icon: ICONS.menuItem, caption: 'description' },
+  //   ],
+  // },
 ];
 
 export default navConfig;

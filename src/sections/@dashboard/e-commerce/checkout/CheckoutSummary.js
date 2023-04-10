@@ -1,23 +1,23 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import {
   Box,
   Card,
   Stack,
-  Button,
+  // Button,
   Divider,
-  TextField,
+  // TextField,
   CardHeader,
   Typography,
   CardContent,
-  InputAdornment,
+  // InputAdornment,
 } from '@mui/material';
 // utils
 import { fCurrency } from '../../../../utils/formatNumber';
-import axiosInstance from '../../../../utils/axios';
+// import axiosInstance from '../../../../utils/axios';
 // components
-import Iconify from '../../../../components/Iconify';
+// import Iconify from '../../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -26,32 +26,35 @@ CheckoutSummary.propTypes = {
   discount: PropTypes.number,
   subtotal: PropTypes.number,
   shipping: PropTypes.number,
-  onEdit: PropTypes.func,
-  enableEdit: PropTypes.bool,
+  // onEdit: PropTypes.func,
+  // enableEdit: PropTypes.bool,
   // onApplyDiscount: PropTypes.func,
-  enableDiscount: PropTypes.bool,
-  orders: PropTypes.array,
+  // enableDiscount: PropTypes.bool,
+  // orders: PropTypes.array,
+  // listVoucher: PropTypes.object,
+  // setListVoucher: PropTypes.func,
 };
 
 export default function CheckoutSummary({
   total,
-  onEdit,
+  // onEdit,
   discount,
   subtotal,
   shipping,
   // onApplyDiscount,
-  orders,
-  enableEdit = false,
-  enableDiscount = false,
+  // listVoucher,
+  // setListVoucher,
+  // orders,
+  // enableEdit = false,
+  // enableDiscount = false,
 }) {
   const displayShipping = shipping !== null ? 'Free' : '-';
-  const [currentVoucher, setCurrentVoucher] = useState('');
-  const [appliedVouchers, setAppliedVouchers] = useState([]);
+  // const [currentVoucher, setCurrentVoucher] = useState('');
 
-  const handleApplyDiscount = (voucher) => {
-    setAppliedVouchers([...appliedVouchers, voucher]);
-    setCurrentVoucher('');
-  }
+  // const handleApplyDiscount = (voucher) => {
+  //   setListVoucher([...listVoucher, voucher]);
+  //   setCurrentVoucher('');
+  // }
 
   return (
     <Card sx={{ mb: 3 }}>
@@ -59,13 +62,13 @@ export default function CheckoutSummary({
         title={
           <Typography color="primary" variant='subtitle1'>Order Summary</Typography>
         }
-        action={
-          enableEdit && (
-            <Button size="small" onClick={onEdit} startIcon={<Iconify icon={'eva:edit-fill'} />}>
-              Edit
-            </Button>
-          )
-        }
+        // action={
+        //   enableEdit && (
+        //     <Button size="small" onClick={onEdit} startIcon={<Iconify icon={'eva:edit-fill'} />}>
+        //       Edit
+        //     </Button>
+        //   )
+        // }
       />
 
       <CardContent>
@@ -105,7 +108,7 @@ export default function CheckoutSummary({
             </Box>
           </Stack>
 
-          {enableDiscount && (
+          {/* {enableDiscount && (
             <TextField
               fullWidth
               placeholder="Discount codes / Gifts"
@@ -121,12 +124,12 @@ export default function CheckoutSummary({
                 ),
               }}
             />
-          )}
-          <Typography variant='subtitle2'>
+          )} */}
+          {/* <Typography variant='subtitle2'>
             Applied Vouchers
           </Typography>
           <Stack>
-            {appliedVouchers && appliedVouchers.map((elm) => (
+            {listVoucher && listVoucher.map((elm) => (
               <Stack key={elm} direction="row" spacing={2} justifyContent="space-between">
                 <Typography variant='body2'>
                   {elm}
@@ -136,7 +139,7 @@ export default function CheckoutSummary({
                 </Typography>
               </Stack>
             ))}
-          </Stack>
+          </Stack> */}
         </Stack>
       </CardContent>
     </Card>

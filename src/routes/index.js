@@ -100,6 +100,7 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/invoice/list" replace />, index: true },
             { path: 'list', element: (<RoleBasedGuard hasContent roles={["business"]}><InvoiceList /></RoleBasedGuard>) },
+            { path: 'list/shopping', element: <InvoiceList />},
             { path: ':id', element: <InvoiceDetails /> },
             { path: ':id/edit', element: <InvoiceEdit /> },
             { path: 'new', element: <InvoiceCreate /> },

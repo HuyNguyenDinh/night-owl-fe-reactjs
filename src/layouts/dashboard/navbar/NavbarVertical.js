@@ -45,7 +45,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
 
   const { pathname } = useLocation();
 
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const isDesktop = useResponsive('up', 'lg');
 
@@ -84,7 +84,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
           )}
         </Stack>
 
-        { user && <NavbarAccount isCollapse={isCollapse} /> }
+        { (user && isAuthenticated) && <NavbarAccount isCollapse={isCollapse} /> }
       </Stack>
 
       <NavSectionVertical navConfig={navConfig} isCollapse={isCollapse} />

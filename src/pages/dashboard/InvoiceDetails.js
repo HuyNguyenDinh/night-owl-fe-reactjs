@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 // @mui
 import { Container } from '@mui/material';
+// utils
+import axiosInstance from '../../utils/axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // _mock_
-import { _invoices } from '../../_mock';
+// import { _invoices } from '../../_mock';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // components
@@ -19,8 +22,18 @@ export default function InvoiceDetails() {
   const { themeStretch } = useSettings();
 
   const { id } = useParams();
+  
+  const [order, setOrder] = useState();
 
-  const invoice = _invoices.find((invoice) => invoice.id === id);
+  // const invoice = _invoices.find((invoice) => invoice.id === id);
+  
+  useEffect(() => {
+    const getOrder = async () => {
+      const response = await axiosInstance.get(`/market/orders/${id}/`);
+      setOrder(response.data);
+    };
+    getOrder();
+  }, [id])
 
   return (
     <Page title="Invoice: View">
@@ -33,11 +46,11 @@ export default function InvoiceDetails() {
               name: 'Invoices',
               href: PATH_DASHBOARD.invoice.root,
             },
-            { name: `INV-${invoice?.invoiceNumber}` || '' },
+            { name: `Order-${order?.id}` || '' },
           ]}
         />
 
-        <Invoice invoice={invoice} />
+        {order && <Invoice invoice={order} />}
       </Container>
     </Page>
   );

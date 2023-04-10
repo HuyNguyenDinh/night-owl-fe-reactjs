@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 // import sum from 'lodash/sum';
 // @mui
 import { 
@@ -17,11 +18,14 @@ import {
   Divider, 
   Link,
   Modal,
-  IconButton
+  IconButton,
+  TextField
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import EditIcon from '@mui/icons-material/Edit';
-import useAuth from '../../../../hooks/useAuth';
+import DiscountIcon from '@mui/icons-material/Discount';
+import CheckIcon from '@mui/icons-material/Check';
+// hook
+// import useAuth from '../../../../hooks/useAuth';
 import { SkeletionCard } from '../../../../components/skeleton';
 // path route
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -32,8 +36,8 @@ import { fDate } from '../../../../utils/formatTime';
 import { useDispatch, useSelector } from '../../../../redux/store';
 import { 
   onBackStep, 
+  applyDiscount
   // onNextStep, 
-  updateOrders,
   // createBilling 
 } from '../../../../redux/slices/product';
 // _mock_
@@ -49,24 +53,36 @@ import axiosInstance from '../../../../utils/axios';
 // ----------------------------------------------------------------------
 
 CheckoutBillingAddress.propTypes = {
-  orders: PropTypes.array, 
-  onCheckout: PropTypes.func,
+  // orders: PropTypes.array,
+  listOrders: PropTypes.object,
+  setlistOrders: PropTypes.func,
+  // onApplyVoucher: PropTypes.func,
+  onCheckout: PropTypes.func
 }
 
-export default function CheckoutBillingAddress({ orders, onCheckout }) {
+export default function CheckoutBillingAddress({ 
+  // orders, 
+  listOrders,
+  setlistOrders, 
+  // onApplyVoucher, 
+  onCheckout 
+}) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { checkout } = useSelector((state) => state.product);
 
-  const {user} = useAuth();
-
-  const { discount, subtotal, shipping } = checkout;
+  const { discount, subtotal, shipping, total } = checkout;
 
   const handleBackStep = () => {
-    dispatch(updateOrders([]));
     dispatch(onBackStep());
+    setlistOrders({});
   };
+
+  const handleApplyDiscount = (amount) => {
+    dispatch(applyDiscount(discount + amount));
+  }
+
+  useEffect(() => () => dispatch(applyDiscount(0)), []);
 
   return (
     <div>
@@ -74,7 +90,17 @@ export default function CheckoutBillingAddress({ orders, onCheckout }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             {checkout.orders && checkout.orders.map((order) => (
-              <OrderItem key={order.id} orderID={order.id} store={order.store} cost={order.cost} orderDetails={order.orderdetail_set} shippingFee={order.total_shipping_fee} />
+              <OrderItem 
+                key={order.id}
+                orderID={order.id} 
+                store={order.store} 
+                cost={order.cost} 
+                orderDetails={order.orderdetail_set} 
+                shippingFee={order.total_shipping_fee} 
+                listOrders={listOrders}
+                setlistOrders={setlistOrders}
+                handleApplyDiscount={handleApplyDiscount}
+              />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button
@@ -90,31 +116,13 @@ export default function CheckoutBillingAddress({ orders, onCheckout }) {
 
           <Grid item xs={12} md={4}>
             <Stack spacing={2}>
-              <Card>
-                <CardHeader title={
-                  <Typography color="primary" variant='subtitle1'>Address</Typography>
-                } />
-                <CardContent>
-                  <Stack direction="row" spacing={2}>
-                    <Typography variant='body2'>
-                      {user.address.full_address}
-                    </Typography>
-                    <Button color='primary' onClick={() => navigate(PATH_DASHBOARD.user.account.concat("?tab=address"))}>
-                      <EditIcon />
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
               <CheckoutSummary 
-                // onApplyDiscount={() => console.log("apply discount")} 
-                enableDiscount 
                 subtotal={subtotal} 
-                total={subtotal + shipping} 
+                total={total} 
                 discount={discount} 
                 shipping={shipping}
-                orders={orders}
               />
-              <Button variant="contained" fullWidth onClick={() => onCheckout({}, 0)}>
+              <Button variant="contained" fullWidth onClick={onCheckout}>
                 Checkout
               </Button>              
             </Stack>
@@ -134,13 +142,17 @@ OrderItem.propTypes = {
   cost: PropTypes.any,
   orderDetails: PropTypes.array,
   shippingFee: PropTypes.any,
+  listOrders: PropTypes.object,
+  setlistOrders: PropTypes.func,
+  handleApplyDiscount: PropTypes.func
 }
 
-function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
+function OrderItem({ orderID, store, cost, orderDetails, shippingFee, listOrders , setlistOrders, handleApplyDiscount}) {
   
   const [open, setOpen] = useState(false);
   const [orderVouchers, setOrderVouchers] = useState([]);
-  const [copiedVoucher, setCopiedVoucher] = useState();
+  const [currentVoucher, setCurrentVoucher] = useState({});
+  const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {  
     const getVoucherAvailable = async () => {
@@ -155,13 +167,62 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
     getVoucherAvailable();
   }, [orderID])
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleApplyVoucher = async (voucher) => {
+    if (voucher) {
+      try {
+        const response = await axiosInstance.post("/market/orders/apply-voucher/", {
+          'list_order': [orderID],
+          'list_voucher': [voucher]
+        });
+        if (response.data[voucher]) {
+          if (listOrders) {
+            const newState = {...listOrders}
+            newState[orderID] = voucher;
+            setlistOrders(newState);
+          }
+          else {
+            setlistOrders({orderID: voucher});
+          }
+          if (currentVoucher && currentVoucher.discount) {
+            handleApplyDiscount(Number(response.data[voucher] - currentVoucher.discount));
+          }
+          else {
+            handleApplyDiscount(Number(response.data[voucher]));
+          }
+          setCurrentVoucher({code: voucher, discount: response.data[voucher]});
+          enqueueSnackbar("Apply Voucher success");
+        }
+        else {
+          setCurrentVoucher({});
+          if (listOrders) {
+            const newState = {...listOrders}
+            newState[orderID] = '';
+            setlistOrders(newState);
+          }
+          else {
+            setlistOrders({orderID: ''});
+          }
+          enqueueSnackbar("Voucher not found", {variant: "error"});
+        }
+      }
+      catch(error) {
+        console.log(error);
+        setCurrentVoucher({});
+        if (listOrders) {
+          const newState = {...listOrders}
+          newState[orderID] = '';
+          setlistOrders(newState);
+        }
+        else {
+          setlistOrders({orderID: ''});
+        }
+        enqueueSnackbar("Apply voucher failed", {variant: "error"});
+      }
+    }
   }
 
-  const handleCopy = (voucher) => {
-    setCopiedVoucher(voucher.id);
-    navigator.clipboard.writeText(voucher.code);
+  const handleClose = () => {
+    setOpen(false);
   }
 
   return (
@@ -177,9 +238,16 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
                   </Typography>
                 </Stack>
             </Link>
-            <Button variant='outlined' onClick={() => setOpen(true)}>
-              Vouchers
-            </Button>
+            <Stack direction="row" spacing={1} alignItems="center">
+              {currentVoucher && currentVoucher.discount && (
+                <Typography variant='subtitle2' color="primary" textAlign="right">
+                  - {currentVoucher.discount}
+                </Typography>
+              )}
+              <Button onClick={() => setOpen(true)}>
+                <DiscountIcon />
+              </Button>
+            </Stack>
           </Stack>
         }
       />
@@ -266,13 +334,18 @@ function OrderItem({ orderID, store, cost, orderDetails, shippingFee}) {
                     </Stack>
                   </Grid>
                   <Grid item xs={3} margin="auto" textAlign="center">
-                    <Button variant={copiedVoucher === elm.id ? "contained" : "outlined"} onClick={() => handleCopy(elm)}>
-                      Copy
+                    <Button variant={currentVoucher && currentVoucher.code === elm.code ? "contained" : "outlined"} onClick={() => handleApplyVoucher(elm.code)}>
+                      Apply
                     </Button>
                   </Grid>
                 </Grid>
               </Card>
             ))}
+            { (!orderVouchers || orderVouchers.length === 0) && (
+              <Typography textAlign="center">
+                No vouchers found
+              </Typography>
+            ) }
           </CardContent>
         </Card>
       </Modal>

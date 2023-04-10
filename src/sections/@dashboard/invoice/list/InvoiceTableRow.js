@@ -36,6 +36,7 @@ const STATUS_REF = {
 
 InvoiceTableRow.propTypes = {
   row: PropTypes.object.isRequired,
+  isShopping: PropTypes.bool,
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
@@ -43,11 +44,13 @@ InvoiceTableRow.propTypes = {
   onReject: PropTypes.func,
 };
 
-export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onAccept, onReject }) {
+export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onAccept, onReject, isShopping }) {
   const theme = useTheme();
 
   // eslint-disable-next-line camelcase
-  const { id, cost, customer, completed_date, order_date, payment_type, status, total_shipping_fee} = row;
+  const { id, cost, customer, store, completed_date, order_date, payment_type, status, total_shipping_fee} = row;
+
+  const target = isShopping ? store : customer;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -66,18 +69,18 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        {customer.avatar ? (
-          <Avatar alt={[customer.first_name, customer.last_name].join(" ")} sx={{ mr: 2 }} src={customer.avatar} />
+        {target.avatar ? (
+          <Avatar alt={[target.first_name, target.last_name].join(" ")} sx={{ mr: 2 }} src={target.avatar} />
         ):
-          <Avatar alt={[customer.first_name, customer.last_name].join(" ")} color={createAvatar(customer.first_name).color} sx={{ mr: 2 }}>
-            {createAvatar(customer.first_name).name}
+          <Avatar alt={[target.first_name, target.last_name].join(" ")} color={createAvatar(target.first_name).color} sx={{ mr: 2 }}>
+            {createAvatar(target.first_name).name}
           </Avatar>
         }
 
 
         <Stack>
           <Typography variant="subtitle2" noWrap>
-            {[customer.first_name, customer.last_name].join(" ")}
+            {[target.first_name, target.last_name].join(" ")}
           </Typography>
 
           <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>
@@ -88,7 +91,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
 
       <TableCell align="left">{fDate(order_date)}</TableCell>
 
-      <TableCell align="left">{fDate(completed_date)}</TableCell>
+      <TableCell align="left">{ row.completed_date ?  fDate(completed_date) : "Not completed"}</TableCell>
 
       <TableCell align="center">{fCurrency(total_shipping_fee)}</TableCell>
 
@@ -133,7 +136,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       </TableCell>
 
       <TableCell sx={{textAlign: "center"}}>
-        {status === 1 &&
+        {status === 1 && !isShopping &&
           <Stack direction="row" justifyContent="space-between">
             <IconButton onClick={onAccept}>
               <CheckIcon color='success' />
@@ -143,6 +146,9 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
             </IconButton>
           </Stack>
         }
+        {status === 1 && isShopping && (
+          <PendingIcon color='info' />
+        )}
         {status === 0 && (
           <PendingIcon color='info' />
         )}

@@ -85,6 +85,7 @@ export const PATH_DASHBOARD = {
   invoice: {
     root: path(ROOTS_DASHBOARD, '/invoice'),
     list: path(ROOTS_DASHBOARD, '/invoice/list'),
+    shoppingList: path(ROOTS_DASHBOARD, '/invoice/list/shopping'),
     new: path(ROOTS_DASHBOARD, '/invoice/new'),
     view: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}/edit`),

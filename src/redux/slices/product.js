@@ -127,6 +127,7 @@ const slice = createSlice({
       const subtotal = sum(orders.map((order) => order.cost));
       state.checkout.shipping = shipping;
       state.checkout.subtotal = subtotal;
+      state.checkout.discount = 0;
       state.checkout.total = shipping + subtotal;
     },
 
@@ -139,6 +140,7 @@ const slice = createSlice({
     resetCart(state) {
       state.checkout.activeStep = 0;
       state.checkout.cart = [];
+      state.checkout.orders = [];
       state.checkout.total = 0;
       state.checkout.subtotal = 0;
       state.checkout.discount = 0;
@@ -196,7 +198,7 @@ const slice = createSlice({
     applyDiscount(state, action) {
       const discount = action.payload;
       state.checkout.discount = discount;
-      state.checkout.total = state.checkout.subtotal - discount;
+      state.checkout.total = state.checkout.shipping + state.checkout.subtotal - discount;
     },
 
     applyShipping(state, action) {
@@ -291,7 +293,6 @@ export function buyOptionNow(optionID, quantity) {
       const buyNowResp = await axios.post(`/market/options/${optionID}/buy/`, {
         quantity
       });
-      console.log(buyNowResp.data);
       dispatch(slice.actions.updateOrders(buyNowResp.data));
     }
     catch (error) {

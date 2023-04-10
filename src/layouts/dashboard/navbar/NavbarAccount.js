@@ -57,10 +57,10 @@ export default function NavbarAccount({ isCollapse }) {
           }}
         >
           <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
+            {[user?.first_name, user?.last_name].join(" ")}
           </Typography>
           <Typography variant="body2" noWrap sx={{ color: 'text.secondary' }}>
-            {user?.role}
+            {user?.is_business ? "Business" : "Customer"}
           </Typography>
         </Box>
       </RootStyle>

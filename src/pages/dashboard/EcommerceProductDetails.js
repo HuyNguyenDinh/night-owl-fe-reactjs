@@ -1,13 +1,15 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+// hook
+import useAuth from '../../hooks/useAuth';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getProduct, onGotoStep, addToCart } from '../../redux/slices/product';
 // routes
-import { PATH_DASHBOARD } from '../../routes/paths';
+import { PATH_AUTH, PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // components
@@ -28,6 +30,8 @@ import CartWidget from '../../sections/@dashboard/e-commerce/CartWidget';
 
 export default function EcommerceProductDetails() {
   const { themeStretch } = useSettings();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const dispatch = useDispatch();
   const [value, setValue] = useState('1');
   const { id = '' } = useParams();
@@ -41,6 +45,9 @@ export default function EcommerceProductDetails() {
   }, [id]);
 
   const handleAddCart = (option) => {
+    if (!isAuthenticated) {
+      navigate(PATH_AUTH.login);
+    }
     setIsAddCart(true);
     dispatch(addToCart(option.id, option.quantity));
   };

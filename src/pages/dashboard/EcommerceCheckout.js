@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-// import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Grid, Step, Stepper, Container, StepLabel, StepConnector } from '@mui/material';
@@ -9,7 +9,10 @@ import {
   useDispatch, 
   useSelector 
 } from '../../redux/store';
-import { getCart, onNextStep } from '../../redux/slices/product';
+import { 
+  getCart, 
+  resetCart
+} from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -85,9 +88,13 @@ function QontoStepIcon({ active, completed }) {
 export default function EcommerceCheckout() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   // const isMountedRef = useIsMountedRef();
   const { checkout } = useSelector((state) => state.product);
   const { orders, activeStep } = checkout;
+  const [paymentType, setPaymentType] = useState(0);
+  const [listOrders, setlistOrders] = useState({});
+  const [paymentResult, setPaymentResult] = useState();
   const isComplete = activeStep === STEPS.length;
 
   useEffect(() => {
@@ -95,17 +102,28 @@ export default function EcommerceCheckout() {
       const responseCartsDefault = await axiosInstance.get("/market/cart/");
       dispatch(getCart(responseCartsDefault.data));
     }
-
     getCartsDefault();
   }, [dispatch])
 
-  const onCheckout = async (listVoucher, paymentType) => {
+  useEffect(() => {
+    if (orders && orders.length > 0) {
+      const prepareOrder = orders.reduce((acc, c) => {
+        acc[c.id] = "";
+        return acc;
+      }, {});
+      setlistOrders(prepareOrder);
+    }
+  }, [orders])
+
+  const onCheckout = async () => {
     try {
       const response = await axiosInstance.post("/market/orders/checkout_order/", {
-        "list_voucher": listVoucher,
+        "list_order": listOrders,
         "payment_type": paymentType
       });
-      dispatch(onNextStep());
+      setPaymentResult(response.data);
+      dispatch(resetCart());
+      navigate(PATH_DASHBOARD.invoice.shoppingList.concat("?status=approving"));
     }
     catch(error) {
       console.log(error);
@@ -152,11 +170,11 @@ export default function EcommerceCheckout() {
         {!isComplete ? (
           <>
             {activeStep === 0 && <CheckoutCart />}
-            {activeStep === 1 && <CheckoutBillingAddress orders={orders} onCheckout={onCheckout} />}
-            {activeStep === 2 && orders && <CheckoutPayment />}
+            {activeStep === 1 && orders && <CheckoutPayment setPaymentType={setPaymentType} paymentType={paymentType}/>}
+            {activeStep === 2 && orders && <CheckoutBillingAddress orders={orders} listOrders={listOrders} setlistOrders={setlistOrders} onCheckout={onCheckout}/>}
           </>
         ) : (
-          <CheckoutOrderComplete open={isComplete} />
+          <CheckoutOrderComplete paymentType={paymentType} paymentResult={paymentResult} open={isComplete} />
         )}
       </Container>
     </Page>

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled, useTheme } from '@mui/material/styles';
 import {
@@ -13,16 +14,21 @@ import {
   TableCell,
   Typography,
   TableContainer,
+  Avatar, 
+  Stack,
+  Link
 } from '@mui/material';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import { fCurrency } from '../../../../utils/formatNumber';
+import createAvatar from '../../../../utils/createAvatar';
 // components
 import Label from '../../../../components/Label';
 import Image from '../../../../components/Image';
 import Scrollbar from '../../../../components/Scrollbar';
 //
 import InvoiceToolbar from './InvoiceToolbar';
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +41,14 @@ const RowResultStyle = styled(TableRow)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
+const STATUS_REF = {
+  0: "UnCheckout",
+  1: "Approving",
+  2: "Shipping",
+  3: "Completed",
+  4: "Canceled"
+}
+
 InvoiceDetails.propTypes = {
   invoice: PropTypes.object.isRequired,
 };
@@ -46,23 +60,31 @@ export default function InvoiceDetails({ invoice }) {
     return null;
   }
 
+  // const {
+  //   items,
+  //   taxes,
+  //   status,
+  //   dueDate,
+  //   discount,
+  //   invoiceTo,
+  //   createDate,
+  //   totalPrice,
+  //   invoiceFrom,
+  //   invoiceNumber,
+  //   subTotalPrice,
+  // } = invoice;
+
   const {
-    items,
-    taxes,
+    id,
+    cost,
     status,
-    dueDate,
-    discount,
-    invoiceTo,
-    createDate,
-    totalPrice,
-    invoiceFrom,
-    invoiceNumber,
-    subTotalPrice,
+    customer,
+    store
   } = invoice;
 
   return (
     <>
-      <InvoiceToolbar invoice={invoice} />
+      {/* <InvoiceToolbar invoice={invoice} /> */}
 
       <Card sx={{ pt: 5, px: 5 }}>
         <Grid container>
@@ -75,50 +97,69 @@ export default function InvoiceDetails({ invoice }) {
               <Label
                 variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                 color={
-                  (status === 'paid' && 'success') ||
-                  (status === 'unpaid' && 'warning') ||
-                  (status === 'overdue' && 'error') ||
+                  (status === 1 && 'warning') ||
+                  (status === 2 && 'info') ||
+                  (status === 3 && 'success') ||
+                  (status === 4 && 'error') ||
                   'default'
                 }
                 sx={{ textTransform: 'uppercase', mb: 1 }}
               >
-                {status}
+                {STATUS_REF[status]}
               </Label>
 
-              <Typography variant="h6">{`INV-${invoiceNumber}`}</Typography>
+              <Typography variant="h6">{`Order-${id}`}</Typography>
             </Box>
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
-              Invoice from
+              Store
             </Typography>
-            <Typography variant="body2">{invoiceFrom.name}</Typography>
-            <Typography variant="body2">{invoiceFrom.address}</Typography>
-            <Typography variant="body2">Phone: {invoiceFrom.phone}</Typography>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                {store.avatar ? (
+                  <Avatar alt={[store.first_name, store.last_name].join(" ")} sx={{ mr: 2 }} src={store.avatar} />
+                ):
+                  <Avatar alt={[store.first_name, store.last_name].join(" ")} color={createAvatar(store.first_name).color} sx={{ mr: 2 }}>
+                    {createAvatar(store.first_name).name}
+                  </Avatar>
+                }
+                <Link to={PATH_DASHBOARD.user.store(store.id)} color="text.primary" component={RouterLink}>
+                  <Typography variant="body2">{[store.first_name, store.last_name].join(" ")}</Typography>
+                </Link>
+              </Stack>
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
-              Invoice to
+              Customer
             </Typography>
-            <Typography variant="body2">{invoiceTo.name}</Typography>
-            <Typography variant="body2">{invoiceTo.address}</Typography>
-            <Typography variant="body2">Phone: {invoiceTo.phone}</Typography>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                {customer.avatar ? (
+                  <Avatar alt={[customer.first_name, customer.last_name].join(" ")} sx={{ mr: 2 }} src={customer.avatar} />
+                ):
+                  <Avatar alt={[customer.first_name, customer.last_name].join(" ")} color={createAvatar(customer.first_name).color} sx={{ mr: 2 }}>
+                    {createAvatar(customer.first_name).name}
+                  </Avatar>
+                }
+                <Link to={PATH_DASHBOARD.user.store(customer.id)} color="text.primary" component={RouterLink}>
+                  <Typography variant="body2">{[customer.first_name, customer.last_name].join(" ")}</Typography>
+                </Link>
+              </Stack>
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
               date create
             </Typography>
-            <Typography variant="body2">{fDate(createDate)}</Typography>
+              <Typography variant="body2">{fDate(invoice.order_date)}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
               Due date
             </Typography>
-            <Typography variant="body2">{fDate(dueDate)}</Typography>
+            <Typography variant="body2">{invoice.completed_data ?fDate(invoice.completed_data) : "Not completed"}</Typography>
           </Grid>
         </Grid>
 
@@ -134,40 +175,47 @@ export default function InvoiceDetails({ invoice }) {
                 <TableRow>
                   <TableCell width={40}>#</TableCell>
                   <TableCell align="left">Description</TableCell>
-                  <TableCell align="left">Qty</TableCell>
+                  <TableCell align="left">Quantity</TableCell>
                   <TableCell align="right">Unit price</TableCell>
                   <TableCell align="right">Total</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {items.map((row, index) => (
+                {invoice.orderdetail_set.map((row, index) => (
                   <TableRow
                     key={index}
                     sx={{
                       borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
                     }}
                   >
-                    <TableCell>{index + 1}</TableCell>
+                    {/* <TableCell>{index + 1}</TableCell> */}
+                    <TableCell>
+                      <Link to={PATH_DASHBOARD.eCommerce.view(row.product_option.base_product.id)} color="text.primary" component={RouterLink}>
+                        <Avatar src={row.product_option.base_product.picture} />
+                      </Link>
+                    </TableCell>
                     <TableCell align="left">
                       <Box sx={{ maxWidth: 560 }}>
-                        <Typography variant="subtitle2">{row.title}</Typography>
+                        <Link to={PATH_DASHBOARD.eCommerce.view(row.product_option.base_product.id)} color="text.primary" component={RouterLink}>
+                          <Typography variant="subtitle2">{row.product_option.base_product.name}</Typography>
+                        </Link>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-                          {row.description}
+                          {row.product_option.unit}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell align="left">{row.quantity}</TableCell>
-                    <TableCell align="right">{fCurrency(row.price)}</TableCell>
-                    <TableCell align="right">{fCurrency(row.price * row.quantity)}</TableCell>
+                    <TableCell align="right">{fCurrency(row.unit_price)}</TableCell>
+                    <TableCell align="right">{fCurrency(row.unit_price * row.quantity)}</TableCell>
                   </TableRow>
                 ))}
 
-                <RowResultStyle>
+                {/* <RowResultStyle>
                   <TableCell colSpan={3} />
                   <TableCell align="right">
                     <Box sx={{ mt: 2 }} />
-                    <Typography>Subtotal</Typography>
+                    <Typography>Value</Typography>
                   </TableCell>
                   <TableCell align="right" width={120}>
                     <Box sx={{ mt: 2 }} />
@@ -193,6 +241,15 @@ export default function InvoiceDetails({ invoice }) {
                   <TableCell align="right" width={120}>
                     <Typography>{taxes && fCurrency(taxes)}</Typography>
                   </TableCell>
+                </RowResultStyle> */}
+                <RowResultStyle>
+                  <TableCell colSpan={3} />
+                  <TableCell align="right">
+                    <Typography variant="body2">Shipping</Typography>
+                  </TableCell>
+                  <TableCell align="right" width={120}>
+                    <Typography variant="body2">{fCurrency(Number(invoice.total_shipping_fee))}</Typography>
+                  </TableCell>
                 </RowResultStyle>
 
                 <RowResultStyle>
@@ -201,7 +258,7 @@ export default function InvoiceDetails({ invoice }) {
                     <Typography variant="h6">Total</Typography>
                   </TableCell>
                   <TableCell align="right" width={140}>
-                    <Typography variant="h6">{fCurrency(totalPrice)}</Typography>
+                    <Typography variant="h6">{fCurrency(cost)}</Typography>
                   </TableCell>
                 </RowResultStyle>
               </TableBody>
