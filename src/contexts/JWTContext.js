@@ -116,8 +116,6 @@ function AuthProvider({ children }) {
     initialize();
   }, []);
 
-  
-
   const login = async (email, password) => {
     const response = await axios.post('/api/token/', {
       email,

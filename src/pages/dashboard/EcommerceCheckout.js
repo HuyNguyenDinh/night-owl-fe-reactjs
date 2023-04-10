@@ -119,10 +119,13 @@ export default function EcommerceCheckout() {
     try {
       const response = await axiosInstance.post("/market/orders/checkout_order/", {
         "list_order": listOrders,
-        "payment_type": paymentType
+        "payment_type": Number(paymentType)
       });
-      setPaymentResult(response.data);
       dispatch(resetCart());
+      if ((paymentType === 1 || paymentType === "1") && response.data.pay_url) {
+        window.location.href = response.data.pay_url;
+      }
+      setPaymentResult(response.data);
       navigate(PATH_DASHBOARD.invoice.shoppingList.concat("?status=approving"));
     }
     catch(error) {

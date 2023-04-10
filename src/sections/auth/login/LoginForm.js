@@ -1,12 +1,16 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
+import { Link, Stack, Alert, IconButton, InputAdornment, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+// Google OAuth
+import { GoogleLogin } from '@react-oauth/google';
+// utils
+import axiosInstance from '../../../utils/axios';
 // routes
 import { PATH_AUTH } from '../../../routes/paths';
 // hooks
@@ -20,6 +24,8 @@ import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hoo
 
 export default function LoginForm() {
   const { login } = useAuth();
+
+  const navigate = useNavigate();
 
   const isMountedRef = useIsMountedRef();
 
@@ -62,6 +68,29 @@ export default function LoginForm() {
     }
   };
 
+  const responseMessage = (response) => {
+    const loginWithGoogle = async () => {
+      try {
+        const resp = await axiosInstance.post("/market/users/login-with-google/", {
+          "id_token": response.credential
+        });
+        if (resp.status === 203) {
+          navigate(PATH_AUTH.register)
+        }
+        else if (resp.status === 200) {
+          const currentUser = await axiosInstance.post("/market/users/current-user");
+        }
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const errorMessage = (error) => {
+    console.log(error);
+  };
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
@@ -95,6 +124,11 @@ export default function LoginForm() {
       <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
         Login
       </LoadingButton>
+      <Stack sx={{p: 2}} direction="row" justifyContent="center">
+        <Button>
+          <GoogleLogin  onSuccess={responseMessage} onError={errorMessage} text='signin' shape='pill' theme='outlined' />
+        </Button>
+      </Stack>
     </FormProvider>
   );
 }

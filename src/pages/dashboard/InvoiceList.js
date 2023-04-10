@@ -269,7 +269,7 @@ export default function InvoiceList() {
     setIsLoading(true);
     getOrders(url);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user])
 
   useEffect(() => {
     const initData = async () => {

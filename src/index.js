@@ -34,6 +34,8 @@ import { PersistGate } from 'redux-persist/lib/integration/react';
 // @mui
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+// Google
+import { GoogleOAuthProvider } from '@react-oauth/google';
 // redux
 import { store, persistor } from './redux/store';
 // contexts
@@ -58,6 +60,7 @@ import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
   <AuthProvider>
     <HelmetProvider>
+    <GoogleOAuthProvider clientId="873381279931-u01bfk0o43npo48hvh8qpi6csbju65nm.apps.googleusercontent.com">
       <ReduxProvider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -71,6 +74,7 @@ ReactDOM.render(
           </LocalizationProvider>
         </PersistGate>
       </ReduxProvider>
+      </GoogleOAuthProvider>
     </HelmetProvider>
   </AuthProvider>,
   document.getElementById('root')
