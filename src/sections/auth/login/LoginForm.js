@@ -11,6 +11,7 @@ import { LoadingButton } from '@mui/lab';
 import { GoogleLogin } from '@react-oauth/google';
 // utils
 import axiosInstance from '../../../utils/axios';
+import {setSession} from '../../../utils/jwt'
 // routes
 import { PATH_AUTH } from '../../../routes/paths';
 // hooks
@@ -19,11 +20,10 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 // components
 import Iconify from '../../../components/Iconify';
 import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hook-form';
-
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
 
   const navigate = useNavigate();
 
@@ -75,16 +75,20 @@ export default function LoginForm() {
           "id_token": response.credential
         });
         if (resp.status === 203) {
-          navigate(PATH_AUTH.register)
+          navigate(PATH_AUTH.register.concat(`?email=${resp.data?.email}&firstName=${resp.data?.first_name}&lastName=${resp.data?.last_name}`));
         }
         else if (resp.status === 200) {
-          const currentUser = await axiosInstance.post("/market/users/current-user");
+          const {access, refresh} = resp.data;
+          setSession(access, refresh);
+          const currentUserResp = await axiosInstance.get("/market/users/current-user/");
+          setUser(currentUserResp.data);
         }
       }
       catch (error) {
         console.log(error);
       }
     }
+    loginWithGoogle();
   };
 
   const errorMessage = (error) => {

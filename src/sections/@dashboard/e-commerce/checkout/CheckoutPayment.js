@@ -107,6 +107,15 @@ export default function CheckoutPayment({ paymentType, setPaymentType }) {
   //   dispatch(applyShipping(value));
   // };
 
+  const handleNavigate = () => {
+    if (!user.email_verified || !user.phone_verified) {
+      navigate(PATH_DASHBOARD.user.account.concat("?tab=verify"));
+    }
+    else {
+      navigate(PATH_DASHBOARD.user.account.concat("?tab=address"));
+    }
+  }
+
   const PaymentSchema = Yup.object().shape({
     payment: Yup.string().required('Payment is required!'),
   });
@@ -152,9 +161,9 @@ export default function CheckoutPayment({ paymentType, setPaymentType }) {
               } 
             />
             <CardContent>
-                <Typography variant='body2'>
-                  {user.address.full_address}
-                </Typography>
+              <Typography variant='body2'>
+                {user.address?.full_address}
+              </Typography>
             </CardContent>
           </Card>
           <CheckoutPaymentMethods paymentOptions={PAYMENT_OPTIONS} setValue={setValue} paymentType={paymentType} setPaymentType={setPaymentType} />
@@ -179,9 +188,17 @@ export default function CheckoutPayment({ paymentType, setPaymentType }) {
             shipping={shipping}
             onEdit={() => handleGotoStep(0)}
           />
-          <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
-            Next
-          </LoadingButton>
+          { user.address && user.address.full_address ? (
+            <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
+              Next
+            </LoadingButton>
+          ):
+          (
+            <Button fullWidth size="large" variant="contained" onClick={handleNavigate}>
+              Complete KYC
+            </Button>
+          )
+          }
         </Grid>
       </Grid>
     </FormProvider>

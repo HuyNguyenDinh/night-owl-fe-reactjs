@@ -92,7 +92,7 @@ export default function CheckoutCart() {
   }, [user])
 
   const handleNextStep = () => {
-    if (user.address && user.email_verified && user.phone_verified) {
+    if (user.address && user.address.full_address && user.email_verified && user.phone_verified) {
       const makeOrder = async () => {
         dispatch(updateOrders([]));
         dispatch(startLoading())
@@ -113,8 +113,11 @@ export default function CheckoutCart() {
       makeOrder();
       dispatch(onNextStep());
     }
+    else if (!user.email_verified || !user.phone_verified) {
+        navigate(PATH_DASHBOARD.user.account.concat("?tab=verify"));
+      }
     else {
-      navigate(PATH_DASHBOARD.user.account)
+      navigate(PATH_DASHBOARD.user.account.concat("?tab=address"));
     }
   };
 

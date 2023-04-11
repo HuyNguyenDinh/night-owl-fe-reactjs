@@ -136,23 +136,26 @@ function AuthProvider({ children }) {
   };
 
   const register = async (email, password, firstName, lastName, phoneNumber) => {
-    const response = await axios.post('/market/users/', {
+    await axios.post('/market/users/', {
       email,
       password,
       first_name: firstName,
       last_name: lastName,
       phone_number: phoneNumber
     });
-    const { accessToken, user } = response.data;
 
-    localStorage.setItem('accessToken', accessToken);
+    await login(email, password);
 
-    dispatch({
-      type: 'REGISTER',
-      payload: {
-        user,
-      },
-    });
+    // const { accessToken, user } = response.data;
+
+    // localStorage.setItem('accessToken', accessToken);
+
+    // dispatch({
+    //   type: 'REGISTER',
+    //   payload: {
+    //     user,
+    //   },
+    // });
   };
 
   const logout = async () => {

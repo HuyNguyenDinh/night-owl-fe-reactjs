@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { PATH_AUTH } from '../routes/paths';
 // hooks
 import useAuth from '../hooks/useAuth';
 // pages
-import Login from '../pages/auth/Login';
+// import Login from '../pages/auth/Login';
 // components
 import LoadingScreen from '../components/LoadingScreen';
 
@@ -29,7 +30,7 @@ export default function AuthGuard({ children }) {
     if (pathname !== requestedLocation) {
       setRequestedLocation(pathname);
     }
-    return <Login />;
+    return <Navigate to={PATH_AUTH.login} />
   }
 
   if (requestedLocation && pathname !== requestedLocation) {

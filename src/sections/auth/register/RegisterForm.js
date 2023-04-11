@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -15,7 +16,13 @@ import { FormProvider, RHFTextField } from '../../../components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export default function RegisterForm() {
+RegisterForm.propTypes = {
+  email: PropTypes.any,
+  firstName: PropTypes.any,
+  lastName: PropTypes.any,
+}
+
+export default function RegisterForm({ email, firstName, lastName }) {
   const { register } = useAuth();
 
   const isMountedRef = useIsMountedRef();
@@ -26,13 +33,15 @@ export default function RegisterForm() {
     firstName: Yup.string().required('First name required'),
     lastName: Yup.string().required('Last name required'),
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    phoneNumber: Yup.string().required('Phone number is required'),
     password: Yup.string().required('Password is required'),
   });
 
   const defaultValues = {
-    firstName: '',
-    lastName: '',
-    email: '',
+    firstName: firstName ||'',
+    lastName: lastName || '',
+    email: email || '',
+    phoneNumber: '',
     password: '',
   };
 
@@ -50,7 +59,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data) => {
     try {
-      await register(data.email, data.password, data.firstName, data.lastName);
+      await register(data.email, data.password, data.firstName, data.lastName, data.phoneNumber);
     } catch (error) {
       console.error(error);
       reset();
@@ -71,6 +80,7 @@ export default function RegisterForm() {
         </Stack>
 
         <RHFTextField name="email" label="Email address" />
+        <RHFTextField name="phoneNumber" label="Phone numbers" />
 
         <RHFTextField
           name="password"

@@ -93,11 +93,11 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
 
   const values = watch();
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     try {
-      dispatch(startLoading());
+      await dispatch(startLoading());
       if (!alreadyOption) {
-        dispatch(buyOptionNow(currentOption.id, values.quantity));
+        await dispatch(buyOptionNow(currentOption.id, values.quantity));
         onGotoStep(1);
       }
       else {

@@ -1,5 +1,5 @@
 import { capitalCase } from 'change-case';
-import { Link as RouterLink } from 'react-router-dom';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Card, Link, Container, Typography, Tooltip } from '@mui/material';
@@ -63,6 +63,10 @@ const ContentStyle = styled('div')(({ theme }) => ({
 export default function Register() {
   const { method } = useAuth();
 
+  const { search } = useLocation();
+
+  const params = new URLSearchParams(search);
+
   const smUp = useResponsive('up', 'sm');
 
   const mdUp = useResponsive('up', 'md');
@@ -116,7 +120,7 @@ export default function Register() {
               </Tooltip>
             </Box>
 
-            <RegisterForm />
+            <RegisterForm email={params.get("email")} firstName={params.get("firstName")} lastName={params.get("lastName")} />
 
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
               By registering, I agree to Minimal&nbsp;

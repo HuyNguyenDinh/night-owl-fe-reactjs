@@ -11,15 +11,15 @@ export default function AccountVerify() {
 
     return (
         <Card sx={{ p: 3}}>
-            <Grid container rowGap={4}>
+            <Grid container spacing={2} rowGap={2}>
                 <Grid item md={10}>
-                    <TextField value={user.email} disabled label="Email" fullWidth/>
+                    <TextField size="small" value={user.email} disabled label="Email" fullWidth/>
                 </Grid>
                 <Grid item md={2}>
                     <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         { !user.email_verified ? 
-                            <Button variant="contained" color="error">
-                                Verify email
+                            <Button sx={{height: "100%"}} fullWidth variant="contained" color="error">
+                                Verify
                             </Button>
                         :
                             <DoneIcon color="success" />
@@ -29,13 +29,13 @@ export default function AccountVerify() {
 
                 </Grid>
                 <Grid item md={10}>
-                    <TextField value={user.phone_number} disabled label="Phone number" fullWidth/>
+                    <TextField size="small" value={user.phone_number} disabled label="Phone number" fullWidth/>
                 </Grid>
                 <Grid item md={2}>
                     <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         { !user.phone_verified ? 
-                            <Button variant="contained" color="error">
-                                Verify phone number
+                            <Button  sx={{height: "100%"}} variant="contained" fullWidth color="error">
+                                Verify
                             </Button>
                         :
                             <DoneIcon color="success" />

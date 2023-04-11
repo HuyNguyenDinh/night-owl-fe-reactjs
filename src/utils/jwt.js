@@ -37,7 +37,6 @@ const handleTokenExpired = (exp) => {
         setSession(access, refresh);
       }
       else {
-        alert("Token expired");
         window.location.href = PATH_AUTH.login;
       }
     }
