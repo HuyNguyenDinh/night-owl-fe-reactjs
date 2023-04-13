@@ -22,7 +22,7 @@ export default function RoleBasedGuard({ hasContent, roles, children }) {
   const { user } = useAuth();
 
   // const currentRole = 'user';
-  const currentRole = user?.is_business ? "business" : "user";
+  const currentRole = user?.is_business ? "business" : "customer";
 
   if (typeof roles !== 'undefined' && !roles.includes(currentRole)) {
     return hasContent ? (

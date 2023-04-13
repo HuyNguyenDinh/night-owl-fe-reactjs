@@ -98,12 +98,14 @@ export default function EcommerceCheckout() {
   const isComplete = activeStep === STEPS.length;
 
   useEffect(() => {
-    const getCartsDefault = async () => {
-      const responseCartsDefault = await axiosInstance.get("/market/cart/");
-      dispatch(getCart(responseCartsDefault.data));
+    if (activeStep < 1) {
+      const getCartsDefault = async () => {
+        const responseCartsDefault = await axiosInstance.get("/market/cart/");
+        dispatch(getCart(responseCartsDefault.data));
+      }
+      getCartsDefault();
     }
-    getCartsDefault();
-  }, [dispatch])
+  }, [dispatch, activeStep])
 
   useEffect(() => {
     if (orders && orders.length > 0) {

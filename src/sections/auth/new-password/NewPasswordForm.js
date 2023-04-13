@@ -3,11 +3,22 @@ import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 // form
-import { useForm, Controller } from 'react-hook-form';
+import { 
+  useForm, 
+  // Controller 
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { Stack, IconButton, OutlinedInput, InputAdornment, FormHelperText } from '@mui/material';
+import { 
+  Stack, 
+  IconButton, 
+  // OutlinedInput, 
+  InputAdornment, 
+  // FormHelperText 
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+// utils
+import axiosInstance from '../../../utils/axios';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
@@ -23,16 +34,16 @@ export default function NewPasswordForm() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const emailRecovery = sessionStorage.getItem('email-recovery');
+  // const emailRecovery = sessionStorage.getItem('email-recovery');
 
   const VerifyCodeSchema = Yup.object().shape({
-    code1: Yup.string().required('Code is required'),
-    code2: Yup.string().required('Code is required'),
-    code3: Yup.string().required('Code is required'),
-    code4: Yup.string().required('Code is required'),
-    code5: Yup.string().required('Code is required'),
-    code6: Yup.string().required('Code is required'),
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    // code1: Yup.string().required('Code is required'),
+    // code2: Yup.string().required('Code is required'),
+    // code3: Yup.string().required('Code is required'),
+    // code4: Yup.string().required('Code is required'),
+    // code5: Yup.string().required('Code is required'),
+    // code6: Yup.string().required('Code is required'),
+    // email: Yup.string().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
     confirmPassword: Yup.string()
       .required('Confirm password is required')
@@ -40,13 +51,13 @@ export default function NewPasswordForm() {
   });
 
   const defaultValues = {
-    code1: '',
-    code2: '',
-    code3: '',
-    code4: '',
-    code5: '',
-    code6: '',
-    email: emailRecovery || '',
+    // code1: '',
+    // code2: '',
+    // code3: '',
+    // code4: '',
+    // code5: '',
+    // code6: '',
+    // email: emailRecovery || '',
     password: '',
     confirmPassword: '',
   };
@@ -58,7 +69,7 @@ export default function NewPasswordForm() {
   });
 
   const {
-    control,
+    // control,
     setValue,
     handleSubmit,
     formState: { isSubmitting, errors },
@@ -92,34 +103,40 @@ export default function NewPasswordForm() {
     event.preventDefault();
   };
 
-  const handleChangeWithNextField = (event, handleChange) => {
-    const { maxLength, value, name } = event.target;
+  // const handleChangeWithNextField = (event, handleChange) => {
+  //   const { maxLength, value, name } = event.target;
 
-    const fieldIndex = name.replace('code', '');
+  //   const fieldIndex = name.replace('code', '');
 
-    const fieldIntIndex = Number(fieldIndex);
+  //   const fieldIntIndex = Number(fieldIndex);
 
-    if (value.length >= maxLength) {
-      if (fieldIntIndex < 6) {
-        const nextfield = document.querySelector(`input[name=code${fieldIntIndex + 1}]`);
+  //   if (value.length >= maxLength) {
+  //     if (fieldIntIndex < 6) {
+  //       const nextfield = document.querySelector(`input[name=code${fieldIntIndex + 1}]`);
 
-        if (nextfield !== null) {
-          nextfield.focus();
-        }
-      }
-    }
+  //       if (nextfield !== null) {
+  //         nextfield.focus();
+  //       }
+  //     }
+  //   }
 
-    handleChange(event);
-  };
+  //   handleChange(event);
+  // };
 
   const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log('data:', {
-        email: data.email,
-        code: `${data.code1}${data.code2}${data.code3}${data.code4}${data.code5}${data.code6}`,
-        password: data.password,
-      });
+      // await new Promise((resolve) => setTimeout(resolve, 500));
+      // console.log('data:', {
+        // email: data.email,
+        // code: `${data.code1}${data.code2}${data.code3}${data.code4}${data.code5}${data.code6}`,
+      //   "confirm_password": data.confirmPassword,
+      //   password: data.password,
+      // });
+
+      await axiosInstance.post("/market/users/reset-password/", {
+        "confirm_password": data.confirmPassword,
+        new_password: data.password,
+      })
 
       sessionStorage.removeItem('email-recovery');
 
@@ -127,6 +144,7 @@ export default function NewPasswordForm() {
 
       navigate(PATH_DASHBOARD.root, { replace: true });
     } catch (error) {
+      enqueueSnackbar('Failed to change password!', {variant: "error"});
       console.error(error);
     }
   };
@@ -134,9 +152,9 @@ export default function NewPasswordForm() {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
-        <RHFTextField name="email" label="Email" disabled={!!emailRecovery} />
+        {/* <RHFTextField name="email" label="Email" disabled={!!emailRecovery} /> */}
 
-        <Stack direction="row" spacing={2} justifyContent="center">
+        {/* <Stack direction="row" spacing={2} justifyContent="center">
           {['code1', 'code2', 'code3', 'code4', 'code5', 'code6'].map((name, index) => (
             <Controller
               key={name}
@@ -169,7 +187,7 @@ export default function NewPasswordForm() {
           <FormHelperText error sx={{ px: 2 }}>
             Code is required
           </FormHelperText>
-        )}
+        )} */}
 
         <RHFTextField
           name="password"

@@ -53,6 +53,7 @@ const AuthContext = createContext({
   ...initialState,
   method: 'jwt',
   login: () => Promise.resolve(),
+  loginWithToken: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   setUser: () => Promise.resolve(),
@@ -66,7 +67,6 @@ AuthProvider.propTypes = {
 
 function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
   
   useEffect(() => {
     const initialize = async () => {
@@ -115,6 +115,19 @@ function AuthProvider({ children }) {
 
     initialize();
   }, []);
+
+  const loginWithToken = async (access, refresh) => {
+    setSession(access, refresh);
+
+    const currentUserResponse = await axios.get("/market/users/current-user/");
+    const user = currentUserResponse.data;
+    dispatch({
+      type: 'LOGIN',
+      payload: {
+        user,
+      },
+    });
+  };
 
   const login = async (email, password) => {
     const response = await axios.post('/api/token/', {
@@ -182,6 +195,7 @@ function AuthProvider({ children }) {
         ...state,
         method: 'jwt',
         login,
+        loginWithToken,
         logout,
         register,
         setUser

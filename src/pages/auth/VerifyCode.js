@@ -1,6 +1,9 @@
+import { useLocation } from 'react-router';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Link, Container, Typography } from '@mui/material';
+// utils
+import axiosInstance from '../../utils/axios';
 // layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
 // components
@@ -23,6 +26,28 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function VerifyCode() {
+
+  const { pathname } = useLocation();
+
+  const isKYC = pathname.includes("kyc");
+  const isPhone = pathname.includes("phone");
+
+  const handleResendCode = async () => {
+    if (isKYC) {
+      if (isPhone) {
+        await axiosInstance.get("/market/users/send-verified-code-to-phone-number/");
+      }
+      else {
+        await axiosInstance.get("/market/users/send-verified-code-to-email/");
+      }
+    }
+    else {
+      await axiosInstance.post("/market/users/get-reset-code-by-email/", {
+        email: sessionStorage.getItem('email-recovery')
+      });
+    }
+  }
+
   return (
     <Page title="Verify Code">
       <LogoOnlyLayout />
@@ -30,12 +55,12 @@ export default function VerifyCode() {
       <Container>
         <ContentStyle sx={{ textAlign: 'center' }}>
           <Typography variant="h3" paragraph>
-            Please check your email!
+            {!isPhone && "Please check your email!"}
+            {isPhone && "Please check your phone"}
           </Typography>
 
           <Typography sx={{ color: 'text.secondary' }}>
-            We have emailed a 6-digit confirmation code to acb@domain, please enter the code in below box to verify your
-            email.
+            We have send a 4-digit confirmation code to {isPhone ? "phone" : "email"}, please enter the code in below box to {isKYC && isPhone && "verify your phone number"} {isKYC && !isPhone && "verify you email"} {!isKYC && "reset your password"}
           </Typography>
 
           <Box sx={{ mt: 5, mb: 3 }}>
@@ -44,7 +69,7 @@ export default function VerifyCode() {
 
           <Typography variant="body2">
             Don’t have a code? &nbsp;
-            <Link variant="subtitle2" onClick={() => {}}>
+            <Link variant="subtitle2" onClick={handleResendCode}>
               Resend code
             </Link>
           </Typography>

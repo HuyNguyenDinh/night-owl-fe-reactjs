@@ -12,8 +12,10 @@ import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography, Avat
 // redux
 import { useDispatch } from 'react-redux';
 import { buyOptionNow, startLoading, hasError } from '../../../../redux/slices/product';
+// hook
+import useAuth from '../../../../hooks/useAuth';
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_AUTH, PATH_DASHBOARD } from '../../../../routes/paths';
 // utils
 import { fShortenNumber, fCurrency } from '../../../../utils/formatNumber';
 // components
@@ -74,6 +76,8 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
 
   const dispatch = useDispatch();
 
+  const {user} = useAuth();
+
   const [currentOption, setCurrentOption] = useState(
     product.option_set.filter((elm) => elm.unit_in_stock > 0)[0] || product.option_set[0]
   );
@@ -94,21 +98,32 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
   const values = watch();
 
   const onSubmit = async (data) => {
-    try {
-      await dispatch(startLoading());
-      if (!alreadyOption) {
-        await dispatch(buyOptionNow(currentOption.id, values.quantity));
-        onGotoStep(1);
+    if (user && (!user.email_verified || !user.phone_verified)) {
+      navigate(PATH_DASHBOARD.user.account.concat("?tab=verify"))
+    }
+    else if (user && !user.address) {
+      navigate(PATH_DASHBOARD.user.account.concat("?tab=address"))
+    }
+    else if (user && user.email_verified && user.phone_verified && user.address) {
+      try {
+        await dispatch(startLoading());
+        if (!alreadyOption) {
+          await dispatch(buyOptionNow(currentOption.id, values.quantity));
+          onGotoStep(1);
+        }
+        else {
+          onAddCart({
+            ...data,
+          });
+        }
+        navigate(PATH_DASHBOARD.eCommerce.checkout);
+      } catch (error) {
+        console.error(error);
+        dispatch(hasError());
       }
-      else {
-        onAddCart({
-          ...data,
-        });
-      }
-      navigate(PATH_DASHBOARD.eCommerce.checkout);
-    } catch (error) {
-      console.error(error);
-      dispatch(hasError());
+    }
+    else {
+      navigate(PATH_AUTH.login);
     }
   };
 

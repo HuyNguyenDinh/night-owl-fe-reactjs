@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
@@ -8,15 +8,27 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { Stack, OutlinedInput, FormHelperText } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+// hook
+import useAuth from '../../../hooks/useAuth';
+// utils
+import axiosInstance from '../../../utils/axios';
 // routes
-import { PATH_DASHBOARD } from '../../../routes/paths';
+import { PATH_AUTH, PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import { FormProvider } from '../../../components/hook-form';
 
 // ----------------------------------------------------------------------
 
 export default function VerifyCodeForm() {
+
+  const { pathname } = useLocation();
+
+  const isKYC = pathname.includes("kyc");
+  const isPhone = pathname.includes("phone");
+
   const navigate = useNavigate();
+
+  const { loginWithToken, setUser } = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -25,8 +37,8 @@ export default function VerifyCodeForm() {
     code2: Yup.string().required('Code is required'),
     code3: Yup.string().required('Code is required'),
     code4: Yup.string().required('Code is required'),
-    code5: Yup.string().required('Code is required'),
-    code6: Yup.string().required('Code is required'),
+    // code5: Yup.string().required('Code is required'),
+    // code6: Yup.string().required('Code is required'),
   });
 
   const defaultValues = {
@@ -34,8 +46,8 @@ export default function VerifyCodeForm() {
     code2: '',
     code3: '',
     code4: '',
-    code5: '',
-    code6: '',
+    // code5: '',
+    // code6: '',
   };
 
   const methods = useForm({
@@ -104,13 +116,40 @@ export default function VerifyCodeForm() {
 
   const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log('data', Object.values(data).join(''));
-
-      enqueueSnackbar('Verify success!');
-
-      navigate(PATH_DASHBOARD.root, { replace: true });
-    } catch (error) {
+      const code = Object.values(data).join('');
+      if (isKYC) {
+        let url = "/market/users"
+        if (isPhone) {
+          url = url.concat("/check-verified-code-to-phone-number/");
+        }
+        else {
+          url = url.concat("/check-verified-code-to-email/");
+        }
+        await axiosInstance.post(url, {
+          code
+        });
+        enqueueSnackbar("Verify success");
+        const response =await axiosInstance.get("/market/users/current-user/");
+        setUser(response.data);
+        navigate(PATH_DASHBOARD.user.account.concat("?tab=verify"));
+      }
+      else {
+        const email = sessionStorage.getItem('email-recovery');
+        const resp = await axiosInstance.post("/market/users/get-token-by-email-and-reset-code/", {
+          email,
+          code
+        })
+        const { access, refresh } = resp.data;
+  
+        await loginWithToken(access, refresh);
+  
+        enqueueSnackbar('Verify success!');
+  
+        navigate(PATH_AUTH.newPassword, { replace: true });
+      }
+    }
+    catch (error) {
+      enqueueSnackbar('Failed to verify, please check your reset code!', {variant: "error"});
       console.error(error);
     }
   };

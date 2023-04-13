@@ -52,6 +52,8 @@ export default function Router() {
         { path: 'reset-password', element: <ResetPassword /> },
         { path: 'new-password', element: <NewPassword /> },
         { path: 'verify', element: <VerifyCode /> },
+        { path: 'verify/kyc/', element: (<AuthGuard><VerifyCode /></AuthGuard>)},
+        { path: 'verify/kyc/phone', element: (<AuthGuard><VerifyCode /></AuthGuard>)},
       ],
     },
 
@@ -194,8 +196,8 @@ const EcommerceCheckout = Loadable(lazy(() => import('../pages/dashboard/Ecommer
 // INVOICE
 const InvoiceList = Loadable(lazy(() => import('../pages/dashboard/InvoiceList')));
 const InvoiceDetails = Loadable(lazy(() => import('../pages/dashboard/InvoiceDetails')));
-const InvoiceCreate = Loadable(lazy(() => import('../pages/dashboard/InvoiceCreate')));
-const InvoiceEdit = Loadable(lazy(() => import('../pages/dashboard/InvoiceEdit')));
+// const InvoiceCreate = Loadable(lazy(() => import('../pages/dashboard/InvoiceCreate')));
+// const InvoiceEdit = Loadable(lazy(() => import('../pages/dashboard/InvoiceEdit')));
 
 // BLOG
 // const BlogPosts = Loadable(lazy(() => import('../pages/dashboard/BlogPosts')));
@@ -212,7 +214,7 @@ const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')
 // APP
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 // const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
-const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
+// const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 // const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
 
 // TEST RENDER PAGE BY ROLE

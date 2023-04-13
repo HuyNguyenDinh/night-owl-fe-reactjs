@@ -69,8 +69,9 @@ export default function EcommerceShop() {
       const responseCartsDefault = await axiosInstance.get("/market/cart/");
       dispatch(getCart(responseCartsDefault.data));
     }
-
-    getCartsDefault();
+    if (user) {
+      getCartsDefault();
+    }
   }, [dispatch, user])
 
   useEffect(() => {

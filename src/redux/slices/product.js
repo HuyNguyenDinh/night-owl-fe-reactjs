@@ -293,10 +293,11 @@ export function buyOptionNow(optionID, quantity) {
       const buyNowResp = await axios.post(`/market/options/${optionID}/buy/`, {
         quantity
       });
-      dispatch(slice.actions.updateOrders(buyNowResp.data));
+      await dispatch(slice.actions.updateOrders(buyNowResp.data));
     }
     catch (error) {
       dispatch(slice.actions.hasError(error));
+      // dispatch(slice.actions.onGotoStep(0));
     }
   }
 }

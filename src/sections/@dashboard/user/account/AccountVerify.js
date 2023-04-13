@@ -1,13 +1,34 @@
-import { useState, useEffect } from "react";
-import { Card, Grid, TextField, Button, Box, Typography } from "@mui/material";
-import { useSnackbar } from 'notistack';
+import { useNavigate } from "react-router";
+import { 
+    Card, 
+    Grid, 
+    TextField, 
+    Button, 
+    // Box, 
+    // Typography
+} from "@mui/material";
 import DoneIcon from '@mui/icons-material/Done';
+// path
+import { PATH_AUTH } from "../../../../routes/paths";
+// hook
 import useAuth from '../../../../hooks/useAuth';
+// utils
+import axiosInstance from "../../../../utils/axios";
 
 
 export default function AccountVerify() {
-
     const { user } = useAuth();
+    const navigate = useNavigate();
+
+    const handleVerifyEmail = async () => {
+        await axiosInstance.get("/market/users/send-verified-code-to-email/");
+        navigate(PATH_AUTH.KYCEmail);
+    }
+
+    const handleVerifyPhone = async () => {
+        await axiosInstance.get("/market/users/send-verified-code-to-phone-number/");
+        navigate(PATH_AUTH.KYCPhone);
+    }
 
     return (
         <Card sx={{ p: 3}}>
@@ -18,7 +39,7 @@ export default function AccountVerify() {
                 <Grid item md={2}>
                     <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         { !user.email_verified ? 
-                            <Button sx={{height: "100%"}} fullWidth variant="contained" color="error">
+                            <Button sx={{height: "100%"}} fullWidth variant="contained" color="error" onClick={handleVerifyEmail}>
                                 Verify
                             </Button>
                         :
@@ -34,7 +55,7 @@ export default function AccountVerify() {
                 <Grid item md={2}>
                     <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         { !user.phone_verified ? 
-                            <Button  sx={{height: "100%"}} variant="contained" fullWidth color="error">
+                            <Button  sx={{height: "100%"}} variant="contained" fullWidth color="error" onClick={handleVerifyPhone}>
                                 Verify
                             </Button>
                         :
@@ -45,7 +66,7 @@ export default function AccountVerify() {
 
                 </Grid>
             </Grid>
-
+            
         </Card>
     )
 }

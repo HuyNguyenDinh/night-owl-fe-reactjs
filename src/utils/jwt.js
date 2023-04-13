@@ -56,6 +56,7 @@ const setSession = (accessToken, refreshToken) => {
     handleTokenExpired(exp);
   } else {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     delete axios.defaults.headers.common.Authorization;
   }
 };

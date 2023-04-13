@@ -59,7 +59,7 @@ const navConfig = [
           { 
             title: 'account', 
             path: PATH_DASHBOARD.user.account,
-            roles: ["customer"]
+            // roles: ["customer"]
           },
         ],
       },
@@ -101,12 +101,12 @@ const navConfig = [
           { 
             title: 'My orders', 
             path: PATH_DASHBOARD.invoice.shoppingList,
-            roles: ["customer"]
+            // roles: ["customer"]
           },
           { 
             title: 'checkout', 
             path: PATH_DASHBOARD.eCommerce.checkout,
-            roles: ["customer"] 
+            // roles: ["customer"] 
           },
         ]
       },
