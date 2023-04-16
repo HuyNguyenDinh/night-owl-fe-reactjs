@@ -17,10 +17,11 @@ const initialState = {
   isLoading: false,
   error: null,
   contacts: { byId: {}, allIds: [] },
-  conversations: { byId: {}, allIds: [] },
+  conversations: [],
   activeConversationId: null,
   participants: [],
   recipients: [],
+  currentRoom: null,
 };
 
 const slice = createSlice({
@@ -48,10 +49,11 @@ const slice = createSlice({
 
     // GET CONVERSATIONS
     getConversationsSuccess(state, action) {
-      const conversations = action.payload;
+      state.conversations = action.payload;
+      // const conversations = action.payload;
 
-      state.conversations.byId = objFromArray(conversations);
-      state.conversations.allIds = Object.keys(state.conversations.byId);
+      // state.conversations.byId = objFromArray(conversations);
+      // state.conversations.allIds = Object.keys(state.conversations.byId);
     },
 
     // GET CONVERSATION
@@ -67,6 +69,18 @@ const slice = createSlice({
       } else {
         state.activeConversationId = null;
       }
+    },
+
+    getRoomChat(state, action) {
+      state.currentRoom = action.payload;
+    },
+
+    getRoomMessages(state, action) {
+      state.currentRoom = {...state.currentRoom, messages: action.payload};
+    },
+
+    addRoomMessage(state, action) {
+      state.currentRoom.messages = [...state.currentRoom.messages, action.payload];
     },
 
     // ON SEND MESSAGE
@@ -138,8 +152,8 @@ export function getConversations() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/chat/conversations');
-      dispatch(slice.actions.getConversationsSuccess(response.data.conversations));
+      const response = await axios.get('/market/chatrooms/');
+      dispatch(slice.actions.getConversationsSuccess(response.data.results));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -160,6 +174,23 @@ export function getConversation(conversationKey) {
       dispatch(slice.actions.hasError(error));
     }
   };
+};
+
+export function getMessagesOfRoom(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/market/chatrooms/${id}/messages/`);
+      dispatch(slice.actions.getRoomMessages(response.data.results));
+    }
+    catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+
+export function getRoomChat(roomInfo) {
+  dispatch(slice.actions.getRoomChat(roomInfo));
 }
 
 // ----------------------------------------------------------------------

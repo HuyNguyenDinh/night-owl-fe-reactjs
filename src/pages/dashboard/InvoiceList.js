@@ -230,8 +230,20 @@ export default function InvoiceList() {
   const onAccept = async (orderID) => {
     try {
       const response = await axiosInstance.get(`/market/orders/${orderID}/accept_order/`);
-      let newOrders = orders.filter((item) => item.id !== orderID);
-      newOrders = [...newOrders, response.data];
+      const newOrders = orders.filter((item) => item.id !== orderID);
+      // newOrders = [...newOrders, response.data];
+      setOrders(newOrders);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const onReceive = async (orderID) => {
+    try {
+      const response = await axiosInstance.get(`/market/orders/${orderID}/recieve_order/`);
+      const newOrders = orders.filter((item) => item.id !== orderID);
+      // newOrders = [...newOrders, response.data];
       setOrders(newOrders);
     }
     catch (error) {
@@ -242,8 +254,8 @@ export default function InvoiceList() {
   const onReject = async (orderID) => {
     try {
       const response = await axiosInstance.get(`/market/orders/${orderID}/cancel_order/`);
-      let newOrders = orders.filter((item) => item.id !== orderID);
-      newOrders = [...newOrders, response.data];
+      const newOrders = orders.filter((item) => item.id !== orderID);
+      // newOrders = [...newOrders, response.data];
       setOrders(newOrders);
     }
     catch (error) {
@@ -463,6 +475,7 @@ export default function InvoiceList() {
                       onViewRow={() => handleViewRow(row.id)}
                       onAccept={() => onAccept(row.id)}
                       onReject={() => onReject(row.id)}
+                      onReceive={() => onReceive(row.id)}
                     />
                   ))}
 

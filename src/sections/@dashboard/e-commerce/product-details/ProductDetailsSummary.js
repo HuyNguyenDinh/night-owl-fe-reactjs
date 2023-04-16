@@ -178,14 +178,14 @@ export default function ProductDetailsSummary({ cart, product, onAddCart, onGoto
         <Divider sx={{ borderStyle: 'dashed' }} />
           <Stack display="flex" direction="row" margin="4vh 0" spacing={2} alignItems="center" justifyContent="space-between">
             <Stack display="flex" direction="row" spacing={2} alignItems="center">
-              <Link to={PATH_DASHBOARD.user.store(product.owner.id)} component={RouterLink}>
+              <Link to={PATH_DASHBOARD.user.profile.concat(`?id=${product.owner.id}`)} component={RouterLink}>
                 <Avatar src={product.owner.avatar}/>
               </Link>
               <Typography variant="subtitle1" color="text.secondary">
                 {[product.owner.first_name, product.owner.last_name].join(" ")}
               </Typography>
             </Stack>   
-            <Link to={PATH_DASHBOARD.user.store(product.owner.id)} component={RouterLink}>
+            <Link to={PATH_DASHBOARD.user.profile.concat(`?id=${product.owner.id}`)} component={RouterLink}>
               <Button variant="outlined">
                 Visit Store
               </Button>

@@ -2,9 +2,11 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Checkbox, TableRow, TableCell, Typography, Stack, Link, MenuItem, IconButton } from '@mui/material';
+import { Checkbox, TableRow, TableCell, Typography, Stack, Link, MenuItem, IconButton, Button } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -42,9 +44,10 @@ InvoiceTableRow.propTypes = {
   onViewRow: PropTypes.func,
   onAccept: PropTypes.func,
   onReject: PropTypes.func,
+  onReceive: PropTypes.func,
 };
 
-export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onAccept, onReject, isShopping }) {
+export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onAccept, onReject, isShopping, onReceive }) {
   const theme = useTheme();
 
   // eslint-disable-next-line camelcase
@@ -137,7 +140,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
 
       <TableCell sx={{textAlign: "center"}}>
         {status === 1 && !isShopping &&
-          <Stack direction="row" justifyContent="space-between">
+          <Stack direction="row" spacing={1} justifyContent="space-between">
             <IconButton onClick={onAccept}>
               <CheckIcon color='success' />
             </IconButton>
@@ -152,14 +155,19 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
         {status === 0 && (
           <PendingIcon color='info' />
         )}
-        {status === 2 && (
+        {status === 2 && !isShopping && (
           <LocalShippingIcon color='info' />
         )}
+        {status === 2 && isShopping && (
+          <IconButton onClick={onReceive}>
+            <CheckIcon color='success' />
+          </IconButton>
+        )}
         {status === 3 && (
-          <CheckIcon color='success' />
+          <CheckCircleIcon color='success' />
         )}
         {status === 4 && (
-          <ClearIcon color='error' />
+          <RemoveCircleIcon color='error' />
         )}
       </TableCell>
 

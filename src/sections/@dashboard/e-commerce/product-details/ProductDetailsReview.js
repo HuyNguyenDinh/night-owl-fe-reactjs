@@ -30,7 +30,7 @@ export default function ProductDetailsReview({ product }) {
 
   useEffect(() => {
     dispatch(getRatings(product.id));
-  }, [])
+  }, [dispatch, product.id])
 
   return (
     <>
@@ -39,7 +39,7 @@ export default function ProductDetailsReview({ product }) {
       <Divider />
 
       <Collapse in={reviewBox}>
-        <ProductDetailsReviewForm onClose={handleCloseReviewBox} id="move_add_review" />
+        <ProductDetailsReviewForm productId={product.id} onClose={handleCloseReviewBox} id="move_add_review" />
         <Divider />
       </Collapse>
 

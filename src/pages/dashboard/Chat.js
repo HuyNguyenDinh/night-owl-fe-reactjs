@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 // @mui
 import { Card, Container } from '@mui/material';
+// hook
+import useAuth from '../../hooks/useAuth';
 // redux
 import { useDispatch } from '../../redux/store';
 import { getConversations, getContacts } from '../../redux/slices/chat';
@@ -18,11 +20,13 @@ import { ChatSidebar, ChatWindow } from '../../sections/@dashboard/chat';
 export default function Chat() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
+  
+  const { user } = useAuth();
 
   useEffect(() => {
     dispatch(getConversations());
-    dispatch(getContacts());
-  }, [dispatch]);
+    // dispatch(getContacts());
+  }, [dispatch, user]);
 
   return (
     <Page title="Chat">

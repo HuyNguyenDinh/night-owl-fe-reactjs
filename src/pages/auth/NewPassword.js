@@ -1,6 +1,11 @@
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Link, Container, Typography } from '@mui/material';
+import { 
+  Box, 
+  // Link, 
+  Container, 
+  Typography 
+} from '@mui/material';
 // layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
 // components

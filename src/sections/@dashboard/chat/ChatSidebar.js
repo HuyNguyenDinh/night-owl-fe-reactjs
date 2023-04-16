@@ -102,7 +102,7 @@ export default function ChatSidebar() {
       const { value } = event.target;
       setSearchQuery(value);
       if (value) {
-        const response = await axios.get('/api/chat/search', {
+        const response = await axios.get('/market/chatrooms/', {
           params: { query: value },
         });
         setSearchResults(response.data.results);
@@ -118,15 +118,15 @@ export default function ChatSidebar() {
     setSearchFocused(true);
   };
 
-  const handleSearchSelect = (username) => {
+  const handleSearchSelect = (id) => {
     setSearchFocused(false);
     setSearchQuery('');
-    navigate(PATH_DASHBOARD.chat.view(username));
+    navigate(PATH_DASHBOARD.chat.view(id));
   };
 
   const handleSelectContact = (result) => {
     if (handleSearchSelect) {
-      handleSearchSelect(result.username);
+      handleSearchSelect(result.id);
     }
   };
 
@@ -156,14 +156,14 @@ export default function ChatSidebar() {
           )}
         </Stack>
 
-        {!isCollapse && (
+        {/* {!isCollapse && (
           <ChatContactSearch
             query={searchQuery}
             onFocus={handleSearchFocus}
             onChange={handleChangeSearch}
             onClickAway={handleClickAwaySearch}
           />
-        )}
+        )} */}
       </Box>
 
       <Scrollbar>

@@ -1,7 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 // @mui
 import { Box, Divider, Stack } from '@mui/material';
+// hooks
+import useAuth from '../../../hooks/useAuth';
+// utils
+import axiosInstance from '../../../utils/axios';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import {
@@ -23,56 +27,66 @@ import ChatHeaderCompose from './ChatHeaderCompose';
 
 // ----------------------------------------------------------------------
 
-const conversationSelector = (state) => {
-  const { conversations, activeConversationId } = state.chat;
-  const conversation = activeConversationId ? conversations.byId[activeConversationId] : null;
-  if (conversation) {
-    return conversation;
-  }
-  const initState = {
-    id: '',
-    messages: [],
-    participants: [],
-    unreadCount: 0,
-    type: '',
-  };
-  return initState;
-};
+// const conversationSelector = (state) => {
+//   const { conversations, activeConversationId } = state.chat;
+//   const conversation = activeConversationId ? conversations.find(()) : null;
+//   if (conversation) {
+//     return conversation;
+//   }
+//   const initState = {
+//     id: '',
+//     messages: [],
+//     participants: [],
+//     unreadCount: 0,
+//     type: '',
+//   };
+//   return initState;
+// };
 
 export default function ChatWindow() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { conversationKey } = useParams();
-  const { contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
-  const conversation = useSelector((state) => conversationSelector(state));
+  const {user} = useAuth();
+  const { id } = useParams();
 
-  const mode = conversationKey ? 'DETAIL' : 'COMPOSE';
-  const displayParticipants = participants.filter((item) => item.id !== '8864c717-587d-472a-929a-8e5f298024da-0');
+  const [roomInfo, setRoomInfo] = useState();
+  
+  const [messages, setMessages] = useState([]);
+  // const { currentRoom, contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
+  // const conversation = useSelector((state) => conversationSelector(state));
+
+  // const mode = conversationKey ? 'DETAIL' : 'COMPOSE';
+  // const displayParticipants = participants.filter((item) => item.id !== '8864c717-587d-472a-929a-8e5f298024da-0');
 
   useEffect(() => {
-    const getDetails = async () => {
-      dispatch(getParticipants(conversationKey));
+    const getRoomInfo = async () => {
       try {
-        await dispatch(getConversation(conversationKey));
+        const response = await axiosInstance.get(`/market/chatrooms/${id}/`);
+        setRoomInfo(response.data);
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+    const getMessages = async () => {
+      try {
+        const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
+        setMessages(response.data.results);
       } catch (error) {
         console.error(error);
-        navigate(PATH_DASHBOARD.chat.new);
       }
     };
-    if (conversationKey) {
-      getDetails();
-    } else if (activeConversationId) {
-      dispatch(resetActiveConversation());
-    }
+    getRoomInfo();
+    getMessages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationKey]);
+  }, [id]);
 
-  useEffect(() => {
-    if (activeConversationId) {
-      dispatch(markConversationAsRead(activeConversationId));
-    }
-  }, [dispatch, activeConversationId]);
+  // useEffect(() => {
+  //   if (activeConversationId) {
+  //     dispatch(markConversationAsRead(activeConversationId));
+  //   }
+  // }, [dispatch, activeConversationId]);
 
   const handleAddRecipients = (recipients) => {
     dispatch(addRecipients(recipients));
@@ -88,7 +102,7 @@ export default function ChatWindow() {
 
   return (
     <Stack sx={{ flexGrow: 1, minWidth: '1px' }}>
-      {mode === 'DETAIL' ? (
+      {/* {mode === 'DETAIL' ? (
         <ChatHeaderDetail participants={displayParticipants} />
       ) : (
         <ChatHeaderCompose
@@ -96,24 +110,24 @@ export default function ChatWindow() {
           contacts={Object.values(contacts.byId)}
           onAddRecipients={handleAddRecipients}
         />
-      )}
+      )} */}
 
       <Divider />
 
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
-          <ChatMessageList conversation={conversation} />
+          {/* <ChatMessageList conversation={conversation} /> */}
 
           <Divider />
 
           <ChatMessageInput
-            conversationId={activeConversationId}
+            conversationId={id}
             onSend={handleSendMessage}
             disabled={pathname === PATH_DASHBOARD.chat.new}
           />
         </Stack>
 
-        {mode === 'DETAIL' && <ChatRoom conversation={conversation} participants={displayParticipants} />}
+        {/* {mode === 'DETAIL' && <ChatRoom conversation={conversation} participants={displayParticipants} />} */}
       </Box>
     </Stack>
   );

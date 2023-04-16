@@ -33,9 +33,10 @@ EcommerceWidgetSummary.propTypes = {
   title: PropTypes.string,
   total: PropTypes.number,
   sx: PropTypes.object,
+  unit: PropTypes.string,
 };
 
-export default function EcommerceWidgetSummary({ title, percent, total, chartColor, chartData, sx, ...other }) {
+export default function EcommerceWidgetSummary({ title, percent, total, chartColor, chartData, sx, unit, ...other }) {
   const chartOptions = merge(BaseOptionChart(), {
     colors: [chartColor],
     chart: { animations: { enabled: true }, sparkline: { enabled: true } },
@@ -79,7 +80,7 @@ export default function EcommerceWidgetSummary({ title, percent, total, chartCol
             {fPercent(percent)}
           </Typography>
           <Typography variant="body2" component="span" noWrap sx={{ color: 'text.secondary' }}>
-            &nbsp;than last week
+            &nbsp;than last {unit}
           </Typography>
         </Stack>
       </Box>

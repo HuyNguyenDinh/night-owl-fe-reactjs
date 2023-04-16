@@ -72,7 +72,10 @@ export default function NewPasswordForm() {
     // control,
     setValue,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { 
+      isSubmitting, 
+      // errors 
+    },
   } = methods;
 
   useEffect(() => {

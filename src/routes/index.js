@@ -132,7 +132,7 @@ export default function Router() {
           children: [
             { element: <Chat />, index: true },
             { path: 'new', element: <Chat /> },
-            { path: ':conversationKey', element: <Chat /> },
+            { path: ':id', element: <Chat /> },
           ],
         },
         // { path: 'calendar', element: <Calendar /> },

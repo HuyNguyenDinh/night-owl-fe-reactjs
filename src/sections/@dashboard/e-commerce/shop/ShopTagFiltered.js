@@ -1,12 +1,17 @@
-import PropTypes from 'prop-types';
-import { sentenceCase } from 'change-case';
+// import PropTypes from 'prop-types';
+import { useContext } from 'react';
+// import { sentenceCase } from 'change-case';
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
+import { 
+  // useTheme, 
+  styled 
+} from '@mui/material/styles';
 import { Chip, Typography, Stack, Button } from '@mui/material';
 // utils
-import getColorName from '../../../../utils/getColorName';
+// import getColorName from '../../../../utils/getColorName';
 // components
 import Iconify from '../../../../components/Iconify';
+import { FilterContext } from '../../../../pages/dashboard/EcommerceShop';
 
 // ----------------------------------------------------------------------
 
@@ -37,44 +42,51 @@ const LabelStyle = styled((props) => <Typography component="span" variant="subti
 
 // ----------------------------------------------------------------------
 
-function labelPriceRange(range) {
-  if (range === 'below') {
-    return 'Below $25';
-  }
-  if (range === 'between') {
-    return 'Between $25 - $75';
-  }
-  return 'Above $75';
-}
+// function labelPriceRange(range) {
+//   if (range === 'below') {
+//     return 'Below $25';
+//   }
+//   if (range === 'between') {
+//     return 'Between $25 - $75';
+//   }
+//   return 'Above $75';
+// }
 
-ShopTagFiltered.propTypes = {
-  filters: PropTypes.object,
-  isShowReset: PropTypes.bool,
-  onRemoveGender: PropTypes.func,
-  onRemoveCategory: PropTypes.func,
-  onRemoveColor: PropTypes.func,
-  onRemovePrice: PropTypes.func,
-  onRemoveRating: PropTypes.func,
-  onResetAll: PropTypes.func,
-};
+// ShopTagFiltered.propTypes = {
+//   filters: PropTypes.object,
+//   isShowReset: PropTypes.bool,
+//   onRemoveGender: PropTypes.func,
+//   onRemoveCategory: PropTypes.func,
+//   onRemoveColor: PropTypes.func,
+//   onRemovePrice: PropTypes.func,
+//   onRemoveRating: PropTypes.func,
+//   onResetAll: PropTypes.func,
+// };
 
-export default function ShopTagFiltered({
-  filters,
-  isShowReset,
-  onRemoveGender,
-  onRemoveCategory,
-  onRemoveColor,
-  onRemovePrice,
-  onRemoveRating,
-  onResetAll,
-}) {
-  const theme = useTheme();
-
-  const { gender, category, colors, priceRange, rating } = filters;
+// export default function ShopTagFiltered({
+//   filters,
+//   isShowReset,
+//   onRemoveGender,
+//   onRemoveCategory,
+//   onRemoveColor,
+//   onRemovePrice,
+//   onRemoveRating,
+//   onResetAll,
+// }) {
+  // const theme = useTheme();
+export default function ShopTagFiltered() {
+  const {handleClearFilter, categoryName} = useContext(FilterContext);
+  // const { 
+  //   gender, 
+  //   category, 
+  //   colors, 
+  //   priceRange, 
+  //   rating 
+  // } = filters;
 
   return (
     <RootStyle>
-      {gender.length > 0 && (
+      {/* {gender.length > 0 && (
         <WrapperStyle>
           <LabelStyle>Gender:</LabelStyle>
           <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
@@ -89,18 +101,15 @@ export default function ShopTagFiltered({
             ))}
           </Stack>
         </WrapperStyle>
-      )}
+      )} */}
+      <WrapperStyle>
+        <LabelStyle>Category:</LabelStyle>
+        <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
+          <Chip size="small" label={categoryName} onDelete={handleClearFilter} sx={{ m: 0.5 }} />
+        </Stack>
+      </WrapperStyle>
 
-      {category !== 'All' && (
-        <WrapperStyle>
-          <LabelStyle>Category:</LabelStyle>
-          <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
-            <Chip size="small" label={category} onDelete={onRemoveCategory} sx={{ m: 0.5 }} />
-          </Stack>
-        </WrapperStyle>
-      )}
-
-      {colors.length > 0 && (
+      {/* {colors.length > 0 && (
         <WrapperStyle>
           <LabelStyle>Colors:</LabelStyle>
           <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
@@ -125,9 +134,9 @@ export default function ShopTagFiltered({
             ))}
           </Stack>
         </WrapperStyle>
-      )}
+      )} */}
 
-      {priceRange && (
+      {/* {priceRange && (
         <WrapperStyle>
           <LabelStyle>Price:</LabelStyle>
           <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
@@ -143,13 +152,10 @@ export default function ShopTagFiltered({
             <Chip size="small" label={sentenceCase(rating)} onDelete={onRemoveRating} sx={{ m: 0.5 }} />
           </Stack>
         </WrapperStyle>
-      )}
-
-      {isShowReset && (
-        <Button color="error" size="small" onClick={onResetAll} startIcon={<Iconify icon={'ic:round-clear-all'} />}>
-          Clear All
-        </Button>
-      )}
+      )} */}
+      <Button color="error" size="small" onClick={handleClearFilter} startIcon={<Iconify icon={'ic:round-clear-all'} />}>
+        Clear
+      </Button>
     </RootStyle>
   );
 }

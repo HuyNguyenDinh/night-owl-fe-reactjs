@@ -18,8 +18,8 @@ const initialState = {
     // gender: [],
     category: 'All',
     // colors: [],
-    options: [],
-    priceRange: '',
+    // options: [],
+    // priceRange: '',
     // rating: '',
   },
   checkout: {
@@ -83,7 +83,8 @@ const slice = createSlice({
 
     getMoreRatings(state, action) {
       state.isLoading = false;
-      state.product = {...state.product, ratings: {...state.product.ratings, ...action.payload}};
+      const ratings = [...state.product.ratings, ...action.payload];
+      state.product = {...state.product, ratings};
     },
 
     //  SORT & FILTER PRODUCTS
@@ -239,14 +240,21 @@ export const {
 
 // ----------------------------------------------------------------------
 
-export function getProducts() {
+export function getProducts(newUrl) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/market/products?has_option=1');
+      let url = '/market/products?has_option=1'
+      if (newUrl) {
+        url = newUrl;
+      }
+      const response = await axios.get(url);
       dispatch(slice.actions.getProductsSuccess(response.data.results));
       if (response.data.next) {
         dispatch(slice.actions.setNextProducts(response.data.next))
+      }
+      else {
+        dispatch(slice.actions.setNextProducts());
       }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -277,6 +285,9 @@ export function getRatings(productID) {
       dispatch(slice.actions.getMoreProductInfo({ratings: response.data.results, totalRatings: response.data.count}));
       if (response.data.next) {
         dispatch(slice.actions.setNextRatings(response.data.next));
+      }
+      else {
+        dispatch(slice.actions.setNextRatings(''));
       }
     } catch (error) {
       console.log(error);

@@ -1,16 +1,21 @@
 import PropTypes from 'prop-types';
 // import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 // @mui
 import { 
   Box, 
   List, 
-  // Button, 
+  Button, 
   Rating, 
   Avatar, 
   ListItem, 
-  Pagination, 
+  // Pagination, 
   Typography 
 } from '@mui/material';
+// utils
+import axiosInstance from '../../../../utils/axios';
+// redux
+import { getMoreRatings, setNextRatings } from '../../../../redux/slices/product'
 // utils
 // import { fDate } from '../../../../utils/formatTime';
 // import { fShortenNumber } from '../../../../utils/formatNumber';
@@ -27,6 +32,27 @@ ProductDetailsReviewList.propTypes = {
 export default function ProductDetailsReviewList({ product }) {
   const { ratings } = product;
 
+  const {nextRatings} = useSelector((state) => state.product);
+
+  const dispatch = useDispatch();
+
+  const handleGetMoreRatings = async () => {
+    try {
+      const response = await axiosInstance.get(nextRatings);
+      console.log(response.data);
+      dispatch(getMoreRatings(response.data.results));
+      if (response.data.next) {
+        dispatch(setNextRatings(response.data.next));
+      }
+      else {
+        dispatch(setNextRatings(''));
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <Box sx={{ pt: 3, px: 2, pb: 5 }}>
       <List disablePadding>
@@ -34,9 +60,15 @@ export default function ProductDetailsReviewList({ product }) {
           <ReviewItem key={review.id} review={review} />
         ))}
       </List>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Pagination count={10} color="primary" />
-      </Box>
+      
+      {nextRatings &&
+        <Box sx={{ textAlign: "center" }}>
+          {/* <Pagination count={10} color="primary" /> */}
+            <Button variant='outlined' onClick={handleGetMoreRatings}>
+              View more
+            </Button>
+        </Box>
+      }
     </Box>
   );
 }

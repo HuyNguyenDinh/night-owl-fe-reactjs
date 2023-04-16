@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
+import { useSnackbar } from 'notistack';
+import { useSelector, useDispatch } from 'react-redux';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,6 +9,10 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { styled } from '@mui/material/styles';
 import { Button, Stack, Rating, Typography, FormHelperText } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+// redux
+import { getMoreProductInfo } from '../../../../redux/slices/product';
+// utils
+import axiosInstance from '../../../../utils/axios';
 // components
 import { FormProvider, RHFTextField } from '../../../../components/hook-form';
 
@@ -24,21 +30,24 @@ const RootStyle = styled('div')(({ theme }) => ({
 ProductDetailsReviewForm.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
+  productId: PropTypes.any,
 };
 
-export default function ProductDetailsReviewForm({ onClose, id, ...other }) {
+export default function ProductDetailsReviewForm({ onClose, id, productId, ...other }) {
+  const { enqueueSnackbar } = useSnackbar();
+
+  const {product} = useSelector((state) => state.product);
+
+  const dispatch = useDispatch();
+
   const ReviewSchema = Yup.object().shape({
-    rating: Yup.mixed().required('Rating is required'),
-    review: Yup.string().required('Review is required'),
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    rate: Yup.mixed().required('Rating is required'),
+    comment: Yup.string().required('Review is required'),
   });
 
   const defaultValues = {
-    rating: null,
-    review: '',
-    name: '',
-    email: '',
+    rate: 5,
+    comment: '',
   };
 
   const methods = useForm({
@@ -53,12 +62,19 @@ export default function ProductDetailsReviewForm({ onClose, id, ...other }) {
     formState: { errors, isSubmitting },
   } = methods;
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await axiosInstance.post(`/market/products/${productId}/add-comment/`, data);
+      let ratings = [response.data];
+      if (product.ratings && product.ratings.length > 0) {
+        ratings = [...ratings, ...product.ratings]
+      }
+      dispatch(getMoreProductInfo({ratings}));
+      enqueueSnackbar("Successful");
       reset();
       onClose();
     } catch (error) {
+      enqueueSnackbar("Failed", {variant: "error"});
       console.error(error);
     }
   };
@@ -81,7 +97,7 @@ export default function ProductDetailsReviewForm({ onClose, id, ...other }) {
               <Typography variant="body2">Your review about this product:</Typography>
 
               <Controller
-                name="rating"
+                name="rate"
                 control={control}
                 render={({ field }) => <Rating {...field} value={Number(field.value)} />}
               />
@@ -89,11 +105,7 @@ export default function ProductDetailsReviewForm({ onClose, id, ...other }) {
             {!!errors.rating && <FormHelperText error> {errors.rating?.message}</FormHelperText>}
           </div>
 
-          <RHFTextField name="review" label="Review *" multiline rows={3} />
-
-          <RHFTextField name="name" label="Name *" />
-
-          <RHFTextField name="email" label="Email *" />
+          <RHFTextField name="comment" label="Comment *" multiline rows={3} />
 
           <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
             <Button color="inherit" variant="outlined" onClick={onCancel}>

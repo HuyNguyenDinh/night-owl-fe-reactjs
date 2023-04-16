@@ -82,11 +82,11 @@ export default function ShopProductCard({ product }) {
           {/* <ColorPreview colors={colors} /> */}
 
           <Stack direction="row" spacing={0.5}>
-            {priceSale && (
+            {/* {priceSale && (
               <Typography component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
                 {handleNumberToCurrency(priceSale)} ₫
               </Typography>
-            )}
+            )} */}
 
             <Typography color="primary" variant="h5">{handleNumberToCurrency(product.min_price)} ₫</Typography>
           </Stack>

@@ -5,10 +5,12 @@ import { Box, Typography } from '@mui/material';
 // utils
 import cssStyles from '../../../../utils/cssStyles';
 // hooks
-import useAuth from '../../../../hooks/useAuth';
+// import useAuth from '../../../../hooks/useAuth';
 // components
-import MyAvatar from '../../../../components/MyAvatar';
-import Image from '../../../../components/Image';
+// import MyAvatar from '../../../../components/MyAvatar';
+import Avatar from '../../../../components/Avatar';
+import createAvatar from '../../../../utils/createAvatar';
+// import Image from '../../../../components/Image';
 
 // ----------------------------------------------------------------------
 
@@ -42,18 +44,20 @@ const InfoStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 ProfileCover.propTypes = {
-  myProfile: PropTypes.object,
+  name: PropTypes.string,
+  role: PropTypes.string,
+  avatar: PropTypes.string,
 };
 
-export default function ProfileCover({ myProfile }) {
-  const { user } = useAuth();
+export default function ProfileCover({name, role, avatar}) {
+  // const { user } = useAuth();
 
-  const { position, cover } = myProfile;
+  // const { cover } = myProfile;
 
   return (
     <RootStyle>
       <InfoStyle>
-        <MyAvatar
+        {/* <MyAvatar
           sx={{
             mx: 'auto',
             borderWidth: 2,
@@ -62,7 +66,23 @@ export default function ProfileCover({ myProfile }) {
             width: { xs: 80, md: 128 },
             height: { xs: 80, md: 128 },
           }}
-        />
+        /> */}
+
+        <Avatar
+          src={avatar}
+          alt={name}
+          color={avatar ? 'default' : createAvatar(name).color}
+          sx={{
+            mx: 'auto',
+            borderWidth: 2,
+            borderStyle: 'solid',
+            borderColor: 'common.white',
+            width: { xs: 80, md: 128 },
+            height: { xs: 80, md: 128 },
+          }}
+        >
+          {createAvatar(name).name}
+        </Avatar>
         <Box
           sx={{
             ml: { md: 3 },
@@ -71,11 +91,11 @@ export default function ProfileCover({ myProfile }) {
             textAlign: { xs: 'center', md: 'left' },
           }}
         >
-          <Typography variant="h4">{user?.displayName}</Typography>
-          <Typography sx={{ opacity: 0.72 }}>{position}</Typography>
+          <Typography variant="h4">{name}</Typography>
+          <Typography sx={{ opacity: 0.72 }}>{role}</Typography>
         </Box>
       </InfoStyle>
-      <Image alt="profile cover" src={cover} sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+      {/* <Image alt="profile cover" src={cover} sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} /> */}
     </RootStyle>
   );
 }

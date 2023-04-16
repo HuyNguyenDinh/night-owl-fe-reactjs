@@ -1,18 +1,24 @@
 import PropTypes from 'prop-types';
+import { useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 // @mui
 import { List } from '@mui/material';
+// contexts
+import WebSocketContext from '../../../contexts/WebSocketContext';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import { SkeletonConversationItem } from '../../../components/skeleton';
+// redux
+import {getRoomChat} from '../../../redux/slices/chat'
 //
 import ChatConversationItem from './ChatConversationItem';
 
 // ----------------------------------------------------------------------
 
 ChatConversationList.propTypes = {
-  conversations: PropTypes.object,
+  conversations: PropTypes.array,
   isOpenSidebar: PropTypes.bool,
   activeConversationId: PropTypes.string,
   sx: PropTypes.object,
@@ -20,40 +26,43 @@ ChatConversationList.propTypes = {
 
 export default function ChatConversationList({ conversations, isOpenSidebar, activeConversationId, sx, ...other }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSelectConversation = (conversationId) => {
-    let conversationKey = '';
-    const conversation = conversations.byId[conversationId];
-    if (conversation.type === 'GROUP') {
-      conversationKey = conversation.id;
-    } else {
-      const otherParticipant = conversation.participants.find(
-        (participant) => participant.id !== '8864c717-587d-472a-929a-8e5f298024da-0'
-      );
-      if (otherParticipant?.username) {
-        conversationKey = otherParticipant?.username;
-      }
-    }
-    navigate(PATH_DASHBOARD.chat.view(conversationKey));
+    navigate(PATH_DASHBOARD.chat.view(conversationId));
   };
 
-  const loading = !conversations.allIds.length;
+  const ws = useContext(WebSocketContext);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (ws) {
+      ws.addEventListener('message', event => {
+        setMessage(event.data);
+      });
+    }
+  }, [ws]);
+
+  useEffect(() => {
+    console.log(message);
+  }, [message])
+
+  const loading = !conversations.length;
 
   return (
     <List disablePadding sx={sx} {...other}>
-      {(loading ? [...Array(12)] : conversations.allIds).map((conversationId, index) =>
-        conversationId ? (
-          <ChatConversationItem
-            key={conversationId}
-            isOpenSidebar={isOpenSidebar}
-            conversation={conversations.byId[conversationId]}
-            isSelected={activeConversationId === conversationId}
-            onSelectConversation={() => handleSelectConversation(conversationId)}
-          />
-        ) : (
-          <SkeletonConversationItem key={index} />
-        )
+      {conversations && conversations.map((conversation) =>
+        <ChatConversationItem
+          key={conversation.id}
+          isOpenSidebar={isOpenSidebar}
+          conversation={conversation}
+          isSelected={activeConversationId === conversation.id}
+          onSelectConversation={() => handleSelectConversation(conversation.id)}
+        />
+      
       )}
+      
+      {loading && !conversations && <SkeletonConversationItem />}
     </List>
   );
 }

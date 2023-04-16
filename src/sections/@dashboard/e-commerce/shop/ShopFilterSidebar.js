@@ -1,57 +1,63 @@
 import PropTypes from 'prop-types';
+import { useContext } from 'react';
 // form
-import { Controller, useFormContext } from 'react-hook-form';
+// import { Controller, useFormContext } from 'react-hook-form';
 // @mui
 import {
   Box,
-  Radio,
+  // Radio,
   Stack,
   Button,
   Drawer,
-  Rating,
+  // Rating,
   Divider,
   IconButton,
   Typography,
-  RadioGroup,
-  FormControlLabel,
+  // RadioGroup,
+  // FormControlLabel,
 } from '@mui/material';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+// utils
+// import axiosInstance from '../../../../utils/axios';
 // @types
 import { NAVBAR } from '../../../../config';
 // components
 import Iconify from '../../../../components/Iconify';
 import Scrollbar from '../../../../components/Scrollbar';
-import { ColorManyPicker } from '../../../../components/color-utils';
-import { RHFMultiCheckbox, RHFRadioGroup } from '../../../../components/hook-form';
-
+// import { ColorManyPicker } from '../../../../components/color-utils';
+// import { RHFMultiCheckbox, RHFRadioGroup } from '../../../../components/hook-form';
+import { FilterContext } from '../../../../pages/dashboard/EcommerceShop';
 // ----------------------------------------------------------------------
 
-export const SORT_BY_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High-Low' },
-  { value: 'priceAsc', label: 'Price: Low-High' },
-];
+// export const SORT_BY_OPTIONS = [
+//   { value: 'featured', label: 'Featured' },
+//   { value: 'newest', label: 'Newest' },
+//   { value: 'priceDesc', label: 'Price: High-Low' },
+//   { value: 'priceAsc', label: 'Price: Low-High' },
+// ];
 
-export const FILTER_GENDER_OPTIONS = [
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
-];
+// export const FILTER_GENDER_OPTIONS = [
+//   { label: 'Men', value: 'Men' },
+//   { label: 'Women', value: 'Women' },
+//   { label: 'Kids', value: 'Kids' },
+// ];
 
-export const FILTER_CATEGORY_OPTIONS = [
-  { label: 'All', value: 'All' },
-  { label: 'Shose', value: 'Shose' },
-  { label: 'Apparel', value: 'Apparel' },
-  { label: 'Accessories', value: 'Accessories' },
-];
+// export const FILTER_CATEGORY_OPTIONS = [
+//   { label: 'All', value: 'All' },
+//   { label: 'Shose', value: 'Shose' },
+//   { label: 'Apparel', value: 'Apparel' },
+//   { label: 'Accessories', value: 'Accessories' },
+// ];
 
-export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
+// export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
 
-export const FILTER_PRICE_OPTIONS = [
-  { value: 'below', label: 'Below $25' },
-  { value: 'between', label: 'Between $25 - $75' },
-  { value: 'above', label: 'Above $75' },
-];
+// export const FILTER_PRICE_OPTIONS = [
+//   { value: 'below', label: 'Below $25' },
+//   { value: 'between', label: 'Between $25 - $75' },
+//   { value: 'above', label: 'Above $75' },
+// ];
 
 export const FILTER_COLOR_OPTIONS = [
   '#00AB55',
@@ -66,18 +72,21 @@ export const FILTER_COLOR_OPTIONS = [
 
 // ----------------------------------------------------------------------
 
-const onSelected = (selected, item) =>
-  selected.includes(item) ? selected.filter((value) => value !== item) : [...selected, item];
+// const onSelected = (selected, item) =>
+//   selected.includes(item) ? selected.filter((value) => value !== item) : [...selected, item];
 
 ShopFilterSidebar.propTypes = {
   isOpen: PropTypes.bool,
-  onResetAll: PropTypes.func,
+  // onResetAll: PropTypes.func,
   onOpen: PropTypes.func,
   onClose: PropTypes.func,
 };
 
-export default function ShopFilterSidebar({ isOpen, onResetAll, onOpen, onClose }) {
-  const { control } = useFormContext();
+export default function ShopFilterSidebar({ isOpen, onOpen, onClose }) {
+  // const { control } = useFormContext();
+
+  const { categories, categoryId, handleChangeFilter, handleClearFilter} = useContext(FilterContext);
+
 
   return (
     <>
@@ -105,18 +114,31 @@ export default function ShopFilterSidebar({ isOpen, onResetAll, onOpen, onClose 
         <Divider />
 
         <Scrollbar>
-          <Stack spacing={3} sx={{ p: 3 }}>
+          {/* <Stack spacing={3} sx={{ p: 3 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle1">Gender</Typography>
               <RHFMultiCheckbox name="gender" options={FILTER_GENDER_OPTIONS} sx={{ width: 1 }} />
-            </Stack>
+            </Stack> */}
 
-            <Stack spacing={1}>
+            {/* {categories && <Stack sx={{p: 3}} spacing={1}>
               <Typography variant="subtitle1">Category</Typography>
-              <RHFRadioGroup name="category" options={FILTER_CATEGORY_OPTIONS} row={false} />
+              <RHFRadioGroup onChange={handleChangeFilter} name="category" options={categories} row={false} />
             </Stack>
+            } */}
+            {categories && 
+              <Stack sx={{p: 3}} spacing={1}>
+              <Typography variant="subtitle1">Category</Typography>
+              <List component="nav">
+                {categories.map((item) => 
+                  <ListItemButton color='primary' key={item.id} onClick={() => handleChangeFilter(item.id)} selected={categoryId === item.id}>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>)
+                  }
+              </List>
+            </Stack>
+            }
 
-            <Stack spacing={1}>
+            {/* <Stack spacing={1}>
               <Typography variant="subtitle1">Colour</Typography>
 
               <Controller
@@ -135,9 +157,9 @@ export default function ShopFilterSidebar({ isOpen, onResetAll, onOpen, onClose 
             <Stack spacing={1}>
               <Typography variant="subtitle1">Price</Typography>
               <RHFRadioGroup name="priceRange" options={FILTER_PRICE_OPTIONS} />
-            </Stack>
+            </Stack> */}
 
-            <Stack spacing={1}>
+            {/* <Stack spacing={1}>
               <Typography variant="subtitle1">Rating</Typography>
 
               <Controller
@@ -174,9 +196,23 @@ export default function ShopFilterSidebar({ isOpen, onResetAll, onOpen, onClose 
                   </RadioGroup>
                 )}
               />
-            </Stack>
-          </Stack>
+            </Stack> 
+          </Stack> */}
         </Scrollbar>
+
+        {/* <Box sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            color="primary"
+            variant="contained"
+            // onClick={onResetAll}
+            startIcon={<Iconify icon={'ic:round-clear-all'} />}
+          >
+            Filter
+          </Button>
+        </Box> */}
 
         <Box sx={{ p: 3 }}>
           <Button
@@ -185,10 +221,10 @@ export default function ShopFilterSidebar({ isOpen, onResetAll, onOpen, onClose 
             type="submit"
             color="inherit"
             variant="outlined"
-            onClick={onResetAll}
+            onClick={handleClearFilter}
             startIcon={<Iconify icon={'ic:round-clear-all'} />}
           >
-            Clear All
+            Clear
           </Button>
         </Box>
       </Drawer>

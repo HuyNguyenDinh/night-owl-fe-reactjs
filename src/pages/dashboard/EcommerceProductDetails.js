@@ -41,7 +41,10 @@ export default function EcommerceProductDetails() {
 
   useEffect(() => {
     dispatch(getProduct(id));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      dispatch(getProduct());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleAddCart = (option) => {

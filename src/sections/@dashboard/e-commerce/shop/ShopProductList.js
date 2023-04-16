@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // @mui
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 // components
 import { SkeletonProductItem } from '../../../../components/skeleton';
 //
@@ -15,6 +15,8 @@ ShopProductList.propTypes = {
 
 export default function ShopProductList({ products, loading }) {
   return (
+    <div>
+
     <Box
       sx={{
         display: 'grid',
@@ -31,5 +33,8 @@ export default function ShopProductList({ products, loading }) {
         product ? <ShopProductCard key={product.id} product={product} /> : <SkeletonProductItem key={index} />
       )}
     </Box>
+    {(!loading && (!products || products.length === 0) && 
+      <Typography margin="auto auto" textAlign="center" sx={{p: 3}}>No product found</Typography>)}
+    </div>
   );
 }

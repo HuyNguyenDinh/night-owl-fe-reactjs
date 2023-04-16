@@ -124,7 +124,7 @@ export default function InvoiceDetails({ invoice }) {
                     {createAvatar(store.first_name).name}
                   </Avatar>
                 }
-                <Link to={PATH_DASHBOARD.user.store(store.id)} color="text.primary" component={RouterLink}>
+                <Link to={PATH_DASHBOARD.user.profile.concat(`?id=${store.id}`)} color="text.primary" component={RouterLink}>
                   <Typography variant="body2">{[store.first_name, store.last_name].join(" ")}</Typography>
                 </Link>
               </Stack>
@@ -142,7 +142,7 @@ export default function InvoiceDetails({ invoice }) {
                     {createAvatar(customer.first_name).name}
                   </Avatar>
                 }
-                <Link to={PATH_DASHBOARD.user.store(customer.id)} color="text.primary" component={RouterLink}>
+                <Link to={PATH_DASHBOARD.user.profile.concat(`?id=${customer.id}`)} color="text.primary" component={RouterLink}>
                   <Typography variant="body2">{[customer.first_name, customer.last_name].join(" ")}</Typography>
                 </Link>
               </Stack>

@@ -12,16 +12,14 @@ import { BaseOptionChart } from '../../../../components/chart';
 EcommerceYearlySales.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
-  chartData: PropTypes.array.isRequired,
-  chartLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
+  chartData: PropTypes.object,
+  chartLabels: PropTypes.arrayOf(PropTypes.string),
+  label: PropTypes.any,
+  onChangeLabel: PropTypes.func,
+  options: PropTypes.array
 };
 
-export default function EcommerceYearlySales({ title, subheader, chartLabels, chartData, ...other }) {
-  const [seriesData, setSeriesData] = useState('2019');
-
-  const handleChangeSeriesData = (event) => {
-    setSeriesData(event.target.value);
-  };
+export default function EcommerceYearlySales({ title, subheader, chartLabels, chartData, label, onChangeLabel, options, ...other }) {
 
   const chartOptions = merge(BaseOptionChart(), {
     legend: { position: 'top', horizontalAlign: 'right' },
@@ -39,9 +37,9 @@ export default function EcommerceYearlySales({ title, subheader, chartLabels, ch
           <TextField
             select
             fullWidth
-            value={seriesData}
+            value={label}
             SelectProps={{ native: true }}
-            onChange={handleChangeSeriesData}
+            onChange={onChangeLabel}
             sx={{
               '& fieldset': { border: '0 !important' },
               '& select': { pl: 1, py: 0.5, pr: '24px !important', typography: 'subtitle2' },
@@ -49,22 +47,22 @@ export default function EcommerceYearlySales({ title, subheader, chartLabels, ch
               '& .MuiNativeSelect-icon': { top: 4, right: 0, width: 20, height: 20 },
             }}
           >
-            {chartData.map((option) => (
-              <option key={option.year} value={option.year}>
-                {option.year}
+            <option value="">
+              -
+            </option>
+            {options?.map((option) => (
+              <option key={option} value={option}>
+                {option}
               </option>
             ))}
           </TextField>
         }
       />
 
-      {chartData.map((item) => (
-        <Box key={item.year} sx={{ mt: 3, mx: 3 }} dir="ltr">
-          {item.year === seriesData && (
-            <ReactApexChart type="area" series={item.data} options={chartOptions} height={364} />
-          )}
-        </Box>
-      ))}
+      {chartData && <Box key={chartData.label} sx={{ mt: 3, mx: 3 }} dir="ltr">
+        <ReactApexChart type="area" series={chartData.data} options={chartOptions} height={364} />
+      </Box>
+      }
     </Card>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 // import { paramCase } from 'change-case';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -20,6 +20,7 @@ import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import InputStyle from '../../../../components/InputStyle';
 import SearchNotFound from '../../../../components/SearchNotFound';
+import { FilterContext } from '../../../../pages/dashboard/EcommerceShop';
 
 // ----------------------------------------------------------------------
 
@@ -32,20 +33,21 @@ const PopperStyle = styled((props) => <Popper placement="bottom-start" {...props
 export default function ShopProductSearch() {
   const navigate = useNavigate();
 
+  const {setSearchQuery} = useContext(FilterContext);
   const isMountedRef = useIsMountedRef();
 
   // const {products} = useSelector((state) => state.product)
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [search, setsearch] = useState('');
 
   const [searchResults, setSearchResults] = useState([]);
 
   const handleChangeSearch = async (value) => {
     try {
-      setSearchQuery(value);
+      setsearch(value);
       if (value) {
-        const response = await axios.get('/market/products', {
-          params: { search: value },
+        const response = await axios.get('/market/products/', {
+          params: { search: value, has_option: 1 },
         });
 
         if (isMountedRef.current) {
@@ -62,8 +64,10 @@ export default function ShopProductSearch() {
   };
 
   const handleKeyUp = (event) => {
+    console.log(event.target.value);
     if (event.key === 'Enter') {
-      handleClick(searchQuery);
+      // handleClick(search);
+      setSearchQuery(search);
     }
   };
 
@@ -75,15 +79,15 @@ export default function ShopProductSearch() {
       PopperComponent={PopperStyle}
       options={searchResults}
       onInputChange={(event, value) => handleChangeSearch(value)}
+      onKeyUp={handleKeyUp}
       getOptionLabel={(product) => product.name}
-      noOptionsText={<SearchNotFound searchQuery={searchQuery} />}
+      noOptionsText={<SearchNotFound searchQuery={search} />}
       isOptionEqualToValue={(option, value) => option.name === value.name}
       renderInput={(params) => (
         <InputStyle
           {...params}
           stretchStart={200}
           placeholder="Search product..."
-          onKeyUp={handleKeyUp}
           InputProps={{
             ...params.InputProps,
             startAdornment: (

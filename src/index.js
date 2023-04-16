@@ -41,6 +41,7 @@ import { store, persistor } from './redux/store';
 // contexts
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 
 // Check our docs
 // https://docs-minimals.vercel.app/authentication/ts-version
@@ -59,23 +60,25 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <AuthProvider>
-    <HelmetProvider>
-    <GoogleOAuthProvider clientId="873381279931-u01bfk0o43npo48hvh8qpi6csbju65nm.apps.googleusercontent.com">
-      <ReduxProvider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <SettingsProvider>
-              <CollapseDrawerProvider>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </CollapseDrawerProvider>
-            </SettingsProvider>
-          </LocalizationProvider>
-        </PersistGate>
-      </ReduxProvider>
-      </GoogleOAuthProvider>
-    </HelmetProvider>
+    <WebSocketProvider>
+      <HelmetProvider>
+        <GoogleOAuthProvider clientId="873381279931-u01bfk0o43npo48hvh8qpi6csbju65nm.apps.googleusercontent.com">
+          <ReduxProvider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <SettingsProvider>
+                  <CollapseDrawerProvider>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </CollapseDrawerProvider>
+                </SettingsProvider>
+              </LocalizationProvider>
+            </PersistGate>
+          </ReduxProvider>
+        </GoogleOAuthProvider>
+      </HelmetProvider>
+    </WebSocketProvider>
   </AuthProvider>,
   document.getElementById('root')
 );

@@ -1,6 +1,10 @@
+import { useState, useEffect, useRef } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Container, Grid, Button } from '@mui/material';
+import { Container, Grid, Button, CardHeader, Typography, Card, CardContent } from '@mui/material';
+// utils
+import { kFormat } from '../../utils/formatNumber';
+import axiosInstance from '../../utils/axios';
 // hooks
 import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
@@ -31,20 +35,85 @@ import { MotivationIllustration } from '../../assets';
 // ----------------------------------------------------------------------
 
 export default function GeneralEcommerce() {
+
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
   const { user } = useAuth();
+
+  const now = new Date();
+
+  const [month, setMonth] = useState(now.getMonth() + 1);
+
+  const [year, setYear] = useState(now.getFullYear());
+
+  const monthRef = useRef();
+
+  const yearRef = useRef();
+
+  const [monthly, setMonthly] = useState();
+
+  const [yearly, setYearly] = useState();
 
   const theme = useTheme();
 
   const { themeStretch } = useSettings();
 
+  const yearRange = () => {
+    let years = [];
+    let i = now.getFullYear();
+    while(i >= 1970) {
+      years = [...years, i];
+      i-=1;
+    }
+    return years;
+  }
+
+  const calculatePercent = (listValue) => {
+    let ref = 1;
+    let percent = 0;
+    if (listValue) {
+      ref = listValue[0];
+      for (let i = 0; i < listValue.length; i+=1) {
+        percent = listValue[i] / ref * 100;
+        ref = listValue[i];
+      }
+    }
+    return percent
+  }
+
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        const monthlyResponse = await axiosInstance.get("/market/bills/monthly-value-statistic/", {
+          params: {month, year}
+        });
+        setMonthly(monthlyResponse.data);
+        const yearlyResponse = await axiosInstance.get("/market/bills/yearly-value-statistic/", {
+          params: {year}
+        });
+        setYearly(yearlyResponse.data);
+        monthRef.current = month;
+        yearRef.current = year;
+      }
+      catch(error) {
+        setMonth(monthRef.current);
+        setYear(yearRef.current);
+        console.error(error);
+      }
+    }
+    initData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, month, year])
+
   return (
     <Page title="General: E-commerce">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={12}>
             <AppWelcome
-              title={`Congratulations! \n ${user?.displayName}`}
-              description="Best seller of the month You have done 57.6% more sales today."
+              title={`Welcome back ${user?.first_name}`}
+              description="Try to make more effective for selling with our analystic."
               img={
                 <MotivationIllustration
                   sx={{
@@ -54,84 +123,106 @@ export default function GeneralEcommerce() {
                   }}
                 />
               }
-              action={<Button variant="contained">Go Now</Button>}
+              // action={<Button variant="contained">Go Now</Button>}
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          {/* <Grid item xs={12} md={4}>
             <EcommerceNewProducts list={_ecommerceNewProducts} />
+          </Grid> */}
+
+          <Grid item xs={12} md={12}>
+            <Card>
+              <CardHeader title={<Typography variant='h3' color="primary">Orders Statistic</Typography>} />
+              <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <EcommerceWidgetSummary
+                      title="Total amount in Month"
+                      percent={calculatePercent(monthly?.week.map((item) => item.total_count))}
+                      total={monthly?.orders_total_count}
+                      chartColor={theme.palette.primary.main}
+                      chartData={monthly?.week.map((item) => item.total_count) || []}
+                      unit="week"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <EcommerceWidgetSummary
+                      title="Total amount in Year"
+                      percent={calculatePercent(yearly?.month.map((item) => item.total_count))}
+                      total={yearly?.orders_total_count}
+                      chartColor={theme.palette.primary.main}
+                      chartData={yearly?.month.map((item) => item.total_count) || []}
+                      unit="month"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <EcommerceWidgetSummary
+                      title="Total Balance in Month"
+                      percent={calculatePercent(monthly?.week.map((item) => item.total_value))}
+                      total={monthly?.orders_total_value}
+                      chartColor={theme.palette.chart.green[0]}
+                      chartData={monthly?.week.map((item) => item.total_value) || []}
+                      unit="week"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <EcommerceWidgetSummary
+                      title="Total Balance in Year"
+                      percent={calculatePercent(yearly?.month.map((item) => item.total_value))}
+                      total={yearly?.orders_total_value}
+                      chartColor={theme.palette.chart.green[0]}
+                      chartData={yearly?.month.map((item) => item.total_value) || []}
+                      unit="month"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={12}>
+                    <EcommerceYearlySales
+                      title="Yearly Sales"
+                      label={year}
+                      onChangeLabel={(event) => setYear(event.target.value)}
+                      chartLabels={yearly?.month.map((item) => monthNames[item.order_date__month])}
+                      options={yearRange()}
+                      chartData={
+                        {
+                          label: year,
+                          data: [
+                            { name: 'Total amount', data: yearly?.month.map((item) => item.total_count) || [] },
+                            { name: 'Total value', data: yearly?.month.map((item) => item.total_value) || [] },
+                          ],
+                        }
+                      }
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={12}>
+                    <EcommerceYearlySales
+                      title="Monthly Sales"
+                      options={yearly?.month.map((item) => monthNames[item.order_date__month-1])}
+                      label={monthNames[month-1]}
+                      onChangeLabel={(event) => setMonth(monthNames.indexOf(event.target.value) + 1)}
+                      chartLabels={monthly?.day.map((item) => String(item.order_date__day))}
+                      chartData={
+                        {
+                          label: monthNames[month-1],
+                          data: [
+                            { name: 'Total Amount', data: monthly?.day.map((item) => item.total_count) || []},
+                            { name: 'Total Value', data: monthly?.day.map((item) => item.total_value) || []},
+                          ],
+                        }
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
-            <EcommerceWidgetSummary
-              title="Product Sold"
-              percent={2.6}
-              total={765}
-              chartColor={theme.palette.primary.main}
-              chartData={[22, 8, 35, 50, 82, 84, 77, 12, 87, 43]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <EcommerceWidgetSummary
-              title="Total Balance"
-              percent={-0.1}
-              total={18765}
-              chartColor={theme.palette.chart.green[0]}
-              chartData={[56, 47, 40, 62, 73, 30, 23, 54, 67, 68]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <EcommerceWidgetSummary
-              title="Sales Profit"
-              percent={0.6}
-              total={4876}
-              chartColor={theme.palette.chart.red[0]}
-              chartData={[40, 70, 75, 70, 50, 28, 7, 64, 38, 27]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <EcommerceSaleByGender
-              title="Sale By Gender"
-              total={2324}
-              chartData={[
-                { label: 'Mens', value: 44 },
-                { label: 'Womens', value: 75 },
-              ]}
-              chartColors={[
-                [theme.palette.primary.light, theme.palette.primary.main],
-                [theme.palette.warning.light, theme.palette.warning.main],
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <EcommerceYearlySales
-              title="Yearly Sales"
-              subheader="(+43%) than last year"
-              chartLabels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']}
-              chartData={[
-                {
-                  year: '2019',
-                  data: [
-                    { name: 'Total Income', data: [10, 41, 35, 151, 49, 62, 69, 91, 48] },
-                    { name: 'Total Expenses', data: [10, 34, 13, 56, 77, 88, 99, 77, 45] },
-                  ],
-                },
-                {
-                  year: '2020',
-                  data: [
-                    { name: 'Total Income', data: [148, 91, 69, 62, 49, 51, 35, 41, 10] },
-                    { name: 'Total Expenses', data: [45, 77, 99, 88, 77, 56, 13, 34, 10] },
-                  ],
-                },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
+          {/* <Grid item xs={12} md={6} lg={8}>
             <EcommerceSalesOverview title="Sales Overview" data={_ecommerceSalesOverview} />
           </Grid>
 
@@ -155,7 +246,7 @@ export default function GeneralEcommerce() {
 
           <Grid item xs={12} md={6} lg={4}>
             <EcommerceLatestProducts title="Latest Products" list={_ecommerceLatestProducts} />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </Page>
