@@ -78,15 +78,15 @@ export default function EcommerceProductDetails() {
         <HeaderBreadcrumbs
           heading="Product Details"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.root },
             {
-              name: 'E-Commerce',
+              name: 'Shopping',
               href: PATH_DASHBOARD.eCommerce.root,
             },
-            {
-              name: 'Shop',
-              href: PATH_DASHBOARD.eCommerce.shop,
-            },
+            // {
+            //   name: 'Shop',
+            //   href: PATH_DASHBOARD.eCommerce.shop,
+            // },
             { name: product ? product.name : "Unknown"},
           ]}
         />

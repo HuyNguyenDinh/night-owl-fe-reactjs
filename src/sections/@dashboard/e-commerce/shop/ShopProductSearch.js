@@ -64,7 +64,6 @@ export default function ShopProductSearch() {
   };
 
   const handleKeyUp = (event) => {
-    console.log(event.target.value);
     if (event.key === 'Enter') {
       // handleClick(search);
       setSearchQuery(search);

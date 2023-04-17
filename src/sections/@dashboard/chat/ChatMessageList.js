@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState, useRef } from 'react';
 //
 import Scrollbar from '../../../components/Scrollbar';
-import LightboxModal from '../../../components/LightboxModal';
+// import LightboxModal from '../../../components/LightboxModal';
 import ChatMessageItem from './ChatMessageItem';
 
 // ----------------------------------------------------------------------

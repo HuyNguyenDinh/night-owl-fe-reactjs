@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 // @mui
 import { Box, Divider, Stack } from '@mui/material';
@@ -11,12 +11,12 @@ import axiosInstance from '../../../utils/axios';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import {
-  addRecipients,
+  // addRecipients,
   onSendMessage,
-  getConversation,
-  getParticipants,
-  markConversationAsRead,
-  resetActiveConversation,
+  // getConversation,
+  // getParticipants,
+  // markConversationAsRead,
+  // resetActiveConversation,
 } from '../../../redux/slices/chat';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -58,7 +58,7 @@ export default function ChatWindow() {
 
   const [roomInfo, setRoomInfo] = useState();
   
-  const [messages, setMessages] = useState([]);
+  const messages = useRef([]);
 
   const ws = useContext(WebSocketContext);
 
@@ -82,7 +82,7 @@ export default function ChatWindow() {
       const getMessages = async () => {
         try {
           const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
-          setMessages(response.data.results);
+          messages.current = response.data.results.reverse();
         } catch (error) {
           console.error(error);
         }
@@ -91,16 +91,21 @@ export default function ChatWindow() {
       getMessages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, user]);
 
   useEffect(() => {
     if (ws) {
       ws.addEventListener('message', event => {
-        if (event.data.id === Number(id) || event.data.id === id) {
-          setMessages([...messages, event.data.last_message]);
+        const newMessage = JSON.parse(event.data);
+        if (newMessage.id === Number(id) || newMessage.id === id) {
+          const newMessages = [...messages.current, newMessage.last_message];
+          messages.current = newMessages;
         }
       });
     }
+    // return () => {
+    //   messages.current = [];
+    // }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ws]);
 
@@ -139,7 +144,7 @@ export default function ChatWindow() {
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
           {/* <ChatMessageList conversation={conversation} /> */}
-          <ChatMessageList messages={messages} />
+          <ChatMessageList messages={messages.current} />
 
           <Divider />
 

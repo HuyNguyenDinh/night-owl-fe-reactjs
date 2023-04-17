@@ -37,8 +37,8 @@ export default function LoginForm() {
   });
 
   const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: 'demo1234',
+    email: 'nightowl.usernormal.1@gmail.com',
+    password: '0937461321Huy@',
     remember: true,
   };
 

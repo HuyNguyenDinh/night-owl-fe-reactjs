@@ -36,15 +36,15 @@ export default function InvoiceDetails() {
   }, [id])
 
   return (
-    <Page title="Invoice: View">
+    <Page title="Order: View">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Invoice Details"
+          heading="Order Details"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.root },
             {
-              name: 'Invoices',
-              href: PATH_DASHBOARD.invoice.root,
+              name: 'Orders',
+              href: PATH_DASHBOARD.invoice.shoppingList,
             },
             { name: `Order-${order?.id}` || '' },
           ]}

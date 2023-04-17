@@ -3,30 +3,30 @@ import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Container, Grid, Button, CardHeader, Typography, Card, CardContent } from '@mui/material';
 // utils
-import { kFormat } from '../../utils/formatNumber';
+// import { kFormat } from '../../utils/formatNumber';
 import axiosInstance from '../../utils/axios';
 // hooks
 import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
 // _mock_
 import {
-  _ecommerceNewProducts,
-  _ecommerceSalesOverview,
-  _ecommerceBestSalesman,
-  _ecommerceLatestProducts,
+  // _ecommerceNewProducts,
+  // _ecommerceSalesOverview,
+  // _ecommerceBestSalesman,
+  // _ecommerceLatestProducts,
 } from '../../_mock';
 // components
 import Page from '../../components/Page';
 // sections
 import {
-  EcommerceNewProducts,
+  // EcommerceNewProducts,
   EcommerceYearlySales,
-  EcommerceBestSalesman,
-  EcommerceSaleByGender,
+  // EcommerceBestSalesman,
+  // EcommerceSaleByGender,
   EcommerceWidgetSummary,
-  EcommerceSalesOverview,
-  EcommerceLatestProducts,
-  EcommerceCurrentBalance,
+  // EcommerceSalesOverview,
+  // EcommerceLatestProducts,
+  // EcommerceCurrentBalance,
 } from '../../sections/@dashboard/general/e-commerce';
 import { AppWelcome } from '../../sections/@dashboard/general/app';
 // assets

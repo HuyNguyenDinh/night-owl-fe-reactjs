@@ -229,7 +229,7 @@ export default function InvoiceList() {
 
   const onAccept = async (orderID) => {
     try {
-      const response = await axiosInstance.get(`/market/orders/${orderID}/accept_order/`);
+      await axiosInstance.get(`/market/orders/${orderID}/accept_order/`);
       const newOrders = orders.filter((item) => item.id !== orderID);
       // newOrders = [...newOrders, response.data];
       setOrders(newOrders);
@@ -241,7 +241,7 @@ export default function InvoiceList() {
 
   const onReceive = async (orderID) => {
     try {
-      const response = await axiosInstance.get(`/market/orders/${orderID}/recieve_order/`);
+      await axiosInstance.get(`/market/orders/${orderID}/recieve_order/`);
       const newOrders = orders.filter((item) => item.id !== orderID);
       // newOrders = [...newOrders, response.data];
       setOrders(newOrders);
@@ -253,7 +253,7 @@ export default function InvoiceList() {
 
   const onReject = async (orderID) => {
     try {
-      const response = await axiosInstance.get(`/market/orders/${orderID}/cancel_order/`);
+      await axiosInstance.get(`/market/orders/${orderID}/cancel_order/`);
       const newOrders = orders.filter((item) => item.id !== orderID);
       // newOrders = [...newOrders, response.data];
       setOrders(newOrders);
@@ -302,14 +302,14 @@ export default function InvoiceList() {
   }, [user, orders])
 
   return (
-    <Page title="Invoice: List">
+    <Page title="Selling Order: List">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Invoice List"
+          heading="Selling Order List"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Invoices', href: PATH_DASHBOARD.invoice.root },
-            { name: 'List' },
+            { name: 'Home', href: PATH_DASHBOARD.root },
+            { name: 'Manage Orders', href: PATH_DASHBOARD.invoice.root },
+            // { name: 'List' },
           ]}
         />
 

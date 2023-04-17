@@ -149,12 +149,12 @@ export default function EcommerceProductList() {
         <HeaderBreadcrumbs
           heading="Product List"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.root },
             {
-              name: 'E-Commerce',
-              href: PATH_DASHBOARD.eCommerce.root,
+              name: 'Manage Products',
+              href: PATH_DASHBOARD.eCommerce.list,
             },
-            { name: 'Product List' },
+            // { name: 'Product List' },
           ]}
           action={
             <Button

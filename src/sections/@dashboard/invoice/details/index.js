@@ -148,18 +148,24 @@ export default function InvoiceDetails({ invoice }) {
               </Stack>
           </Grid>
 
-          <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
+          <Grid item xs={12} sm={4} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
               date create
             </Typography>
               <Typography variant="body2">{fDate(invoice.order_date)}</Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6} sx={{ mb: 5 }}>
+          <Grid item xs={12} sm={4} sx={{ mb: 5 }}>
             <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
               Due date
             </Typography>
             <Typography variant="body2">{invoice.completed_data ?fDate(invoice.completed_data) : "Not completed"}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={4} sx={{ mb: 5 }}>
+            <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
+              Shipping Code
+            </Typography>
+            <Typography variant="body2">{invoice.shipping_code ? invoice.shipping_code : "No shipping code"}</Typography>
           </Grid>
         </Grid>
 

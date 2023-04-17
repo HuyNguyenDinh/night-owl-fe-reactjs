@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // router
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Stack, AppBar, Toolbar, Button, Link } from '@mui/material';
@@ -66,6 +66,8 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
 
   const isDesktop = useResponsive('up', 'lg');
 
+  const navigate = useNavigate();
+
   const {user} = useAuth();
 
   return (
@@ -84,21 +86,22 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
           </IconButtonAnimate>
         )}
 
-        <Searchbar />
+        {/* <Searchbar /> */}
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          <LanguagePopover />
+          {/* <LanguagePopover /> */}
           {user ?
             <>
-              <NotificationsPopover />
-              <ContactsPopover />
+              {/* <NotificationsPopover /> */}
+              {/* <ContactsPopover /> */}
               <AccountPopover />
             </>
           : 
-            <Link to={PATH_AUTH.login} component={RouterLink}>
-              <Button fullWidth>Login</Button>
-            </Link>
+            <Stack direction="row" spacing={3} sx={{p: 2}}>
+              <Button onClick={() => navigate(PATH_AUTH.login)} >Sign in</Button>
+              <Button onClick={() => navigate(PATH_AUTH.register)} >Sign up</Button>
+            </Stack>
           }
         </Stack>
       </Toolbar>

@@ -1,6 +1,6 @@
 // import { capitalCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Tab, Box, Card, Tabs, Container, Button, CardHeader, Typography } from '@mui/material';
@@ -9,7 +9,7 @@ import axiosInstance from '../../utils/axios';
 // sections
 import { ShopProductList } from '../../sections/@dashboard/e-commerce/shop';
 // routes
-import { PATH_DASHBOARD } from '../../routes/paths';
+import { PATH_DASHBOARD, PATH_AUTH } from '../../routes/paths';
 // hooks
 import useAuth from '../../hooks/useAuth';
 // import useTabs from '../../hooks/useTabs';
@@ -22,13 +22,13 @@ import Iconify from '../../components/Iconify';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
 import {
-  Profile,
+  // Profile,
   ProfileCover,
   // ProfileFriends,
   // ProfileGallery,
   // ProfileFollowers,
 } from '../../sections/@dashboard/user/profile';
-import { getProducts } from '../../redux/slices/product';
+// import { getProducts } from '../../redux/slices/product';
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +57,8 @@ export default function UserProfile() {
 
   const location = useLocation().search;
 
+  const navigate = useNavigate();
+
   const id = new URLSearchParams(location).get('id');
 
   const [info, setInfo] = useState();
@@ -75,9 +77,12 @@ export default function UserProfile() {
         const response = await axiosInstance.get(`/market/users/${id}/products/`);
         setInfo(response.data);
       }
-      else {
+      else if (user) {
         const response = await axiosInstance.get(`/market/users/${user.id}/products/`);
         setInfo(response.data);
+      }
+      else {
+        navigate(PATH_AUTH.login);
       }
     };
     getOwnerProducts();
