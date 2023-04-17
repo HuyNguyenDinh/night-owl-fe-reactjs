@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 // @mui
 import { Box, Divider, Stack } from '@mui/material';
+// Context
+import WebSocketContext from '../../../contexts/WebSocketContext';
 // hooks
 import useAuth from '../../../hooks/useAuth';
 // utils
@@ -45,14 +47,21 @@ import ChatHeaderCompose from './ChatHeaderCompose';
 
 export default function ChatWindow() {
   const dispatch = useDispatch();
+
   const navigate = useNavigate();
+
   const { pathname } = useLocation();
+
   const {user} = useAuth();
+
   const { id } = useParams();
 
   const [roomInfo, setRoomInfo] = useState();
   
   const [messages, setMessages] = useState([]);
+
+  const ws = useContext(WebSocketContext);
+
   // const { currentRoom, contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
   // const conversation = useSelector((state) => conversationSelector(state));
 
@@ -65,7 +74,6 @@ export default function ChatWindow() {
         try {
           const response = await axiosInstance.get(`/market/chatrooms/${id}/`);
           setRoomInfo(response.data);
-          console.log(response.data);
         }
         catch (error) {
           console.log(error);
@@ -75,17 +83,26 @@ export default function ChatWindow() {
         try {
           const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
           setMessages(response.data.results);
-          console.log(response.data);
         } catch (error) {
           console.error(error);
         }
       };
       getRoomInfo();
       getMessages();
-
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    if (ws) {
+      ws.addEventListener('message', event => {
+        if (event.data.id === Number(id) || event.data.id === id) {
+          setMessages([...messages, event.data.last_message]);
+        }
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ws]);
 
   // useEffect(() => {
   //   if (activeConversationId) {
@@ -93,9 +110,9 @@ export default function ChatWindow() {
   //   }
   // }, [dispatch, activeConversationId]);
 
-  const handleAddRecipients = (recipients) => {
-    dispatch(addRecipients(recipients));
-  };
+  // const handleAddRecipients = (recipients) => {
+  //   dispatch(addRecipients(recipients));
+  // };
 
   const handleSendMessage = async (value) => {
     try {
