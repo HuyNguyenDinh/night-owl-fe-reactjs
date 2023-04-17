@@ -8,15 +8,16 @@ import ChatMessageItem from './ChatMessageItem';
 // ----------------------------------------------------------------------
 
 ChatMessageList.propTypes = {
-  conversation: PropTypes.object.isRequired,
+  // conversation: PropTypes.object.isRequired,
+  messages: PropTypes.array
 };
 
-export default function ChatMessageList({ conversation }) {
+export default function ChatMessageList({ messages }) {
   const scrollRef = useRef(null);
 
-  const [openLightbox, setOpenLightbox] = useState(false);
+  // const [openLightbox, setOpenLightbox] = useState(false);
 
-  const [selectedImage, setSelectedImage] = useState(0);
+  // const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     const scrollMessagesToBottom = () => {
@@ -25,39 +26,39 @@ export default function ChatMessageList({ conversation }) {
       }
     };
     scrollMessagesToBottom();
-  }, [conversation.messages]);
+  }, [messages]);
 
-  const imagesLightbox = conversation.messages
-    .filter((messages) => messages.contentType === 'image')
-    .map((messages) => messages.body);
+  // const imagesLightbox = messages
+  //   .filter((messages) => messages.contentType === 'image')
+  //   .map((messages) => messages.body);
 
-  const handleOpenLightbox = (url) => {
-    const selectedImage = imagesLightbox.findIndex((index) => index === url);
-    setOpenLightbox(true);
-    setSelectedImage(selectedImage);
-  };
+  // const handleOpenLightbox = (url) => {
+  //   const selectedImage = imagesLightbox.findIndex((index) => index === url);
+  //   setOpenLightbox(true);
+  //   setSelectedImage(selectedImage);
+  // };
 
   return (
     <>
       <Scrollbar scrollableNodeProps={{ ref: scrollRef }} sx={{ p: 3, height: 1 }}>
-        {conversation.messages.map((message) => (
+        {messages && messages?.map((message) => (
           <ChatMessageItem
             key={message.id}
             message={message}
-            conversation={conversation}
-            onOpenLightbox={handleOpenLightbox}
+            // conversation={}
+            // onOpenLightbox={handleOpenLightbox}
           />
         ))}
       </Scrollbar>
 
-      <LightboxModal
+      {/* <LightboxModal
         images={imagesLightbox}
         mainSrc={imagesLightbox[selectedImage]}
         photoIndex={selectedImage}
         setPhotoIndex={setSelectedImage}
         isOpen={openLightbox}
         onCloseRequest={() => setOpenLightbox(false)}
-      />
+      /> */}
     </>
   );
 }

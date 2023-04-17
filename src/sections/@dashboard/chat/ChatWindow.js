@@ -60,25 +60,30 @@ export default function ChatWindow() {
   // const displayParticipants = participants.filter((item) => item.id !== '8864c717-587d-472a-929a-8e5f298024da-0');
 
   useEffect(() => {
-    const getRoomInfo = async () => {
-      try {
-        const response = await axiosInstance.get(`/market/chatrooms/${id}/`);
-        setRoomInfo(response.data);
+    if (id) {
+      const getRoomInfo = async () => {
+        try {
+          const response = await axiosInstance.get(`/market/chatrooms/${id}/`);
+          setRoomInfo(response.data);
+          console.log(response.data);
+        }
+        catch (error) {
+          console.log(error);
+        }
       }
-      catch (error) {
-        console.log(error);
-      }
+      const getMessages = async () => {
+        try {
+          const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
+          setMessages(response.data.results);
+          console.log(response.data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      getRoomInfo();
+      getMessages();
+
     }
-    const getMessages = async () => {
-      try {
-        const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
-        setMessages(response.data.results);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getRoomInfo();
-    getMessages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -117,6 +122,7 @@ export default function ChatWindow() {
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
           {/* <ChatMessageList conversation={conversation} /> */}
+          <ChatMessageList messages={messages} />
 
           <Divider />
 

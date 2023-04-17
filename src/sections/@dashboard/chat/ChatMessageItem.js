@@ -3,6 +3,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Avatar, Box, Typography } from '@mui/material';
+import useAuth from '../../../hooks/useAuth';
 // components
 import Image from '../../../components/Image';
 
@@ -31,20 +32,18 @@ const InfoStyle = styled(Typography)(({ theme }) => ({
 
 ChatMessageItem.propTypes = {
   message: PropTypes.object.isRequired,
-  conversation: PropTypes.object.isRequired,
-  onOpenLightbox: PropTypes.func,
+  // conversation: PropTypes.object.isRequired,
+  // onOpenLightbox: PropTypes.func,
 };
 
-export default function ChatMessageItem({ message, conversation, onOpenLightbox }) {
-  const sender = conversation.participants.find((participant) => participant.id === message.senderId);
-  const senderDetails =
-    message.senderId === '8864c717-587d-472a-929a-8e5f298024da-0'
-      ? { type: 'me' }
-      : { avatar: sender?.avatar, name: sender?.name };
+export default function ChatMessageItem({ message }) {
+  const {user} = useAuth
 
-  const isMe = senderDetails.type === 'me';
-  const isImage = message.contentType === 'image';
-  const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
+  const sender = message.creator;
+
+  const isMe = sender?.id === user?.id;
+  // const isImage = message.contentType === 'image';
+  // const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
 
   return (
     <RootStyle>
@@ -56,19 +55,19 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox 
           }),
         }}
       >
-        {senderDetails.type !== 'me' && (
-          <Avatar alt={senderDetails.name} src={senderDetails.avatar} sx={{ width: 32, height: 32, mr: 2 }} />
+        {!isMe && (
+          <Avatar alt={sender.first_name} src={sender.avatar} sx={{ width: 32, height: 32, mr: 2 }} />
         )}
 
         <div>
           <InfoStyle
             variant="caption"
             sx={{
-              ...(isMe && { justifyContent: 'flex-end' }),
+              ...(isMe ? { justifyContent: 'flex-end' } : {justifyContent: 'flex-start'}),
             }}
           >
-            {!isMe && `${firstName},`}&nbsp;
-            {formatDistanceToNowStrict(new Date(message.createdAt), {
+            {!isMe && `${sender.first_name},`}&nbsp;
+            {formatDistanceToNowStrict(new Date(message.created_date), {
               addSuffix: true,
             })}
           </InfoStyle>
@@ -76,19 +75,19 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox 
           <ContentStyle
             sx={{
               ...(isMe && { color: 'grey.800', bgcolor: 'primary.lighter' }),
-              ...(isImage && { p: 0 }),
+              // ...(isImage && { p: 0 }),
             }}
           >
-            {isImage ? (
+            {/* {isImage ? (
               <Image
                 alt="attachment"
                 src={message.body}
                 onClick={() => onOpenLightbox(message.body)}
                 sx={{ borderRadius: 1, cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
               />
-            ) : (
-              <Typography variant="body2">{message.body}</Typography>
-            )}
+            ) : ( */}
+              <Typography variant="body2">{message.content}</Typography>
+            {/* )} */}
           </ContentStyle>
         </div>
       </Box>
