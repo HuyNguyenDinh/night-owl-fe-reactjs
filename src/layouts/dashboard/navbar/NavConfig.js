@@ -140,7 +140,7 @@ const navConfig = [
   // APP
   // ----------------------------------------------------------------------
   {
-    subheader: 'app',
+    subheader: 'Communication',
     items: [
       // {
       //   title: 'mail',

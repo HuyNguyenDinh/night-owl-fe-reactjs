@@ -46,7 +46,7 @@ import ChatHeaderCompose from './ChatHeaderCompose';
 // };
 
 export default function ChatWindow() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
@@ -144,7 +144,8 @@ export default function ChatWindow() {
           onAddRecipients={handleAddRecipients}
         />
       )} */}
-
+      {/* <ChatHeaderDetail participants={displayParticipants} /> */}
+      <ChatHeaderDetail roomInfo={roomInfo}/>
       <Divider />
 
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>

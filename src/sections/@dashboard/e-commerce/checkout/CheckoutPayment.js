@@ -50,7 +50,7 @@ const PAYMENT_OPTIONS = [
     value: '1',
     title: 'Pay with Momo',
     description: 'You will be redirected to Momo website to complete your purchase securely.',
-    icons: ['https://minimal-assets-api-dev.vercel.app/assets/icons/ic_paypal.svg'],
+    icons: ['https://res.cloudinary.com/dectbvmyx/image/upload/v1681827750/ic_momo_2014_lmk42b.png'],
   },
   // {
   //   value: 'credit_card',
@@ -65,7 +65,7 @@ const PAYMENT_OPTIONS = [
     value: '0',
     title: 'Cash on CheckoutDelivery',
     description: 'Pay with cash when your order is delivered.',
-    icons: [],
+    icons: ['https://res.cloudinary.com/dectbvmyx/image/upload/v1681828122/lessons-3-6_w1ghc1.png'],
   },
 ];
 

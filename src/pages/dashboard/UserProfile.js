@@ -71,6 +71,14 @@ export default function UserProfile() {
   //   setFindFriends(value);
   // };
 
+  const handleMessage = async() => {
+    if (id) {
+      const response = await axiosInstance.get(`/market/users/${id}/single-chat/`);
+      // setInfo(response.data);
+      navigate(PATH_DASHBOARD.chat.view(response.data.id));
+    }
+  }
+
   useEffect(() => {
     const getOwnerProducts = async () => {
       if (id) {
@@ -113,25 +121,26 @@ export default function UserProfile() {
           :
             <ProfileCover avatar={user?.avatar} name={[user?.first_name, user?.last_name].join(" ")} role={user?.is_business ? "Business" : "Customer"} />
           }
-          <TabsWrapperStyle>
-            <Box sx={{p: 2}}>
-              <Button startIcon={<Iconify icon="ic:outline-message" />} variant='outlined' color='primary' sx={{backgroundColor: "white"}} fullWidth>
-                Message
-              </Button>
-            </Box>
-            {/* <Tabs
-              allowScrollButtonsMobile
-              variant="scrollable"
-              scrollButtons="auto"
-              value={currentTab}
-              onChange={onChangeTab}
-            >
-              {PROFILE_TABS.map((tab) => (
-                <Tab disableRipple key={tab.value} value={tab.value} icon={tab.icon} label={capitalCase(tab.value)} />
-              ))}
-            </Tabs>  */}
-          </TabsWrapperStyle>
-
+          {id && 
+            <TabsWrapperStyle>
+              <Box sx={{p: 2}}>
+                <Button onClick={handleMessage} startIcon={<Iconify icon="ic:outline-message" />} variant='outlined' color='primary' sx={{backgroundColor: "white"}} fullWidth>
+                  Message
+                </Button>
+              </Box>
+              {/* <Tabs
+                allowScrollButtonsMobile
+                variant="scrollable"
+                scrollButtons="auto"
+                value={currentTab}
+                onChange={onChangeTab}
+              >
+                {PROFILE_TABS.map((tab) => (
+                  <Tab disableRipple key={tab.value} value={tab.value} icon={tab.icon} label={capitalCase(tab.value)} />
+                ))}
+              </Tabs>  */}
+            </TabsWrapperStyle>
+          }
         </Card>
         
         <Card sx={{p: 2}}>

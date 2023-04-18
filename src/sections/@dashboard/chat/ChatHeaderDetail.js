@@ -22,18 +22,20 @@ const RootStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 ChatHeaderDetail.propTypes = {
-  participants: PropTypes.array.isRequired,
+  // participants: PropTypes.array.isRequired,
+  roomInfo: PropTypes.any
 };
 
-export default function ChatHeaderDetail({ participants }) {
-  const isGroup = participants.length > 1;
+export default function ChatHeaderDetail({ roomInfo }) {
+  // const isGroup = participants.length > 1;
+  // const isGroup = roomInfo.room_type === 1;
 
   return (
     <RootStyle>
-      {isGroup ? <GroupAvatar participants={participants} /> : <OneAvatar participants={participants} />}
-
+      {/* {isGroup ? <GroupAvatar participants={participants} /> : <OneAvatar participants={participants} />} */}
+      <OneAvatar roomName={roomInfo?.room_name} roomAvatar={roomInfo?.room_avatar} />
       <Box sx={{ flexGrow: 1 }} />
-      <IconButton>
+      {/* <IconButton>
         <Iconify icon="eva:phone-fill" width={20} height={20} />
       </IconButton>
       <IconButton>
@@ -41,7 +43,7 @@ export default function ChatHeaderDetail({ participants }) {
       </IconButton>
       <IconButton>
         <Iconify icon="eva:more-vertical-fill" width={20} height={20} />
-      </IconButton>
+      </IconButton> */}
     </RootStyle>
   );
 }
@@ -49,28 +51,31 @@ export default function ChatHeaderDetail({ participants }) {
 // ----------------------------------------------------------------------
 
 OneAvatar.propTypes = {
-  participants: PropTypes.array.isRequired,
+  // participants: PropTypes.array.isRequired,
+  roomName: PropTypes.string,
+  roomAvatar: PropTypes.string
 };
 
-function OneAvatar({ participants }) {
-  const participant = [...participants][0];
+function OneAvatar({ roomName, roomAvatar }) {
+  // const participant = [...participants][0];
 
-  if (participant === undefined || !participant.status) {
-    return null;
-  }
+  // if (participant === undefined || !participant.status) {
+  //   return null;
+  // }
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ position: 'relative' }}>
-        <Avatar src={participant.avatar} alt={participant.name} />
-        <BadgeStatus status={participant.status} sx={{ position: 'absolute', right: 2, bottom: 2 }} />
+        {/* <Avatar src={participant.avatar} alt={participant.name} /> */}
+        {/* <BadgeStatus status={participant.status} sx={{ position: 'absolute', right: 2, bottom: 2 }} /> */}
+        <Avatar src={roomAvatar} alt={roomName} />
       </Box>
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{participant.name}</Typography>
+        <Typography variant="subtitle2">{roomName}</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {participant.status !== 'offline' ? capitalCase(participant.status) : fToNow(participant.lastActivity || '')}
-        </Typography>
+        </Typography> */}
       </Box>
     </Box>
   );
