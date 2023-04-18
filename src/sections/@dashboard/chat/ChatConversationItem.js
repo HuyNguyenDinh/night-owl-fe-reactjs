@@ -1,8 +1,11 @@
 import PropTypes from 'prop-types';
+import { useContext, useEffect, useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Avatar as MUIAvatar, ListItemText, ListItemAvatar, ListItemButton } from '@mui/material';
+// context
+import WebSocketContext from '../../../contexts/WebSocketContext';
 // utils
 import createAvatar from '../../../utils/createAvatar';
 //
@@ -50,13 +53,20 @@ ChatConversationItem.propTypes = {
 };
 
 export default function ChatConversationItem({ isSelected, conversation, isOpenSidebar, onSelectConversation }) {
-  // const details = getDetails(conversation, '8864c717-587d-472a-929a-8e5f298024da-0');
 
   const displayLastActivity = conversation.last_message.created_date;
 
   const isGroup = conversation.room_type === 1;
-  // const isUnread = conversation.unreadCount > 0;
-  // const isOnlineGroup = isGroup && details.otherParticipants.map((item) => item.status).includes('online');
+
+  const {message} = useContext(WebSocketContext);
+
+  const [messageCover, setMessageCover] = useState(conversation.last_message.content);
+
+  useEffect(() => {
+    if (Number(message.id === Number(conversation.id))) {
+      setMessageCover(message.last_message.content);
+    }
+  }, [message, conversation.id])
 
   return (
     <RootStyle
@@ -138,7 +148,7 @@ export default function ChatConversationItem({ isSelected, conversation, isOpenS
               noWrap: true,
               variant: 'subtitle2',
             }}
-            secondary={conversation.last_message.content}
+            secondary={messageCover}
             secondaryTypographyProps={{
               noWrap: true,
               variant: 'body2',

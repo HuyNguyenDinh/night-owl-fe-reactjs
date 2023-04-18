@@ -8,6 +8,8 @@ export const WebSocketProvider = ({ children }) => {
 
     const {user} = useAuth();
 
+    const [message, setMessage] = useState('');
+
     const [ws, setWs] = useState();
     useEffect(() => {
         if (user) {
@@ -18,8 +20,20 @@ export const WebSocketProvider = ({ children }) => {
         }
     }, [user])
 
+    useEffect(() => {
+        if (ws) {
+            ws.onmessage = (event) => {
+                setMessage(JSON.parse(event.data));
+            }
+        }
+    }, [ws]);
+
     return (
-        <WebSocketContext.Provider value={ws}>
+        <WebSocketContext.Provider value={{
+            ws, 
+            message,
+        }}
+        >
             {children}
         </WebSocketContext.Provider>
     );

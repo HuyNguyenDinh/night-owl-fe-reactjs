@@ -58,9 +58,9 @@ export default function ChatWindow() {
 
   const [roomInfo, setRoomInfo] = useState();
   
-  const messages = useRef([]);
+  const [messages, setMessages] = useState([]);
 
-  const ws = useContext(WebSocketContext);
+  const { ws, message} = useContext(WebSocketContext);
 
   // const { currentRoom, contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
   // const conversation = useSelector((state) => conversationSelector(state));
@@ -82,7 +82,7 @@ export default function ChatWindow() {
       const getMessages = async () => {
         try {
           const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
-          messages.current = response.data.results.reverse();
+          setMessages(response.data.results.reverse());
         } catch (error) {
           console.error(error);
         }
@@ -94,37 +94,17 @@ export default function ChatWindow() {
   }, [id, user]);
 
   useEffect(() => {
-    if (ws) {
-      ws.addEventListener('message', event => {
-        const newMessage = JSON.parse(event.data);
-        if (newMessage.id === Number(id) || newMessage.id === id) {
-          const newMessages = [...messages.current, newMessage.last_message];
-          messages.current = newMessages;
-        }
-      });
+    if (Number(message.id) === Number(id)) {
+      setMessages(state => ([...state, message.last_message]));
     }
-    // return () => {
-    //   messages.current = [];
-    // }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ws]);
-
-  // useEffect(() => {
-  //   if (activeConversationId) {
-  //     dispatch(markConversationAsRead(activeConversationId));
-  //   }
-  // }, [dispatch, activeConversationId]);
-
-  // const handleAddRecipients = (recipients) => {
-  //   dispatch(addRecipients(recipients));
-  // };
+  }, [message]);
 
   const handleSendMessage = async (value) => {
-    try {
-      dispatch(onSendMessage(value));
-    } catch (error) {
-      console.error(error);
-    }
+    ws.send(JSON.stringify({
+      "room_id": id,
+      "content": value.message
+    }))
   };
 
   return (
@@ -144,7 +124,7 @@ export default function ChatWindow() {
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
           {/* <ChatMessageList conversation={conversation} /> */}
-          <ChatMessageList messages={messages.current} />
+          <ChatMessageList messages={messages} />
 
           <Divider />
 
