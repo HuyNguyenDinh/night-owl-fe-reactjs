@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState, useRef } from 'react';
+// mui
+import { Button, Box } from '@mui/material';
 //
 import Scrollbar from '../../../components/Scrollbar';
 // import LightboxModal from '../../../components/LightboxModal';
@@ -9,10 +11,13 @@ import ChatMessageItem from './ChatMessageItem';
 
 ChatMessageList.propTypes = {
   // conversation: PropTypes.object.isRequired,
-  messages: PropTypes.array
+  messages: PropTypes.array,
+  isMore: PropTypes.any,
+  onNextMessages: PropTypes.func,
+  first: PropTypes.bool
 };
 
-export default function ChatMessageList({ messages }) {
+export default function ChatMessageList({ messages, isMore, onNextMessages, first }) {
   const scrollRef = useRef(null);
 
   // const [openLightbox, setOpenLightbox] = useState(false);
@@ -25,8 +30,10 @@ export default function ChatMessageList({ messages }) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     };
-    scrollMessagesToBottom();
-  }, [messages]);
+    if (first) {
+      scrollMessagesToBottom();
+    }
+  }, [messages, first]);
 
   // const imagesLightbox = messages
   //   .filter((messages) => messages.contentType === 'image')
@@ -41,6 +48,13 @@ export default function ChatMessageList({ messages }) {
   return (
     <>
       <Scrollbar scrollableNodeProps={{ ref: scrollRef }} sx={{ p: 3, height: 1 }}>
+        {isMore && 
+          <Box textAlign="center" sx={{paddingBottom: 2}}>
+            <Button onClick={onNextMessages}>
+              View more
+            </Button>
+          </Box>
+        }
         {messages && messages?.map((message) => (
           <ChatMessageItem
             key={message.id}

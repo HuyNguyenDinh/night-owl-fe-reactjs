@@ -37,22 +37,28 @@ ChatMessageItem.propTypes = {
 };
 
 export default function ChatMessageItem({ message }) {
-  const {user} = useAuth
+  const {user} = useAuth();
 
   const sender = message.creator;
 
-  const isMe = sender?.id === user?.id;
+  const isMe = sender.id === user?.id;
+
   // const isImage = message.contentType === 'image';
   // const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
 
   return (
-    <RootStyle>
+    <RootStyle
+      sx={{
+        ...(isMe && {justifyContent: "flex-end"}),
+        ...(!isMe && {justifyContent: "flex-start"})
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
           ...(isMe && {
             ml: 'auto',
-          }),
+          })
         }}
       >
         {!isMe && (

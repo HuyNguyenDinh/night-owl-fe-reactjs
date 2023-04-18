@@ -60,7 +60,11 @@ export default function ChatWindow() {
   
   const [messages, setMessages] = useState([]);
 
+  const [nextMessages, setNextMessages] = useState('');
+
   const { ws, message} = useContext(WebSocketContext);
+
+  const [first, setFirst] = useState(true);
 
   // const { currentRoom, contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
   // const conversation = useSelector((state) => conversationSelector(state));
@@ -83,6 +87,12 @@ export default function ChatWindow() {
         try {
           const response = await axiosInstance.get(`/market/chatrooms/${id}/messages`);
           setMessages(response.data.results.reverse());
+          if (response.data.next) {
+            setNextMessages(response.data.next);
+          }
+          else {
+            setNextMessages('');
+          }
         } catch (error) {
           console.error(error);
         }
@@ -107,6 +117,22 @@ export default function ChatWindow() {
     }))
   };
 
+  const handleGetMoreMessage = async () => {
+    try {
+      const response = await axiosInstance.get(nextMessages);
+      setFirst(false);
+      setMessages((state) => ([...response.data.results.reverse(), ...state]));
+      if (response.data.next) {
+        setNextMessages(response.data.next);
+      }
+      else {
+        setNextMessages('');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <Stack sx={{ flexGrow: 1, minWidth: '1px' }}>
       {/* {mode === 'DETAIL' ? (
@@ -124,7 +150,8 @@ export default function ChatWindow() {
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
           {/* <ChatMessageList conversation={conversation} /> */}
-          <ChatMessageList messages={messages} />
+
+          <ChatMessageList first={first} messages={messages} isMore={nextMessages} onNextMessages={handleGetMoreMessage} />
 
           <Divider />
 
