@@ -1,17 +1,17 @@
 import PropTypes from 'prop-types';
-// import { useEffect, useContext, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 // @mui
 import { List } from '@mui/material';
 // contexts
-// import WebSocketContext from '../../../contexts/WebSocketContext';
+import WebSocketContext from '../../../contexts/WebSocketContext';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import { SkeletonConversationItem } from '../../../components/skeleton';
 // redux
-// import {getRoomChat} from '../../../redux/slices/chat'
+import { pushConversationToTop } from '../../../redux/slices/chat'
 //
 import ChatConversationItem from './ChatConversationItem';
 
@@ -26,26 +26,20 @@ ChatConversationList.propTypes = {
 
 export default function ChatConversationList({ conversations, isOpenSidebar, activeConversationId, sx, ...other }) {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleSelectConversation = (conversationId) => {
     navigate(PATH_DASHBOARD.chat.view(conversationId));
   };
 
-  // const ws = useContext(WebSocketContext);
-  // const [message, setMessage] = useState('');
-
-  // useEffect(() => {
-  //   if (ws) {
-  //     ws.addEventListener('message', event => {
-  //       setMessage(event.data.last_message);
-  //     });
-  //   }
-  // }, [ws]);
-
-  // useEffect(() => {
-  //   console.log(message);
-  // }, [message])
+  const { message } = useContext(WebSocketContext);
+  
+  useEffect(() => {
+    if (message) {
+      dispatch(pushConversationToTop(message));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message]);
 
   const loading = !conversations.length;
 

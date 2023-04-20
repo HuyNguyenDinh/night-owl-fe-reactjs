@@ -117,9 +117,9 @@ const navConfig = [
         roles: ["business"],
         icon: ICONS.ecommerce,
         children: [
-          { title: 'Manage products', path: PATH_DASHBOARD.eCommerce.list },
-          { title: 'Manage Orders', path: PATH_DASHBOARD.invoice.list },
-          { title: 'Analytic', path: PATH_DASHBOARD.general.ecommerce },
+          { title: 'Manage products', roles: ["business"], path: PATH_DASHBOARD.eCommerce.list },
+          { title: 'Manage Orders', roles: ["business"], path: PATH_DASHBOARD.invoice.list },
+          { title: 'Analytic', roles: ["business"], path: PATH_DASHBOARD.general.ecommerce },
         ]
       }
 

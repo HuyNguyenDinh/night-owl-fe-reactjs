@@ -18,6 +18,7 @@ const initialState = {
   error: null,
   contacts: { byId: {}, allIds: [] },
   conversations: [],
+  nextConversations: null,
   activeConversationId: null,
   participants: [],
   recipients: [],
@@ -54,6 +55,23 @@ const slice = createSlice({
 
       // state.conversations.byId = objFromArray(conversations);
       // state.conversations.allIds = Object.keys(state.conversations.byId);
+      state.isLoading = false;
+    },
+
+    setNextConversations(state, action) {
+      state.nextConversations = action.payload;
+    },
+
+    getMoreConversationsSuccess(state, action) {
+      const newConversations = [...state.conversations, ...action.payload];
+      state.conversations = newConversations;
+      state.isLoading = false;
+    },
+
+    pushConversationToTop(state, action) {
+      let newConversations = state.conversations.filter((item) => item.id !== action.payload.id);
+      newConversations = [action.payload, ...newConversations];
+      state.conversations = newConversations;
     },
 
     // GET CONVERSATION
@@ -130,7 +148,7 @@ const slice = createSlice({
 export default slice.reducer;
 
 // Actions
-export const { addRecipients, onSendMessage, resetActiveConversation } = slice.actions;
+export const { addRecipients, onSendMessage, resetActiveConversation, pushConversationToTop } = slice.actions;
 
 // ----------------------------------------------------------------------
 
@@ -154,10 +172,35 @@ export function getConversations() {
     try {
       const response = await axios.get('/market/chatrooms/');
       dispatch(slice.actions.getConversationsSuccess(response.data.results));
+      if (response.data.next) {
+        dispatch(slice.actions.setNextConversations(response.data.next));
+      }
+      else {
+        dispatch(slice.actions.setNextConversations(''));
+      }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
+}
+
+export function getNextConversations(url) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(url);
+      dispatch(slice.actions.getMoreConversationsSuccess(response.data.results));
+      if (response.data.next) {
+        dispatch(slice.actions.setNextConversations(response.data.next));
+      }
+      else {
+        dispatch(slice.actions.setNextConversations(''));
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 // ----------------------------------------------------------------------

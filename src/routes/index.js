@@ -68,7 +68,7 @@ export default function Router() {
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         // { path: 'app', element: <GeneralApp /> },
-        { path: 'ecommerce', element: <GeneralEcommerce /> },
+        { path: 'ecommerce', element: (<RoleBasedGuard hasContent roles={["business"]}><GeneralEcommerce /></RoleBasedGuard>) },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
         // { path: 'booking', element: <GeneralBooking /> },
@@ -90,7 +90,7 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/user/profile" replace />, index: true },
             { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
+            // { path: 'cards', element: <UserCards /> },
             // { path: 'list', element: <UserList /> },
             // { path: 'new', element: <UserCreate /> },
             // { path: ':id/edit', element: <UserCreate /> },
@@ -130,9 +130,9 @@ export default function Router() {
         {
           path: 'chat',
           children: [
-            { element: <Chat />, index: true },
-            { path: 'new', element: <Chat /> },
-            { path: ':id', element: <Chat /> },
+            { element: (<AuthGuard><Chat /></AuthGuard>), index: true },
+            { path: 'new', element: (<AuthGuard><Chat /></AuthGuard>)},
+            { path: ':id', element: (<AuthGuard><Chat /></AuthGuard>) },
           ],
         },
         // { path: 'calendar', element: <Calendar /> },

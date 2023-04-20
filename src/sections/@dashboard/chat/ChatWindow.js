@@ -1,7 +1,16 @@
-import { useEffect, useState, useContext, useRef } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { 
+  useEffect, 
+  useState, 
+  useContext, 
+  // useRef 
+} from 'react';
+import { 
+  // useNavigate, 
+  useParams, 
+  useLocation 
+} from 'react-router-dom';
 // @mui
-import { Box, Divider, Stack } from '@mui/material';
+import { Box, Divider, Stack, Typography } from '@mui/material';
 // Context
 import WebSocketContext from '../../../contexts/WebSocketContext';
 // hooks
@@ -9,23 +18,23 @@ import useAuth from '../../../hooks/useAuth';
 // utils
 import axiosInstance from '../../../utils/axios';
 // redux
-import { useDispatch, useSelector } from '../../../redux/store';
-import {
+// import { useDispatch, useSelector } from '../../../redux/store';
+// import {
   // addRecipients,
-  onSendMessage,
+  // onSendMessage,
   // getConversation,
   // getParticipants,
   // markConversationAsRead,
   // resetActiveConversation,
-} from '../../../redux/slices/chat';
+// } from '../../../redux/slices/chat';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
-import ChatRoom from './ChatRoom';
+// import ChatRoom from './ChatRoom';
 import ChatMessageList from './ChatMessageList';
 import ChatHeaderDetail from './ChatHeaderDetail';
 import ChatMessageInput from './ChatMessageInput';
-import ChatHeaderCompose from './ChatHeaderCompose';
+// import ChatHeaderCompose from './ChatHeaderCompose';
 
 // ----------------------------------------------------------------------
 
@@ -48,7 +57,7 @@ import ChatHeaderCompose from './ChatHeaderCompose';
 export default function ChatWindow() {
   // const dispatch = useDispatch();
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { pathname } = useLocation();
 
@@ -104,7 +113,7 @@ export default function ChatWindow() {
   }, [id, user]);
 
   useEffect(() => {
-    if (Number(message.id) === Number(id)) {
+    if (message && Number(message.id) === Number(id)) {
       setMessages(state => ([...state, message.last_message]));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,8 +154,18 @@ export default function ChatWindow() {
         />
       )} */}
       {/* <ChatHeaderDetail participants={displayParticipants} /> */}
-      <ChatHeaderDetail roomInfo={roomInfo}/>
-      <Divider />
+      {id ? 
+        <div>
+          <ChatHeaderDetail roomInfo={roomInfo}/>
+          <Divider />
+        </div>
+        :
+        <Box sx={{p: 5}}>
+          <Typography textAlign="center">
+            Please choose conversation to view messages
+          </Typography>
+        </Box>
+      }
 
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>

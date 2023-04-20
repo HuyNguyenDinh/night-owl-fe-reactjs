@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 // @mui
 import { useTheme, styled } from '@mui/material/styles';
-import { Box, Stack, Drawer, IconButton } from '@mui/material';
+import { Box, Stack, Drawer, IconButton, Button } from '@mui/material';
 // redux
 import { useSelector } from '../../../redux/store';
+import { getNextConversations } from '../../../redux/slices/chat';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // utils
-import axios from '../../../utils/axios';
+// import axios from '../../../utils/axios';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
@@ -17,7 +18,7 @@ import Scrollbar from '../../../components/Scrollbar';
 //
 import ChatAccount from './ChatAccount';
 import ChatSearchResults from './ChatSearchResults';
-import ChatContactSearch from './ChatContactSearch';
+// import ChatContactSearch from './ChatContactSearch';
 import ChatConversationList from './ChatConversationList';
 
 // ----------------------------------------------------------------------
@@ -58,7 +59,7 @@ export default function ChatSidebar() {
 
   const [isSearchFocused, setSearchFocused] = useState(false);
 
-  const { conversations, activeConversationId } = useSelector((state) => state.chat);
+  const { conversations, nextConverstations, activeConversationId } = useSelector((state) => state.chat);
 
   const isDesktop = useResponsive('up', 'md');
 
@@ -92,31 +93,31 @@ export default function ChatSidebar() {
     setOpenSidebar((prev) => !prev);
   };
 
-  const handleClickAwaySearch = () => {
-    setSearchFocused(false);
-    setSearchQuery('');
-  };
+  // const handleClickAwaySearch = () => {
+  //   setSearchFocused(false);
+  //   setSearchQuery('');
+  // };
 
-  const handleChangeSearch = async (event) => {
-    try {
-      const { value } = event.target;
-      setSearchQuery(value);
-      if (value) {
-        const response = await axios.get('/market/chatrooms/', {
-          params: { query: value },
-        });
-        setSearchResults(response.data.results);
-      } else {
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const handleChangeSearch = async (event) => {
+  //   try {
+  //     const { value } = event.target;
+  //     setSearchQuery(value);
+  //     if (value) {
+  //       const response = await axios.get('/market/chatrooms/', {
+  //         params: { query: value },
+  //       });
+  //       setSearchResults(response.data.results);
+  //     } else {
+  //       setSearchResults([]);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-  const handleSearchFocus = () => {
-    setSearchFocused(true);
-  };
+  // const handleSearchFocus = () => {
+  //   setSearchFocused(true);
+  // };
 
   const handleSearchSelect = (id) => {
     setSearchFocused(false);
@@ -168,12 +169,21 @@ export default function ChatSidebar() {
 
       <Scrollbar>
         {!displayResults ? (
-          <ChatConversationList
-            conversations={conversations}
-            isOpenSidebar={openSidebar}
-            activeConversationId={activeConversationId}
-            sx={{ ...(isSearchFocused && { display: 'none' }) }}
-          />
+          <>
+            <ChatConversationList
+              conversations={conversations}
+              isOpenSidebar={openSidebar}
+              activeConversationId={activeConversationId}
+              sx={{ ...(isSearchFocused && { display: 'none' }) }}
+            />
+            {nextConverstations && 
+              <Box sx={{p: 2}} textAlign="center">
+                <Button onClick={() => getNextConversations(nextConverstations)}>
+                  View more
+                </Button>
+              </Box>
+            }
+          </>
         ) : (
           <ChatSearchResults query={searchQuery} results={searchResults} onSelectContact={handleSelectContact} />
         )}

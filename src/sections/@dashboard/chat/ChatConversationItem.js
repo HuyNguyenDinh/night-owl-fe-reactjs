@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
-import { useContext, useEffect, useState } from 'react';
+// import { useContext, useEffect, useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Avatar as MUIAvatar, ListItemText, ListItemAvatar, ListItemButton } from '@mui/material';
 // context
-import WebSocketContext from '../../../contexts/WebSocketContext';
+// import WebSocketContext from '../../../contexts/WebSocketContext';
+// hook
+import useAuth from '../../../hooks/useAuth';
 // utils
 import createAvatar from '../../../utils/createAvatar';
 //
@@ -32,18 +34,18 @@ const AvatarWrapperStyle = styled('div')({
 
 // ----------------------------------------------------------------------
 
-const getDetails = (conversation, currentUserId) => {
-  const otherParticipants = conversation.participants.filter((participant) => participant.id !== currentUserId);
-  const displayNames = otherParticipants.reduce((names, participant) => [...names, participant.name], []).join(', ');
-  let displayText = '';
-  const lastMessage = conversation.messages[conversation.messages.length - 1];
-  if (lastMessage) {
-    const sender = lastMessage.senderId === currentUserId ? 'You: ' : '';
-    const message = lastMessage.contentType === 'image' ? 'Sent a photo' : lastMessage.body;
-    displayText = `${sender}${message}`;
-  }
-  return { otherParticipants, displayNames, displayText };
-};
+// const getDetails = (conversation, currentUserId) => {
+//   const otherParticipants = conversation.participants.filter((participant) => participant.id !== currentUserId);
+//   const displayNames = otherParticipants.reduce((names, participant) => [...names, participant.name], []).join(', ');
+//   let displayText = '';
+//   const lastMessage = conversation.messages[conversation.messages.length - 1];
+//   if (lastMessage) {
+//     const sender = lastMessage.senderId === currentUserId ? 'You: ' : '';
+//     const message = lastMessage.contentType === 'image' ? 'Sent a photo' : lastMessage.body;
+//     displayText = `${sender}${message}`;
+//   }
+//   return { otherParticipants, displayNames, displayText };
+// };
 
 ChatConversationItem.propTypes = {
   isSelected: PropTypes.bool,
@@ -58,15 +60,58 @@ export default function ChatConversationItem({ isSelected, conversation, isOpenS
 
   const isGroup = conversation.room_type === 1;
 
-  const {message} = useContext(WebSocketContext);
+  const { user } = useAuth();
 
-  const [messageCover, setMessageCover] = useState(conversation.last_message.content);
+  // const {message} = useContext(WebSocketContext);
 
-  useEffect(() => {
-    if (Number(message.id === Number(conversation.id))) {
-      setMessageCover(message.last_message.content);
+  // const [messageCover, setMessageCover] = useState(conversation.last_message.content);
+
+  // useEffect(() => {
+  //   if (Number(message.id === Number(conversation.id))) {
+  //     setMessageCover(message.last_message.content);
+  //   }
+  // }, [message, conversation.id])
+
+  const renderCover = () => {
+    if (conversation.type && conversation.type === "chat_message") {
+      if (conversation.last_message.creator.id === user?.id) {
+        if (conversation.room_avatar) {
+          return (<MUIAvatar alt={conversation.room_name} src={conversation.room_avatar} />)
+        }
+        return (
+          <Avatar alt={conversation.room_name} color={createAvatar(conversation.room_name).color}>
+            {createAvatar(conversation.room_name).name}
+          </Avatar>
+        )
+      }
+      if (conversation.another_room_avatar) {
+        return (<MUIAvatar alt={conversation.another_room_name} src={conversation.another_room_avatar} />)
+      }
+      return (
+        <Avatar alt={conversation.another_room_name} color={createAvatar(conversation.another_room_name).color}>
+        {createAvatar(conversation.another_room_name).name}
+      </Avatar>
+      )
     }
-  }, [message, conversation.id])
+    if (conversation.room_avatar) {
+      return (<MUIAvatar alt={conversation.room_name} src={conversation.room_avatar} />)
+    }
+    return (
+      <Avatar alt={conversation.room_name} color={createAvatar(conversation.room_name).color}>
+        {createAvatar(conversation.room_name).name}
+      </Avatar>
+    )
+  }
+
+  const getRoomName = () => {
+    if (conversation.type && conversation.type === "chat_message") {
+      if (conversation.last_message.creator.id === user?.id) {
+        return conversation.room_name
+      }
+      return conversation.another_room_name
+    }
+    return conversation.room_name
+  }
 
   return (
     <RootStyle
@@ -109,13 +154,8 @@ export default function ChatConversationItem({ isSelected, conversation, isOpenS
           ))}
           {!isGroup && 
             <AvatarWrapperStyle className="avatarWrapper">
-              {conversation.room_avatar ?
-               <MUIAvatar alt={conversation.room_name} src={conversation.room_avatar} />
-               :
-               <Avatar alt={conversation.room_name} color={createAvatar(conversation.room_name).color}>
-                {createAvatar(conversation.room_name).room_name}
-               </Avatar>
-              }
+              {renderCover()}
+
               {/* {!isGroup && (
                 <BadgeStatus status="online" sx={{ right: 2, bottom: 2, position: 'absolute' }} />
               )} */}
@@ -143,12 +183,13 @@ export default function ChatConversationItem({ isSelected, conversation, isOpenS
       {isOpenSidebar && (
         <>
           <ListItemText
-            primary={conversation.room_name}
+            primary={getRoomName()}
             primaryTypographyProps={{
               noWrap: true,
               variant: 'subtitle2',
             }}
-            secondary={messageCover}
+            // secondary={messageCover}
+            secondary={conversation.last_message.content}
             secondaryTypographyProps={{
               noWrap: true,
               variant: 'body2',

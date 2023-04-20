@@ -8,7 +8,7 @@ export const WebSocketProvider = ({ children }) => {
 
     const {user} = useAuth();
 
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState();
 
     const [ws, setWs] = useState();
     useEffect(() => {
