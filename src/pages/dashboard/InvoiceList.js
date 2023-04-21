@@ -307,7 +307,7 @@ export default function InvoiceList() {
         <HeaderBreadcrumbs
           heading="Selling Order List"
           links={[
-            { name: 'Home', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.home },
             { name: 'Manage Orders', href: PATH_DASHBOARD.invoice.root },
             // { name: 'List' },
           ]}

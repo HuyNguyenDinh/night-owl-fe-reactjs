@@ -33,7 +33,7 @@ export default function Chat() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading="Chat"
-          links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Chat' }]}
+          links={[{ name: 'Home', href: PATH_DASHBOARD.home }, { name: 'Chat' }]}
         />
         <Card sx={{ height: '72vh', display: 'flex' }}>
           <ChatSidebar />

@@ -117,7 +117,7 @@ export default function EcommerceProductCreate() {
         <HeaderBreadcrumbs
           heading={!isEdit ? 'Create a new product' : 'Edit product'}
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.home },
             {
               name: 'E-Commerce',
               href: PATH_DASHBOARD.eCommerce.root,

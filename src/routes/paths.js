@@ -49,6 +49,7 @@ export const PATH_DASHBOARD = {
     banking: path(ROOTS_DASHBOARD, '/banking'),
     booking: path(ROOTS_DASHBOARD, '/booking'),
   },
+  home: path(ROOTS_DASHBOARD, '/home'),
   // mail: {
   //   root: path(ROOTS_DASHBOARD, '/mail'),
   //   all: path(ROOTS_DASHBOARD, '/mail/all'),

@@ -141,7 +141,7 @@ export default function EcommerceCheckout() {
         <HeaderBreadcrumbs
           heading="Checkout"
           links={[
-            { name: 'Home', href: PATH_DASHBOARD.root },
+            { name: 'Home', href: PATH_DASHBOARD.home },
             {
               name: 'Shopping',
               href: PATH_DASHBOARD.eCommerce.root,

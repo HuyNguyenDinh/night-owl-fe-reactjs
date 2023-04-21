@@ -166,7 +166,7 @@ export default function EcommerceShop() {
           <HeaderBreadcrumbs
             heading="Shop"
             links={[
-              { name: 'Home', href: PATH_DASHBOARD.root },
+              { name: 'Home', href: PATH_DASHBOARD.home },
               {
                 name: 'Shopping',
                 href: PATH_DASHBOARD.eCommerce.root,
