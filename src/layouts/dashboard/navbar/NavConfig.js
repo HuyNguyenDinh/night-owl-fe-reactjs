@@ -40,11 +40,16 @@ const navConfig = [
   //   ],
   // },
 
-  // MANAGEMENT
-  // ----------------------------------------------------------------------
   {
     subheader: 'general',
     items: [
+      // HOME
+      {
+        title: 'Home',
+        path: PATH_DASHBOARD.home,
+        icon: ICONS.ecommerce
+      },
+
       // USER
       {
         title: 'user',
@@ -115,7 +120,7 @@ const navConfig = [
         title: 'selling',
         path: PATH_DASHBOARD.general.ecommerce,
         roles: ["business"],
-        icon: ICONS.ecommerce,
+        icon: ICONS.invoice,
         children: [
           { title: 'Manage products', roles: ["business"], path: PATH_DASHBOARD.eCommerce.list },
           { title: 'Manage Orders', roles: ["business"], path: PATH_DASHBOARD.invoice.list },

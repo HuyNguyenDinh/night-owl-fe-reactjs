@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 // mui
 import { alpha, styled } from '@mui/material/styles';
-import { Link as RouterLink } from 'react-router-dom';
-import {Grid, Container, Box, Typography, Card, CardHeader, CardContent, Stack, Link} from '@mui/material';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {Grid, Container, Box, Typography, Card, CardHeader, CardContent, Stack, Link, Button} from '@mui/material';
 // paths
 import { PATH_DASHBOARD } from '../../routes/paths';
 // utils
@@ -39,8 +39,10 @@ const PRODUCT_DESCRIPTION = [
     },
 ];
 
-const HeaderStyle = styled(CardHeader)(({ theme }) => ({
-    ...cssStyles().bgBlur({ blur: 90, color: theme.palette.primary.darker })
+const CardStyled = styled(Card)(({ theme }) => ({
+    ...cssStyles().bgBlur({ blur: 5, color: theme.palette.primary.darker }),
+    width: "100%",
+    height: "100%"
 }));
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
@@ -61,6 +63,8 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 export default function HomePage() {
     const {themeStretch} = useSettings();
 
+    const navigate = useNavigate();
+
     const [bestSellers, setBestSellers] = useState([]);
 
     const [availableVouchers, setAvailableVouchers] = useState([]);
@@ -69,7 +73,7 @@ export default function HomePage() {
         const getBestSellers = async () => {
             const response = await axiosInstance.get("/market/products/?has_option=1&ordering=-sold_amount");
             if (response.data.results) {
-                setBestSellers(response.data.results);
+                setBestSellers(response.data.results.slice(0, 10));
             }
         };
         const getAvailableVouchers = async () => {
@@ -100,55 +104,66 @@ export default function HomePage() {
                         </Grid>
                     }
                 </Grid>
-                
-                <Typography sx={{mt: 10}} variant='h5' color="primary">
+
+                <Typography marginTop={8} textAlign="center" variant='h5' color="primary">
                     Vouchers Available
                 </Typography>
-                {availableVouchers && availableVouchers.map((item) => (
-                    <Card key={item.id} sx={{my: 5}}>
-                        <HeaderStyle
-                            sx={{p: 1}}
-                            title={
-                                <Stack sx={{marginRight: 5}} color="common.white" direction="row" justifyContent="space-between">
-                                    <Typography marginLeft={4} variant='h6'>
-                                        {item.code}
-                                    </Typography>
-                                    {item.creator ? 
-                                        <Link to={PATH_DASHBOARD.user.profile.concat(`?id=${item.creator.id}`)} component={RouterLink}>
-                                            <Stack direction="row" spacing={4} alignItems="center">
-                                                <Typography variant='subtitle1' color="common.white">
-                                                    {[item.creator.first_name, item.creator.last_name].join(" ")}
-                                                </Typography>
-                                                <Image 
-                                                    src={item.creator.avatar ? item.creator.avatar : "https://res.cloudinary.com/dectbvmyx/image/upload/v1682042320/shop-default_obzfdd.avif"} 
-                                                    sx={{ height: { xs: 35, xl: 40 } }}    
-                                                />
-                                            </Stack>
-                                        </Link>
-                                        :
-                                        <Stack direction="row" spacing={4} alignItems="center">
-                                            <Typography variant='subtitle1'>
-                                                Night Owl Market
-                                            </Typography>
-                                            <Image 
-                                                src="https://res.cloudinary.com/dectbvmyx/image/upload/v1680423408/NOM-Logo_512_512_px_l0djyn.png"
-                                                sx={{ height: { xs: 35, xl: 40 } }}    
-                                            />
-                                        </Stack>
-                                    }
-                                </Stack>
-                            }
-                        />
-                        <CardContent sx={{mx: 4, marginBottom: 4}}>
-                            {/* <Grid container sx={{p: 3}}>
-                                <Grid item>
-                                    a
-                                </Grid>
-                            </Grid> */}
-                            <ShopProductList products={item.apply_products} />
-                        </CardContent>
-                    </Card>
-                ))}
+                <Card sx={{my: 2}}>
+                    <CardContent>
+                        {availableVouchers && availableVouchers.map((item) => (
+                            <Card key={item.id} sx={{marginBottom: 2}}>
+                                <CardContent>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={2}>
+                                            <CardStyled>
+                                                <Stack direction="column" spacing={10} justifyContent="space-between">
+                                                    <Typography sx={{p: 1, paddingTop: 4}} textAlign="center" color="common.white" variant='subtitle2'>
+                                                        "{item.code}"
+                                                    </Typography>
+                                                    {item.creator ? 
+                                                        <Link sx={{margin: "auto"}} to={PATH_DASHBOARD.user.profile.concat(`?id=${item.creator.id}`)} component={RouterLink}>
+                                                            <Stack spacing={2} alignItems="center" justifyContent="center">
+                                                                <Image 
+                                                                    src={item.creator.avatar ? item.creator.avatar : "https://res.cloudinary.com/dectbvmyx/image/upload/v1682042320/shop-default_obzfdd.avif"} 
+                                                                    sx={{ height: { xs: 70, xl: 80 } }}    
+                                                                />
+                                                                <Typography color="common.white" variant='body2' textAlign="center">
+                                                                    {[item.creator.first_name, item.creator.last_name].join(" ")}
+                                                                </Typography>
+                                                            </Stack>
+                                                        </Link>
+                                                        :
+                                                        <Stack spacing={2} alignItems="center" justifyContent="center">
+                                                            <Image 
+                                                                src="https://res.cloudinary.com/dectbvmyx/image/upload/v1680423408/NOM-Logo_512_512_px_l0djyn.png"
+                                                                sx={{ height: { xs: 70, xl: 80 } }}    
+                                                            />
+                                                            <Typography color="common.white" variant='body2' textAlign="center">
+                                                                Night Owl Market
+                                                            </Typography>
+                                                        </Stack>
+                                                    }
+                                                </Stack>
+                                            </CardStyled>
+                                        </Grid>
+                                    
+                                        <Grid item xs={10}>
+                                            <ShopProductList products={item.apply_products} />
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </CardContent>
+                </Card>
+
+                
+                <Box sx={{my: 5}} display="flex" justifyContent="center">
+                    <Button size="large" variant='contained' onClick={() => navigate(PATH_DASHBOARD.eCommerce.shop)}>
+                        Shopping now
+                    </Button>
+                </Box>
+
                 <Grid container sx={{ my: 8 }}>
                     {PRODUCT_DESCRIPTION.map((item) => (
                         <Grid item xs={12} md={4} key={item.title}>

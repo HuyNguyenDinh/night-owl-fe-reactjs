@@ -9,21 +9,21 @@ import { fCurrency } from '../../../../utils/formatNumber';
 EcommerceCurrentBalance.propTypes = {
   title: PropTypes.string,
   currentBalance: PropTypes.number,
-  sentAmount: PropTypes.number,
+  // sentAmount: PropTypes.number,
   sx: PropTypes.any,
 };
 
-export default function EcommerceCurrentBalance({ title, sentAmount, currentBalance, sx, ...other }) {
-  const totalAmount = currentBalance - sentAmount;
+export default function EcommerceCurrentBalance({ title, currentBalance, sx, ...other }) {
+  // const totalAmount = currentBalance - sentAmount;
 
   return (
-    <Card sx={{ p: 3, ...sx }} {...other}>
+    <Card sx={{ p: 2.6, ...sx }} {...other}>
       <Typography variant="subtitle2" gutterBottom>
         {title}
       </Typography>
 
-      <Stack spacing={2}>
-        <Typography variant="h3">{fCurrency(totalAmount)}</Typography>
+      <Stack spacing={1}>
+        <Typography variant="subtitle1">{fCurrency(currentBalance)}</Typography>
 
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -32,7 +32,7 @@ export default function EcommerceCurrentBalance({ title, sentAmount, currentBala
           <Typography variant="body2">{fCurrency(currentBalance)}</Typography>
         </Stack>
 
-        <Stack direction="row" justifyContent="space-between">
+        {/* <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Sent Amount
           </Typography>
@@ -44,14 +44,14 @@ export default function EcommerceCurrentBalance({ title, sentAmount, currentBala
             Total Amount
           </Typography>
           <Typography variant="subtitle1">{fCurrency(totalAmount)}</Typography>
-        </Stack>
+        </Stack> */}
 
         <Stack direction="row" spacing={1.5}>
-          <Button fullWidth variant="contained" color="warning">
+          <Button fullWidth size='small' variant="contained" color="warning">
             Transfer
           </Button>
 
-          <Button fullWidth variant="contained">
+          <Button fullWidth size='small' variant="contained">
             Receive
           </Button>
         </Stack>

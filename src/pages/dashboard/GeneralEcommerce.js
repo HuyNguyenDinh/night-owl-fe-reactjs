@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Container, Grid, Button, CardHeader, Typography, Card, CardContent } from '@mui/material';
+import { Box, Container, Grid, Select, CardHeader, Typography, Card, CardContent, Stack, MenuItem, FormControl, InputLabel, Button } from '@mui/material';
 // utils
 // import { kFormat } from '../../utils/formatNumber';
 import axiosInstance from '../../utils/axios';
@@ -25,7 +25,7 @@ import {
   // EcommerceSaleByGender,
   EcommerceWidgetSummary,
   // EcommerceSalesOverview,
-  // EcommerceLatestProducts,
+  EcommerceLatestProducts,
   // EcommerceCurrentBalance,
 } from '../../sections/@dashboard/general/e-commerce';
 import { AppWelcome } from '../../sections/@dashboard/general/app';
@@ -41,11 +41,15 @@ export default function GeneralEcommerce() {
   ];
   const { user } = useAuth();
 
-  const now = new Date();
+  const [month, setMonth] = useState("s");
 
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState("");
 
-  const [year, setYear] = useState(now.getFullYear());
+  const [listYear, setListYear] = useState([]);
+
+  const [listMonth, setListMonth] = useState([]);
+
+  const [topBestSellers, setTopBestSellers] = useState([]);
 
   const monthRef = useRef();
 
@@ -55,19 +59,21 @@ export default function GeneralEcommerce() {
 
   const [yearly, setYearly] = useState();
 
+  const [monthlyProduct, setMonthlyProduct] = useState();
+
   const theme = useTheme();
 
   const { themeStretch } = useSettings();
 
-  const yearRange = () => {
-    let years = [];
-    let i = now.getFullYear();
-    while(i >= 1970) {
-      years = [...years, i];
-      i-=1;
-    }
-    return years;
-  }
+  // const yearRange = () => {
+  //   let years = [];
+  //   let i = now.getFullYear();
+  //   while(i >= 1970) {
+  //     years = [...years, i];
+  //     i-=1;
+  //   }
+  //   return years;
+  // }
 
   const calculatePercent = (listValue) => {
     let ref = 1;
@@ -75,36 +81,113 @@ export default function GeneralEcommerce() {
     if (listValue) {
       ref = listValue[0];
       for (let i = 0; i < listValue.length; i+=1) {
-        percent = listValue[i] / ref * 100;
+        percent = (listValue[i] - ref) / ref * 100;
         ref = listValue[i];
       }
     }
     return percent
   }
 
+  // useEffect(() => {
+  //   const initData = async () => {
+  //     try {
+  //       // orders
+  //       const monthlyResponse = await axiosInstance.get("/market/bills/monthly-value-statistic/", {
+  //         params: {month, year}
+  //       });
+  //       setMonthly(monthlyResponse.data);
+  //       const yearlyResponse = await axiosInstance.get("/market/bills/yearly-value-statistic/", {
+  //         params: {year}
+  //       });
+  //       setYearly(yearlyResponse.data);
+        
+  //       // products
+  //       const monthlyProductResponse = await axiosInstance.get("/market/products/products-statistic-count-in-month/", {
+  //         params: {month, year}
+  //       });
+  //       setMonthlyProduct(monthlyProductResponse.data);
+
+  //       const bestSellersResponse = await axiosInstance.get("/market/products/", {
+  //         params: {
+  //           ordering: "-sold_amount",
+  //           owner: user.id,
+  //           has_option: 1,
+  //         }
+  //       });
+  //       setTopBestSellers(bestSellersResponse.data.results.slice(0, 10));
+  //       monthRef.current = month;
+  //       yearRef.current = year;
+  //     }
+  //     catch(error) {
+  //       setMonth(monthRef.current);
+  //       setYear(yearRef.current);
+  //       console.error(error);
+  //     }
+  //   }
+  //   initData();
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [user, month, year]);
+
   useEffect(() => {
-    const initData = async () => {
+    const getAvailableYears = async () => {
+      const response = await axiosInstance.get("/market/bills/get-years/");
+      setListYear(response.data.years);
+      if (response.data.years) {
+        setYear(response.data.years[response.data.years.length - 1]);
+      };
+      const bestSellersResponse = await axiosInstance.get("/market/products/", {
+        params: {
+          ordering: "-sold_amount",
+          owner: user.id,
+          has_option: 1,
+        }
+      });
+      setTopBestSellers(bestSellersResponse.data.results.slice(0, 10));
+    }
+    if (user) {
+      getAvailableYears();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const getData = async () => {
       try {
-        const monthlyResponse = await axiosInstance.get("/market/bills/monthly-value-statistic/", {
-          params: {month, year}
-        });
-        setMonthly(monthlyResponse.data);
         const yearlyResponse = await axiosInstance.get("/market/bills/yearly-value-statistic/", {
           params: {year}
         });
         setYearly(yearlyResponse.data);
-        monthRef.current = month;
-        yearRef.current = year;
+        if (yearlyResponse.data.month) {
+          const temp = yearlyResponse.data.month.map((item) => item.order_date__month);
+          setListMonth(temp);
+          setMonth(temp[temp.length - 1]);
+        }
       }
-      catch(error) {
-        setMonth(monthRef.current);
-        setYear(yearRef.current);
-        console.error(error);
+      catch (error) {
+        console.log(error);
       }
+    };
+    if (year) {
+      getData();
     }
-    initData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, month, year])
+  }, [year]);
+
+  const onSubmit = async () => {
+    // orders
+    const monthlyResponse = await axiosInstance.get("/market/bills/monthly-value-statistic/", {
+      params: {month, year}
+    });
+    setMonthly(monthlyResponse.data);
+    const yearlyResponse = await axiosInstance.get("/market/bills/yearly-value-statistic/", {
+      params: {year}
+    });
+    setYearly(yearlyResponse.data);
+    
+    // products
+    const monthlyProductResponse = await axiosInstance.get("/market/products/products-statistic-count-in-month/", {
+      params: {month, year}
+    });
+    setMonthlyProduct(monthlyProductResponse.data);
+  }
 
   return (
     <Page title="General: E-commerce">
@@ -123,13 +206,37 @@ export default function GeneralEcommerce() {
                   }}
                 />
               }
-              // action={<Button variant="contained">Go Now</Button>}
             />
           </Grid>
-
-          {/* <Grid item xs={12} md={4}>
-            <EcommerceNewProducts list={_ecommerceNewProducts} />
-          </Grid> */}
+          <Grid item xs={12} md={12}>
+            <Stack direction="row" justifyContent="center" spacing={3} alignItems="center">
+              <FormControl>
+              <InputLabel id="month-select">Month</InputLabel>
+                <Select autoWidth id="month-select" label="Month" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+                  {listMonth && listMonth.map((item) => 
+                    <MenuItem key={item} value={Number(item)}>
+                      {monthNames[item-1]}
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+              <FormControl>
+              <InputLabel id="year-select">Year</InputLabel>
+                <Select autoWidth id="year-select" label="Year" value={year} onChange={(e) => setYear(e.target.value)}>
+                  {listYear && listYear.map((item) => 
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+              <Box height="100%">
+                <Button fullWidth size='large' variant='contained' onClick={onSubmit}>
+                  Statistic
+                </Button>
+              </Box>
+            </Stack>
+          </Grid>
 
           <Grid item xs={12} md={12}>
             <Card>
@@ -186,7 +293,7 @@ export default function GeneralEcommerce() {
                       label={year}
                       onChangeLabel={(event) => setYear(event.target.value)}
                       chartLabels={yearly?.month.map((item) => monthNames[item.order_date__month])}
-                      options={yearRange()}
+                      // options={yearRange()}
                       chartData={
                         {
                           label: year,
@@ -242,11 +349,48 @@ export default function GeneralEcommerce() {
                 { id: 'rank', label: 'Rank', align: 'right' },
               ]}
             />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <EcommerceLatestProducts title="Latest Products" list={_ecommerceLatestProducts} />
           </Grid> */}
+
+          <Grid item xs={12} md={6} lg={8}>
+            <Card sx={{p: 2}}>
+              <CardHeader title={<Typography variant='h3' color="primary">Products Statistic</Typography>} />
+              <CardContent>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={12} lg={12}>
+                    <EcommerceWidgetSummary
+                      title="Total amount in Month"
+                      percent={calculatePercent(monthlyProduct?.product_count_week.map((item) => item.total_product_count))}
+                      total={monthlyProduct?.total_product_count}
+                      chartColor={theme.palette.primary.main}
+                      chartData={monthlyProduct?.product_count_week.map((item) => item.total_product_count) || []}
+                      unit="week"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={12}>
+                    <EcommerceYearlySales
+                      title="Monthly Sales"
+                      options={yearly?.month.map((item) => monthNames[item.order_date__month-1])}
+                      label={monthNames[month-1]}
+                      onChangeLabel={(event) => setMonth(monthNames.indexOf(event.target.value) + 1)}
+                      chartLabels={monthly?.day.map((item) => String(item.order_date__day))}
+                      chartData={
+                        {
+                          label: monthNames[month-1],
+                          data: [
+                            { name: 'Total Amount', data: monthly?.day.map((item) => item.total_count) || []},
+                            { name: 'Total Value', data: monthly?.day.map((item) => item.total_value) || []},
+                          ],
+                        }
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6} lg={4}>
+            <EcommerceLatestProducts title="Top 10 Best Sellers" list={topBestSellers} />
+          </Grid> 
         </Grid>
       </Container>
     </Page>
