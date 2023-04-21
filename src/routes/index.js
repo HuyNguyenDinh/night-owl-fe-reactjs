@@ -12,6 +12,7 @@ import RoleBasedGuard from '../guards/RoleBasedGuard';
 import { PATH_AFTER_LOGIN } from '../config';
 // components
 import LoadingScreen from '../components/LoadingScreen';
+import HomePage from '../pages/dashboard/Home';
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +68,7 @@ export default function Router() {
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
+        { path: 'home', element: <HomePage />},
         // { path: 'app', element: <GeneralApp /> },
         { path: 'ecommerce', element: (<RoleBasedGuard hasContent roles={["business"]}><GeneralEcommerce /></RoleBasedGuard>) },
         // { path: 'analytics', element: <GeneralAnalytics /> },

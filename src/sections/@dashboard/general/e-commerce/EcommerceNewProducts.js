@@ -1,8 +1,11 @@
 import PropTypes from 'prop-types';
 import Slider from 'react-slick';
+import { useNavigate } from 'react-router-dom';
 // @mui
 import { alpha, useTheme, styled } from '@mui/material/styles';
 import { Box, Card, Button, CardContent, Typography } from '@mui/material';
+// paths
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // components
 import Image from '../../../../components/Image';
@@ -55,13 +58,16 @@ export default function EcommerceNewProducts({ list, ...other }) {
 
 CarouselItem.propTypes = {
   item: PropTypes.shape({
-    image: PropTypes.string,
+    picture: PropTypes.string,
     name: PropTypes.string,
+    id: PropTypes.any,
   }),
 };
 
 function CarouselItem({ item }) {
-  const { image, name } = item;
+  const { picture, name, id } = item;
+
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -76,17 +82,17 @@ function CarouselItem({ item }) {
         }}
       >
         <Typography variant="overline" sx={{ opacity: 0.48 }}>
-          New
+          Best Seller
         </Typography>
 
         <Typography noWrap variant="h5" sx={{ mt: 1, mb: 3 }}>
           {name}
         </Typography>
 
-        <Button variant="contained">Buy Now</Button>
+        <Button onClick={() => navigate(PATH_DASHBOARD.eCommerce.view(id))} variant="contained">Buy Now</Button>
       </CardContent>
       <OverlayStyle />
-      <Image alt={name} src={image} sx={{ height: { xs: 280, xl: 320 } }} />
+      <Image alt={name} src={picture} sx={{ height: { xs: 280, xl: 320 } }} />
     </Box>
   );
 }
