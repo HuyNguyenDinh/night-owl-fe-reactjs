@@ -119,8 +119,8 @@ export default function EcommerceProductCreate() {
           links={[
             { name: 'Home', href: PATH_DASHBOARD.home },
             {
-              name: 'E-Commerce',
-              href: PATH_DASHBOARD.eCommerce.root,
+              name: 'Products',
+              href: PATH_DASHBOARD.eCommerce.list,
             },
             { 
               name: !isEdit ? 'New product' : currentProduct?.name, 

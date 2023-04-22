@@ -14,6 +14,8 @@ import useSettings from '../../hooks/useSettings';
 import Page from '../../components/Page';
 import Image from '../../components/Image';
 import Iconify from '../../components/Iconify';
+import Scrollbar from '../../components/Scrollbar';
+import { SkeletonProductItem } from '../../components/skeleton';
 // sections
 import { ShopProductList } from '../../sections/@dashboard/e-commerce/shop';
 import {EcommerceNewProducts} from '../../sections/@dashboard/general/e-commerce';
@@ -69,6 +71,8 @@ export default function HomePage() {
 
     const [availableVouchers, setAvailableVouchers] = useState([]);
 
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const getBestSellers = async () => {
             const response = await axiosInstance.get("/market/products/?has_option=1&ordering=-sold_amount");
@@ -77,9 +81,14 @@ export default function HomePage() {
             }
         };
         const getAvailableVouchers = async () => {
-            const response = await axiosInstance.get("/market/voucher/");
+            const response = await axiosInstance.get("/market/voucher/available/");
             if (response.data.results) {
-                setAvailableVouchers(response.data.results);
+                const transform = response.data.results.map((item) => {
+                    const tempProducts = item.apply_products.slice(0, 4);
+                    return {...item, apply_products: tempProducts};
+                });
+                setAvailableVouchers(transform);
+                setLoading(false);
             }
         }
         getBestSellers();
@@ -110,50 +119,54 @@ export default function HomePage() {
                 </Typography>
                 <Card sx={{my: 2}}>
                     <CardContent>
-                        {availableVouchers && availableVouchers.map((item) => (
-                            <Card key={item.id} sx={{marginBottom: 2}}>
-                                <CardContent>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={2}>
-                                            <CardStyled>
-                                                <Stack direction="column" spacing={10} justifyContent="space-between">
-                                                    <Typography sx={{p: 1, paddingTop: 4}} textAlign="center" color="common.white" variant='subtitle2'>
-                                                        "{item.code}"
-                                                    </Typography>
-                                                    {item.creator ? 
-                                                        <Link sx={{margin: "auto"}} to={PATH_DASHBOARD.user.profile.concat(`?id=${item.creator.id}`)} component={RouterLink}>
-                                                            <Stack spacing={2} alignItems="center" justifyContent="center">
-                                                                <Image 
-                                                                    src={item.creator.avatar ? item.creator.avatar : "https://res.cloudinary.com/dectbvmyx/image/upload/v1682042320/shop-default_obzfdd.avif"} 
-                                                                    sx={{ height: { xs: 70, xl: 80 } }}    
-                                                                />
-                                                                <Typography color="common.white" variant='body2' textAlign="center">
-                                                                    {[item.creator.first_name, item.creator.last_name].join(" ")}
-                                                                </Typography>
-                                                            </Stack>
-                                                        </Link>
-                                                        :
+                    {availableVouchers && availableVouchers.length > 0 ? availableVouchers.map((item) => (
+                        <Card key={item.id} sx={{marginBottom: 2}}>
+                            <CardContent>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={2}>
+                                        <CardStyled>
+                                            <Stack direction="column" spacing={6} justifyContent="space-between">
+                                                <Typography sx={{p: 1, paddingTop: 4, fontSize: 12}} textAlign="center" color="common.white" variant='subtitle2'>
+                                                    "{item.code}"
+                                                </Typography>
+                                                {item.creator ? 
+                                                    <Link sx={{margin: "auto"}} to={PATH_DASHBOARD.user.profile.concat(`?id=${item.creator.id}`)} component={RouterLink}>
                                                         <Stack spacing={2} alignItems="center" justifyContent="center">
                                                             <Image 
-                                                                src="https://res.cloudinary.com/dectbvmyx/image/upload/v1680423408/NOM-Logo_512_512_px_l0djyn.png"
+                                                                src={item.creator.avatar ? item.creator.avatar : "https://res.cloudinary.com/dectbvmyx/image/upload/v1682042320/shop-default_obzfdd.avif"} 
                                                                 sx={{ height: { xs: 70, xl: 80 } }}    
                                                             />
-                                                            <Typography color="common.white" variant='body2' textAlign="center">
-                                                                Night Owl Market
+                                                            <Typography sx={{fontSize: 12}} color="common.white" variant='subtite2' textAlign="center">
+                                                                {[item.creator.first_name, item.creator.last_name].join(" ")}
                                                             </Typography>
                                                         </Stack>
-                                                    }
-                                                </Stack>
-                                            </CardStyled>
-                                        </Grid>
-                                    
-                                        <Grid item xs={10}>
-                                            <ShopProductList products={item.apply_products} />
-                                        </Grid>
+                                                    </Link>
+                                                    :
+                                                    <Stack spacing={2} alignItems="center" justifyContent="center">
+                                                        <Image 
+                                                            src="https://res.cloudinary.com/dectbvmyx/image/upload/v1680423408/NOM-Logo_512_512_px_l0djyn.png"
+                                                            sx={{ height: { xs: 70, xl: 80 } }}    
+                                                        />
+                                                        <Typography sx={{fontSize: 12}} color="common.white" variant='subtite2' textAlign="center">
+                                                            Night Owl Market
+                                                        </Typography>
+                                                    </Stack>
+                                                }
+                                            </Stack>
+                                        </CardStyled>
                                     </Grid>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                
+                                    <Grid item xs={10}>
+                                        <Scrollbar>
+                                            <ShopProductList loading={loading} products={item.apply_products} />
+                                        </Scrollbar>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>))
+                        :
+                        <ShopProductList loading={loading} products={[]} />
+                    }
                     </CardContent>
                 </Card>
 

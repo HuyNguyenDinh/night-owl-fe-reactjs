@@ -63,33 +63,22 @@ export default function ShopProductCard({ product }) {
       </Box>
       </Link>
       
-      <Stack spacing={2} sx={{ p: 1.2 }}>
+      <Stack spacing={2} sx={{ p: 1 }}>
         <Link to={linkTo} color="inherit" component={RouterLink}>
-          <Typography variant="subtitle1" noWrap>
+          <Typography variant="subtitle2" noWrap>
             {name}
           </Typography>
         </Link>
 
-        <Stack direction="row" spacing={0.6} justifyContent="flex-start" alignItems="center">
-          <Rating size='small' value={product.avg_rating} precision={0.1} readOnly />
-          <Divider flexItem orientation="vertical" />
-          <Typography variant='body2' color="default">
+        <Stack direction="row" spacing={0.4} justifyContent="flex-start" alignItems="center">
+          <Rating size='small' precision={0.1} value={product.avg_rating} readOnly />
+        </Stack>
+        {/* <Rating size='small' precision={0.1} value={product.avg_rating} readOnly /> */}
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography color="primary" variant="subtitle2">{handleNumberToCurrency(product.min_price)} ₫</Typography>
+          <Typography sx={{fontSize: 10}} variant='body2' color="default">
             {product.sold_amount} sold
           </Typography>
-        </Stack>
-
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          {/* <ColorPreview colors={colors} /> */}
-
-          <Stack direction="row" spacing={0.5}>
-            {/* {priceSale && (
-              <Typography component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
-                {handleNumberToCurrency(priceSale)} ₫
-              </Typography>
-            )} */}
-
-            <Typography color="primary" variant="h5">{handleNumberToCurrency(product.min_price)} ₫</Typography>
-          </Stack>
         </Stack>
       </Stack>
     </Card>

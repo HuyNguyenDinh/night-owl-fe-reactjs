@@ -124,6 +124,7 @@ const navConfig = [
         children: [
           { title: 'Manage products', roles: ["business"], path: PATH_DASHBOARD.eCommerce.list },
           { title: 'Manage Orders', roles: ["business"], path: PATH_DASHBOARD.invoice.list },
+          { title: 'Manage Vouchers', roles: ["business"], path: PATH_DASHBOARD.eCommerce.voucherList },
           { title: 'Analytic', roles: ["business"], path: PATH_DASHBOARD.general.ecommerce },
         ]
       }

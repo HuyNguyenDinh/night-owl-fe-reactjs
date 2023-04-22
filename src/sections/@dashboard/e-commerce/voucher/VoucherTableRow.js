@@ -16,18 +16,17 @@ import { TableMoreMenu } from '../../../../components/table';
 
 // ----------------------------------------------------------------------
 
-ProductTableRow.propTypes = {
+VoucherTableRow.propTypes = {
   row: PropTypes.object,
   selected: PropTypes.bool,
   onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
 };
 
-export default function ProductTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function VoucherTableRow({ row, selected, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { name, picture } = row;
+  const { code } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -41,30 +40,26 @@ export default function ProductTableRow({ row, selected, onEditRow, onSelectRow,
 
   return (
     <TableRow hover selected={selected}>
-      {/* <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell> */}
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Image disabledEffect alt={name} src={picture} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
-        <Typography variant="subtitle2">
-          {name}
+        <Typography color="primary" variant="subtitle2">
+          {code}
         </Typography>
       </TableCell>
 
-      <TableCell align="center">{row.sold_amount}</TableCell>
-
+      <TableCell align="center">{fDate(row.start_date)}</TableCell>
+      <TableCell align="center">{row.end_date ? fDate(row.end_date) : "Always"}</TableCell>
+    
+      <TableCell align="center">{fCurrency(row.discount)}</TableCell>
       <TableCell align="center">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={ row.is_available ? "success" : "error" }
+          color={ row.is_percentage ? "success" : "info" }
           sx={{ textTransform: 'capitalize' }}
         >
-          {row.is_available ? "Available" : "Not available"}
+          {row.is_percentage ? "%" : "VND"}
         </Label>
       </TableCell>
-
-      <TableCell align="right">{fCurrency(row.min_price)}</TableCell>
 
       <TableCell align="right">
         <TableMoreMenu
@@ -90,7 +85,7 @@ export default function ProductTableRow({ row, selected, onEditRow, onSelectRow,
                 }}
               >
                 <Iconify icon={'eva:edit-fill'} />
-                Edit
+                Detail
               </MenuItem>
             </>
           }

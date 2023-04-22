@@ -209,7 +209,7 @@ export default function EcommerceShop() {
               </>
             )}
           </Stack>
-          <ShopProductList products={filteredProducts} loading={!products.length && isLoading} />
+          <ShopProductList products={filteredProducts} loading={isLoading} />
           <CartWidget />
           {nextProducts && <Button sx={{margin: "2vh auto", display: "flex"}} onClick={handleGetMoreProduct}>View more</Button>}
           

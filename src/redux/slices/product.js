@@ -51,40 +51,40 @@ const slice = createSlice({
 
     // GET PRODUCTS
     getProductsSuccess(state, action) {
-      state.isLoading = false;
       state.products = action.payload;
+      state.isLoading = false;
     },
 
     setNextProducts(state, action) {
-      state.isLoading = false;
       state.nextProducts = action.payload;
+      state.isLoading = false;
     },
 
     getMoreProducts(state, action) {
-      state.isLoading = false;
       state.products = [...state.products,...action.payload];
+      state.isLoading = false;
     },
 
     // GET PRODUCT
     getProductSuccess(state, action) {
-      state.isLoading = false;
       state.product = action.payload;
+      state.isLoading = false;
     },
 
     getMoreProductInfo(state, action) {
-      state.isLoading = false;
       state.product = {...state.product, ...action.payload};
+      state.isLoading = false;
     },
 
     setNextRatings(state, action) {
-      state.isLoading = false
       state.nextRatings = action.payload;
+      state.isLoading = false
     },
 
     getMoreRatings(state, action) {
-      state.isLoading = false;
       const ratings = [...state.product.ratings, ...action.payload];
       state.product = {...state.product, ratings};
+      state.isLoading = false;
     },
 
     //  SORT & FILTER PRODUCTS
@@ -121,7 +121,6 @@ const slice = createSlice({
     },
 
     updateOrders(state, action) {
-      state.isLoading = false;
       const orders = action.payload;
       state.checkout.orders = orders;
       const shipping = sum(orders.map((order) => Number(order.total_shipping_fee)))
@@ -130,6 +129,7 @@ const slice = createSlice({
       state.checkout.subtotal = subtotal;
       state.checkout.discount = 0;
       state.checkout.total = shipping + subtotal;
+      state.isLoading = false;
     },
 
     deleteCart(state, action) {

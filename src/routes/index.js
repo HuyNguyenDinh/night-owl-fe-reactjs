@@ -12,7 +12,6 @@ import RoleBasedGuard from '../guards/RoleBasedGuard';
 import { PATH_AFTER_LOGIN } from '../config';
 // components
 import LoadingScreen from '../components/LoadingScreen';
-import HomePage from '../pages/dashboard/Home';
 
 // ----------------------------------------------------------------------
 
@@ -85,7 +84,10 @@ export default function Router() {
             { path: 'product/new', element: (<RoleBasedGuard hasContent roles={["business"]}> <EcommerceProductCreate /> </RoleBasedGuard>)},
             { path: 'product/:id/edit', element: (<AuthGuard> <EcommerceProductCreate /> </AuthGuard>)},
             { path: 'checkout', element: (<AuthGuard><EcommerceCheckout /> </AuthGuard>)},
-          ],
+            { path: 'voucher/list', element: (<RoleBasedGuard hasContent roles={["business"]}> <EcommerceVoucherList /> </RoleBasedGuard>)},
+            { path: 'voucher/:id/edit', element: (<RoleBasedGuard hasContent roles={["business"]}> <EcommerceVoucherDetail /> </RoleBasedGuard>)},
+            { path: 'voucher/new', element: (<RoleBasedGuard hasContent roles={["business"]}> <EcommerceVoucherDetail /> </RoleBasedGuard>)},
+          ]
         },
         {
           path: 'user',
@@ -182,6 +184,7 @@ const VerifyCode = Loadable(lazy(() => import('../pages/auth/VerifyCode')));
 // DASHBOARD
 
 // GENERAL
+const HomePage = Loadable(lazy(() => import ('../pages/dashboard/Home')));
 // const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));
 const GeneralEcommerce = Loadable(lazy(() => import('../pages/dashboard/GeneralEcommerce')));
 // const GeneralAnalytics = Loadable(lazy(() => import('../pages/dashboard/GeneralAnalytics')));
@@ -194,6 +197,8 @@ const EcommerceProductDetails = Loadable(lazy(() => import('../pages/dashboard/E
 const EcommerceProductList = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductList')));
 const EcommerceProductCreate = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductCreate')));
 const EcommerceCheckout = Loadable(lazy(() => import('../pages/dashboard/EcommerceCheckout')));
+const EcommerceVoucherList = Loadable(lazy(() => import ('../pages/dashboard/EcommerceVoucherList')));
+const EcommerceVoucherDetail = Loadable(lazy(() => import('../pages/dashboard/EcommerceVoucherDetail')));
 
 // INVOICE
 const InvoiceList = Loadable(lazy(() => import('../pages/dashboard/InvoiceList')));

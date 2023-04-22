@@ -8,14 +8,18 @@ import {
   Table,
   Button,
   Switch,
-  Tooltip,
+  // Tooltip,
   TableBody,
   Container,
-  IconButton,
+  // IconButton,
   TableContainer,
-  TablePagination,
+  // TablePagination,
   FormControlLabel,
+  Stack,
+  IconButton
 } from '@mui/material';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // utils
 import axiosInstance from '../../utils/axios';
 // routes
@@ -32,9 +36,9 @@ import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import {
   TableNoData,
   TableSkeleton,
-  TableEmptyRows,
+  // TableEmptyRows,
   TableHeadCustom,
-  TableSelectedActions,
+  // TableSelectedActions,
 } from '../../components/table';
 // sections
 import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/e-commerce/product-list';
@@ -42,11 +46,11 @@ import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Product', align: 'left', width: 300 },
-  { id: 'soldAmount', label: 'Sold amount', align: 'center', width: 100 },
+  { id: 'name', label: 'Product', align: 'left', width: 240 },
+  { id: 'soldAmount', label: 'Sold', align: 'center', width: 40 },
   { id: 'isAvailable', label: 'Available', align: 'center', width: 40 },
-  { id: 'price', label: 'Price', align: 'right', width: 80 },
-  { id: '', width: 40 },
+  { id: 'price', label: 'Price', align: 'right', width: 40 },
+  { id: '', width: 10 },
 ];
 
 // ----------------------------------------------------------------------
@@ -54,21 +58,21 @@ const TABLE_HEAD = [
 export default function EcommerceProductList() {
   const {
     dense,
-    page,
-    order,
-    orderBy,
-    rowsPerPage,
-    setPage,
+    // page,
+    // order,
+    // orderBy,
+    // rowsPerPage,
+    // setPage,
     //
-    selected,
-    setSelected,
-    onSelectRow,
-    onSelectAllRows,
+    // selected,
+    // setSelected,
+    // onSelectRow,
+    // onSelectAllRows,
     //
-    onSort,
+    // onSort,
     onChangeDense,
-    onChangePage,
-    onChangeRowsPerPage,
+    // onChangePage,
+    // onChangeRowsPerPage,
   } = useTable({
     defaultOrderBy: 'createdAt',
   });
@@ -83,36 +87,66 @@ export default function EcommerceProductList() {
 
   const [tableData, setTableData] = useState([]);
 
-  const [filterName, setFilterName] = useState('');
+  const [prev, setPrev] = useState('');
+
+  const [next, setNext] = useState('');
+
+  // const [filterName, setFilterName] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const setData = (payload) => {
+    setOwnProducts(payload.results);
+    if (payload.next) {
+      setNext(payload.next);
+    }
+    else {
+      setNext('');
+    }
+    if (payload.previous) {
+      setPrev(payload.previous);
+    }
+    else {
+      setPrev('');
+    }
+  };
+
+  const onPreviousPage = async () => {
+    const response = await axiosInstance.get(prev);
+    setData(response.data);
+  };
+
+  const onNextPage = async () => {
+    const response = await axiosInstance.get(next);
+    setData(response.data);
+  }
 
   useEffect(() => {
     const getOwnProducts = async () => {
       const response = await axiosInstance.get(`/market/products/?owner=${user?.id}`);
-      setOwnProducts(response.data.results);
+      setData(response.data);
     }
     getOwnProducts();
   }, [user?.id])
 
   useEffect(() => {
-    if (ownProducts.length) {
+    if (ownProducts && ownProducts.length) {
       setTableData(ownProducts);
     }
     setIsLoading(false);
   }, [ownProducts]);
 
-  const handleFilterName = (filterName) => {
-    setFilterName(filterName);
-    setPage(0);
-  };
+  // const handleFilterName = (filterName) => {
+  //   setFilterName(filterName);
+  //   setPage(0);
+  // };
 
   const handleDeleteRow = (id) => {
     const deleteProduct = async () => {
       try {
         await axiosInstance.delete(`/market/products/${id}/`);
         const deleteRow = tableData.filter((row) => row.id !== id);
-        setSelected([]);
+        // setSelected([]);
         setTableData(deleteRow);
       }
       catch(error) {
@@ -122,21 +156,21 @@ export default function EcommerceProductList() {
     deleteProduct();
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
-  };
+  // const handleDeleteRows = (selected) => {
+  //   const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  //   setSelected([]);
+  //   setTableData(deleteRows);
+  // };
 
   const handleEditRow = (id) => {
     navigate(PATH_DASHBOARD.eCommerce.edit(id));
   };
 
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-  });
+  // const dataFiltered = applySortFilter({
+  //   tableData,
+  //   comparator: getComparator(order, orderBy),
+  //   filterName,
+  // });
 
   const denseHeight = dense ? 60 : 80;
 
@@ -169,11 +203,11 @@ export default function EcommerceProductList() {
         />
 
         <Card>
-          <ProductTableToolbar filterName={filterName} onFilterName={handleFilterName} />
+          {/* <ProductTableToolbar filterName={filterName} onFilterName={handleFilterName} /> */}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 960, position: 'relative' }}>
-              {selected.length > 0 && (
+              {/* {selected.length > 0 && (
                 <TableSelectedActions
                   dense={dense}
                   numSelected={selected.length}
@@ -192,42 +226,42 @@ export default function EcommerceProductList() {
                     </Tooltip>
                   }
                 />
-              )}
+              )} */}
 
               <Table size={dense ? 'small' : 'medium'}>
                 <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
+                  // order={order}
+                  // orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
+                  // numSelected={selected.length}
+                  // onSort={onSort}
+                  // onSelectAllRows={(checked) =>
+                  //   onSelectAllRows(
+                  //     checked,
+                  //     tableData.map((row) => row.id)
+                  //   )
+                  // }
                 />
 
                 <TableBody>
-                  {(isLoading ? [...Array(rowsPerPage)] : dataFiltered)
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, index) =>
-                      row ? (
-                        <ProductTableRow
-                          key={row.id}
-                          row={row}
-                          selected={selected.includes(row.id)}
-                          onSelectRow={() => onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.id)}
-                        />
-                      ) : (
-                        // !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
-                        <TableSkeleton key={index} sx={{ height: denseHeight }} />
-                      )
-                    )}
+                  {/* {(isLoading ? [...Array(rowsPerPage)] : dataFiltered)
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
+                  {tableData && tableData.map((row, index) =>
+                    row ? (
+                      <ProductTableRow
+                        key={row.id}
+                        row={row}
+                        // selected={selected.includes(row.id)}
+                        // onSelectRow={() => onSelectRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onEditRow={() => handleEditRow(row.id)}
+                      />
+                    ) : (
+                      // !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
+                      <TableSkeleton key={index} sx={{ height: denseHeight }} />
+                    ))
+                  }
                   { isNotFound && (
                     // <div>
                     //   <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
@@ -240,8 +274,8 @@ export default function EcommerceProductList() {
             </TableContainer>
           </Scrollbar>
 
-          <Box sx={{ position: 'relative' }}>
-            <TablePagination
+          <Box sx={{ position: 'relative', p: 2 }}>
+            {/* <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
               count={dataFiltered.length}
@@ -249,13 +283,20 @@ export default function EcommerceProductList() {
               page={page}
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
-            />
-
-            <FormControlLabel
-              control={<Switch checked={dense} onChange={onChangeDense} />}
-              label="Dense"
-              sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-            />
+            /> */}
+            <Stack direction="row" justifyContent="space-between">
+              <div>
+                <FormControlLabel
+                  control={<Switch checked={dense} onChange={onChangeDense} />}
+                  label="Dense"
+                  sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
+                />
+              </div>
+              <Stack direction="row">
+                <IconButton onClick={onPreviousPage} disabled={prev === ""}><ArrowBackIosNewIcon /></IconButton>
+                <IconButton onClick={onNextPage} disabled={next === ""}><ArrowForwardIosIcon /></IconButton>
+              </Stack>
+            </Stack>
           </Box>
         </Card>
       </Container>
@@ -265,20 +306,20 @@ export default function EcommerceProductList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
+// function applySortFilter({ tableData, comparator, filterName }) {
+//   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+//   stabilizedThis.sort((a, b) => {
+//     const order = comparator(a[0], b[0]);
+//     if (order !== 0) return order;
+//     return a[1] - b[1];
+//   });
 
-  tableData = stabilizedThis.map((el) => el[0]);
+//   tableData = stabilizedThis.map((el) => el[0]);
 
-  if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
-  }
+//   if (filterName) {
+//     tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+//   }
 
-  return tableData;
-}
+//   return tableData;
+// }
